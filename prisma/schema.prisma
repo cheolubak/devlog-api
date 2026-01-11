@@ -1,0 +1,39 @@
+generator client {
+  provider     = "prisma-client-js"
+  output       = "../src/database/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Posts {
+    id    String  @db.Uuid @id @default(uuid())
+    title   String  @db.VarChar(20)
+    content String  @db.Text
+    isDisplay   Boolean @default(false)
+    tags    String? @db.VarChar(100)
+    createdAt DateTime                @default(now())
+    updatedAt DateTime                @default(now())
+    postTags    PostTags[]
+}
+
+model Tags {
+    id  Int @id @default(autoincrement())
+    name    String  @db.VarChar(10)
+    count   Int
+    postTags    PostTags[]
+}
+
+model PostTags {
+    postId  String  @db.Uuid
+    tagId   Int
+    createdAt   DateTime    @default(now())
+      post   Posts @relation(fields: [postId], references: [id])
+    tag           Tags         @relation(fields: [tagId], references: [id])
+
+      @@id([postId, tagId])
+}
