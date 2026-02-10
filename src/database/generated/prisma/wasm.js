@@ -191,7 +191,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/dabot/Documents/developer/devlog-api/src/database/generated/prisma",
+      "value": "/Users/dabot/Documents/develop/devlog-api/src/database/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -206,7 +206,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/dabot/Documents/developer/devlog-api/prisma/schema.prisma",
+    "sourceFilePath": "/Users/dabot/Documents/develop/devlog-api/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -220,7 +220,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

@@ -15,9 +15,7 @@ export class PostsService {
       where.sourceId = sourceId;
     }
 
-    if (isDisplay !== undefined) {
-      where.isDisplay = isDisplay;
-    }
+    where.isDisplay = true;
 
     if (tag) {
       where.postTags = {
@@ -31,11 +29,13 @@ export class PostsService {
 
     const [posts, total] = await Promise.all([
       this.prisma.posts.findMany({
-        where,
-        take: limit,
-        skip: offset,
-        orderBy: { originalPublishedAt: 'desc' },
-        include: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          originalPublishedAt: true,
+          sourceUrl: true,
           source: {
             select: {
               id: true,
@@ -54,6 +54,10 @@ export class PostsService {
             },
           },
         },
+        where,
+        take: limit,
+        skip: offset,
+        orderBy: { originalPublishedAt: 'desc' },
       }),
       this.prisma.posts.count({ where }),
     ]);
