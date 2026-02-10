@@ -93,12 +93,34 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.BlogSourceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  url: 'url',
+  type: 'type',
+  isActive: 'isActive',
+  lastFetchedAt: 'lastFetchedAt',
+  lastFetchStatus: 'lastFetchStatus',
+  lastFetchError: 'lastFetchError',
+  totalPostsFetched: 'totalPostsFetched',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PostsScalarFieldEnum = {
   id: 'id',
   title: 'title',
   content: 'content',
   isDisplay: 'isDisplay',
   tags: 'tags',
+  sourceId: 'sourceId',
+  sourceUrl: 'sourceUrl',
+  originalPublishedAt: 'originalPublishedAt',
+  originalAuthor: 'originalAuthor',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  rawFeedData: 'rawFeedData',
+  contentHash: 'contentHash',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -120,6 +142,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -130,8 +157,25 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.FeedType = exports.$Enums.FeedType = {
+  RSS: 'RSS',
+  ATOM: 'ATOM'
+};
+
+exports.FetchStatus = exports.$Enums.FetchStatus = {
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  PARTIAL: 'PARTIAL'
+};
 
 exports.Prisma.ModelName = {
+  BlogSource: 'BlogSource',
   Posts: 'Posts',
   Tags: 'Tags',
   PostTags: 'PostTags'
@@ -166,7 +210,7 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../../../.env"
   },
   "relativePath": "../../../../prisma",
@@ -176,6 +220,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -184,13 +229,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider     = \"prisma-client-js\"\n  output       = \"../src/database/generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DIRECT_URL\")\n}\n\nmodel Posts {\n  id        String     @id @default(uuid()) @db.Uuid\n  title     String     @db.VarChar(20)\n  content   String     @db.Text\n  isDisplay Boolean    @default(false)\n  tags      String?    @db.VarChar(100)\n  createdAt DateTime   @default(now())\n  updatedAt DateTime   @default(now())\n  postTags  PostTags[]\n}\n\nmodel Tags {\n  id       Int        @id @default(autoincrement())\n  name     String     @db.VarChar(10)\n  count    Int\n  postTags PostTags[]\n}\n\nmodel PostTags {\n  postId    String   @db.Uuid\n  tagId     Int\n  createdAt DateTime @default(now())\n  post      Posts    @relation(fields: [postId], references: [id])\n  tag       Tags     @relation(fields: [tagId], references: [id])\n\n  @@id([postId, tagId])\n}\n",
-  "inlineSchemaHash": "f843112569723baf8bfe20b5480dd4157ff8fb5c0ccff8d839a3f0bf66b4ef2f",
+  "inlineSchema": "generator client {\n  provider     = \"prisma-client-js\"\n  output       = \"../src/database/generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DIRECT_URL\")\n}\n\nenum FeedType {\n  RSS\n  ATOM\n}\n\nenum FetchStatus {\n  PENDING\n  SUCCESS\n  FAILED\n  PARTIAL\n}\n\nmodel BlogSource {\n  id                String      @id @default(uuid()) @db.Uuid\n  name              String      @db.VarChar(100)\n  url               String      @unique @db.VarChar(500)\n  type              FeedType    @default(RSS)\n  isActive          Boolean     @default(true)\n  lastFetchedAt     DateTime?\n  lastFetchStatus   FetchStatus @default(PENDING)\n  lastFetchError    String?     @db.Text\n  totalPostsFetched Int         @default(0)\n  createdAt         DateTime    @default(now())\n  updatedAt         DateTime    @updatedAt\n  posts             Posts[]\n\n  @@index([isActive])\n  @@index([lastFetchedAt])\n}\n\nmodel Posts {\n  id                  String      @id @default(uuid()) @db.Uuid\n  title               String      @db.VarChar(500)\n  content             String      @db.Text\n  isDisplay           Boolean     @default(false)\n  tags                String?     @db.VarChar(100)\n  sourceId            String?     @db.Uuid\n  sourceUrl           String?     @unique @db.VarChar(1000)\n  originalPublishedAt DateTime?\n  originalAuthor      String?     @db.VarChar(200)\n  description         String?     @db.Text\n  imageUrl            String?     @db.VarChar(1000)\n  rawFeedData         Json?\n  contentHash         String?     @db.VarChar(64)\n  createdAt           DateTime    @default(now())\n  updatedAt           DateTime    @default(now())\n  postTags            PostTags[]\n  source              BlogSource? @relation(fields: [sourceId], references: [id])\n\n  @@index([sourceId])\n  @@index([isDisplay])\n  @@index([originalPublishedAt])\n}\n\nmodel Tags {\n  id       Int        @id @default(autoincrement())\n  name     String     @unique @db.VarChar(50)\n  count    Int\n  postTags PostTags[]\n\n  @@index([name])\n}\n\nmodel PostTags {\n  postId    String   @db.Uuid\n  tagId     Int\n  createdAt DateTime @default(now())\n  post      Posts    @relation(fields: [postId], references: [id])\n  tag       Tags     @relation(fields: [tagId], references: [id])\n\n  @@id([postId, tagId])\n}\n",
+  "inlineSchemaHash": "00e39443df9003540f67462109664872abcbe740d4c9e46f701ea1200a6bfcbc",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Posts\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isDisplay\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"tags\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"postTags\",\"kind\":\"object\",\"type\":\"PostTags\",\"relationName\":\"PostTagsToPosts\"}],\"dbName\":null},\"Tags\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"count\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"postTags\",\"kind\":\"object\",\"type\":\"PostTags\",\"relationName\":\"PostTagsToTags\"}],\"dbName\":null},\"PostTags\":{\"fields\":[{\"name\":\"postId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"post\",\"kind\":\"object\",\"type\":\"Posts\",\"relationName\":\"PostTagsToPosts\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tags\",\"relationName\":\"PostTagsToTags\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"BlogSource\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"FeedType\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"lastFetchedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lastFetchStatus\",\"kind\":\"enum\",\"type\":\"FetchStatus\"},{\"name\":\"lastFetchError\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"totalPostsFetched\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Posts\",\"relationName\":\"BlogSourceToPosts\"}],\"dbName\":null},\"Posts\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isDisplay\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"tags\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sourceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sourceUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"originalPublishedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"originalAuthor\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"imageUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"rawFeedData\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"contentHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"postTags\",\"kind\":\"object\",\"type\":\"PostTags\",\"relationName\":\"PostTagsToPosts\"},{\"name\":\"source\",\"kind\":\"object\",\"type\":\"BlogSource\",\"relationName\":\"BlogSourceToPosts\"}],\"dbName\":null},\"Tags\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"count\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"postTags\",\"kind\":\"object\",\"type\":\"PostTags\",\"relationName\":\"PostTagsToTags\"}],\"dbName\":null},\"PostTags\":{\"fields\":[{\"name\":\"postId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tagId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"post\",\"kind\":\"object\",\"type\":\"Posts\",\"relationName\":\"PostTagsToPosts\"},{\"name\":\"tag\",\"kind\":\"object\",\"type\":\"Tags\",\"relationName\":\"PostTagsToTags\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

@@ -121,12 +121,34 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.BlogSourceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  url: 'url',
+  type: 'type',
+  isActive: 'isActive',
+  lastFetchedAt: 'lastFetchedAt',
+  lastFetchStatus: 'lastFetchStatus',
+  lastFetchError: 'lastFetchError',
+  totalPostsFetched: 'totalPostsFetched',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.PostsScalarFieldEnum = {
   id: 'id',
   title: 'title',
   content: 'content',
   isDisplay: 'isDisplay',
   tags: 'tags',
+  sourceId: 'sourceId',
+  sourceUrl: 'sourceUrl',
+  originalPublishedAt: 'originalPublishedAt',
+  originalAuthor: 'originalAuthor',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  rawFeedData: 'rawFeedData',
+  contentHash: 'contentHash',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -148,6 +170,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -158,8 +185,25 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.FeedType = exports.$Enums.FeedType = {
+  RSS: 'RSS',
+  ATOM: 'ATOM'
+};
+
+exports.FetchStatus = exports.$Enums.FetchStatus = {
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  PARTIAL: 'PARTIAL'
+};
 
 exports.Prisma.ModelName = {
+  BlogSource: 'BlogSource',
   Posts: 'Posts',
   Tags: 'Tags',
   PostTags: 'PostTags'

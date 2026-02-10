@@ -10,22 +10,67 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum FeedType {
+  RSS
+  ATOM
+}
+
+enum FetchStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  PARTIAL
+}
+
+model BlogSource {
+  id                String      @id @default(uuid()) @db.Uuid
+  name              String      @db.VarChar(100)
+  url               String      @unique @db.VarChar(500)
+  type              FeedType    @default(RSS)
+  isActive          Boolean     @default(true)
+  lastFetchedAt     DateTime?
+  lastFetchStatus   FetchStatus @default(PENDING)
+  lastFetchError    String?     @db.Text
+  totalPostsFetched Int         @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  posts             Posts[]
+
+  @@index([isActive])
+  @@index([lastFetchedAt])
+}
+
 model Posts {
-  id        String     @id @default(uuid()) @db.Uuid
-  title     String     @db.VarChar(20)
-  content   String     @db.Text
-  isDisplay Boolean    @default(false)
-  tags      String?    @db.VarChar(100)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
-  postTags  PostTags[]
+  id                  String      @id @default(uuid()) @db.Uuid
+  title               String      @db.VarChar(500)
+  content             String      @db.Text
+  isDisplay           Boolean     @default(false)
+  tags                String?     @db.VarChar(100)
+  sourceId            String?     @db.Uuid
+  sourceUrl           String?     @unique @db.VarChar(1000)
+  originalPublishedAt DateTime?
+  originalAuthor      String?     @db.VarChar(200)
+  description         String?     @db.Text
+  imageUrl            String?     @db.VarChar(1000)
+  rawFeedData         Json?
+  contentHash         String?     @db.VarChar(64)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @default(now())
+  postTags            PostTags[]
+  source              BlogSource? @relation(fields: [sourceId], references: [id])
+
+  @@index([sourceId])
+  @@index([isDisplay])
+  @@index([originalPublishedAt])
 }
 
 model Tags {
   id       Int        @id @default(autoincrement())
-  name     String     @db.VarChar(10)
+  name     String     @unique @db.VarChar(50)
   count    Int
   postTags PostTags[]
+
+  @@index([name])
 }
 
 model PostTags {
