@@ -126,6 +126,8 @@ exports.Prisma.BlogSourceScalarFieldEnum = {
   name: 'name',
   url: 'url',
   type: 'type',
+  scrapingConfig: 'scrapingConfig',
+  icon: 'icon',
   isActive: 'isActive',
   lastFetchedAt: 'lastFetchedAt',
   lastFetchStatus: 'lastFetchStatus',
@@ -185,19 +187,20 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
 exports.FeedType = exports.$Enums.FeedType = {
   RSS: 'RSS',
-  ATOM: 'ATOM'
+  ATOM: 'ATOM',
+  SCRAPING: 'SCRAPING'
 };
 
 exports.FetchStatus = exports.$Enums.FetchStatus = {

@@ -14,6 +14,7 @@ datasource db {
 enum FeedType {
   RSS
   ATOM
+  SCRAPING
 }
 
 enum FetchStatus {
@@ -28,6 +29,8 @@ model BlogSource {
   name              String      @db.VarChar(100)
   url               String      @unique @db.VarChar(500)
   type              FeedType    @default(RSS)
+  scrapingConfig    Json?
+  icon              String?
   isActive          Boolean     @default(true)
   lastFetchedAt     DateTime?
   lastFetchStatus   FetchStatus @default(PENDING)

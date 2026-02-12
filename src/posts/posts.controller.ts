@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Query,
+} from '@nestjs/common';
 
 import { PostQueryDto } from './dto/post-query.dto';
 import { UpdateDisplayDto } from './dto/update-display.dto';
@@ -9,6 +17,11 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
+  findDisplay(@Query() query: PostQueryDto) {
+    return this.postsService.findDisplayPosts(query);
+  }
+
+  @Get('all')
   findAll(@Query() query: PostQueryDto) {
     return this.postsService.findAll(query);
   }
@@ -24,5 +37,10 @@ export class PostsController {
     @Body() updateDisplayDto: UpdateDisplayDto,
   ) {
     return this.postsService.updateDisplay(id, updateDisplayDto.isDisplay);
+  }
+
+  @Delete(':id')
+  deletePost(@Param('id') id: string) {
+    return this.postsService.deletePost(id);
   }
 }

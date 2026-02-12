@@ -1,12 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { BlogSourcesService } from '../blog-sources/blog-sources.service';
-import { FetchStatus } from '../database/generated/prisma';
+import { BlogSource, FeedType, FetchStatus } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { FeedParserService } from './feed-parser.service';
-import { FeedItem } from './interfaces/feed-item.interface';
+import { FeedItem, ParsedFeed } from './interfaces/feed-item.interface';
+import { ScrapingConfig } from './interfaces/scraping-config.interface';
 import { generateContentHash } from './utils/content-hash.util';
 import { FeedNormalizerUtil } from './utils/feed-normalizer.util';
+import { WebScraperService } from './web-scraper.service';
 
 @Injectable()
 export class FeedFetcherService {
@@ -16,6 +18,7 @@ export class FeedFetcherService {
     private readonly prisma: PrismaService,
     private readonly blogSourcesService: BlogSourcesService,
     private readonly feedParserService: FeedParserService,
+    private readonly webScraperService: WebScraperService,
   ) {}
 
   async fetchFromSource(sourceId: string) {
@@ -28,7 +31,7 @@ export class FeedFetcherService {
 
     try {
       this.logger.log(`Fetching from source: ${source.name}`);
-      const feed = await this.feedParserService.parseFeed(source.url);
+      const feed = await this.getFeedByType(source);
 
       if (!feed.items || feed.items.length === 0) {
         this.logger.log(`No items found in feed: ${source.name}`);
@@ -114,6 +117,24 @@ export class FeedFetcherService {
       successful: successCount,
       total: sources.length,
     };
+  }
+
+  private async getFeedByType(source: BlogSource): Promise<ParsedFeed> {
+    switch (source.type) {
+      case FeedType.RSS:
+      case FeedType.ATOM:
+        return this.feedParserService.parseFeed(source.url);
+      case FeedType.SCRAPING:
+        if (!source.scrapingConfig) {
+          throw new Error('Scraping config is required for SCRAPING type');
+        }
+        return this.webScraperService.scrape(
+          source.url,
+          source.scrapingConfig as unknown as ScrapingConfig,
+        );
+      default:
+        throw new Error(`Unknown feed type: ${source.type}`);
+    }
   }
 
   private async processAndSaveItem(item: FeedItem, sourceId: string) {

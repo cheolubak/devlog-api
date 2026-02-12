@@ -7,11 +7,17 @@ import { FeedFetcherController } from './feed-fetcher.controller';
 import { FeedFetcherService } from './feed-fetcher.service';
 import { FeedParserService } from './feed-parser.service';
 import { FeedSchedulerService } from './feed-scheduler.service';
+import { WebScraperService } from './web-scraper.service';
 
 @Module({
   controllers: [FeedFetcherController],
   exports: [FeedFetcherService],
   imports: [DatabaseModule, BlogSourcesModule, HttpModule],
-  providers: [FeedFetcherService, FeedParserService, FeedSchedulerService],
+  providers: [
+    FeedFetcherService,
+    FeedParserService,
+    FeedSchedulerService,
+    WebScraperService,
+  ],
 })
 export class FeedFetcherModule {}

@@ -40,7 +40,8 @@ export type PostTags = $Result.DefaultSelection<Prisma.$PostTagsPayload>
 export namespace $Enums {
   export const FeedType: {
   RSS: 'RSS',
-  ATOM: 'ATOM'
+  ATOM: 'ATOM',
+  SCRAPING: 'SCRAPING'
 };
 
 export type FeedType = (typeof FeedType)[keyof typeof FeedType]
@@ -1282,6 +1283,7 @@ export namespace Prisma {
     name: string | null
     url: string | null
     type: $Enums.FeedType | null
+    icon: string | null
     isActive: boolean | null
     lastFetchedAt: Date | null
     lastFetchStatus: $Enums.FetchStatus | null
@@ -1296,6 +1298,7 @@ export namespace Prisma {
     name: string | null
     url: string | null
     type: $Enums.FeedType | null
+    icon: string | null
     isActive: boolean | null
     lastFetchedAt: Date | null
     lastFetchStatus: $Enums.FetchStatus | null
@@ -1310,6 +1313,8 @@ export namespace Prisma {
     name: number
     url: number
     type: number
+    scrapingConfig: number
+    icon: number
     isActive: number
     lastFetchedAt: number
     lastFetchStatus: number
@@ -1334,6 +1339,7 @@ export namespace Prisma {
     name?: true
     url?: true
     type?: true
+    icon?: true
     isActive?: true
     lastFetchedAt?: true
     lastFetchStatus?: true
@@ -1348,6 +1354,7 @@ export namespace Prisma {
     name?: true
     url?: true
     type?: true
+    icon?: true
     isActive?: true
     lastFetchedAt?: true
     lastFetchStatus?: true
@@ -1362,6 +1369,8 @@ export namespace Prisma {
     name?: true
     url?: true
     type?: true
+    scrapingConfig?: true
+    icon?: true
     isActive?: true
     lastFetchedAt?: true
     lastFetchStatus?: true
@@ -1463,6 +1472,8 @@ export namespace Prisma {
     name: string
     url: string
     type: $Enums.FeedType
+    scrapingConfig: JsonValue | null
+    icon: string | null
     isActive: boolean
     lastFetchedAt: Date | null
     lastFetchStatus: $Enums.FetchStatus
@@ -1496,6 +1507,8 @@ export namespace Prisma {
     name?: boolean
     url?: boolean
     type?: boolean
+    scrapingConfig?: boolean
+    icon?: boolean
     isActive?: boolean
     lastFetchedAt?: boolean
     lastFetchStatus?: boolean
@@ -1512,6 +1525,8 @@ export namespace Prisma {
     name?: boolean
     url?: boolean
     type?: boolean
+    scrapingConfig?: boolean
+    icon?: boolean
     isActive?: boolean
     lastFetchedAt?: boolean
     lastFetchStatus?: boolean
@@ -1526,6 +1541,8 @@ export namespace Prisma {
     name?: boolean
     url?: boolean
     type?: boolean
+    scrapingConfig?: boolean
+    icon?: boolean
     isActive?: boolean
     lastFetchedAt?: boolean
     lastFetchStatus?: boolean
@@ -1540,6 +1557,8 @@ export namespace Prisma {
     name?: boolean
     url?: boolean
     type?: boolean
+    scrapingConfig?: boolean
+    icon?: boolean
     isActive?: boolean
     lastFetchedAt?: boolean
     lastFetchStatus?: boolean
@@ -1549,7 +1568,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type BlogSourceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "type" | "isActive" | "lastFetchedAt" | "lastFetchStatus" | "lastFetchError" | "totalPostsFetched" | "createdAt" | "updatedAt", ExtArgs["result"]["blogSource"]>
+  export type BlogSourceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "type" | "scrapingConfig" | "icon" | "isActive" | "lastFetchedAt" | "lastFetchStatus" | "lastFetchError" | "totalPostsFetched" | "createdAt" | "updatedAt", ExtArgs["result"]["blogSource"]>
   export type BlogSourceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     posts?: boolean | BlogSource$postsArgs<ExtArgs>
     _count?: boolean | BlogSourceCountOutputTypeDefaultArgs<ExtArgs>
@@ -1567,6 +1586,8 @@ export namespace Prisma {
       name: string
       url: string
       type: $Enums.FeedType
+      scrapingConfig: Prisma.JsonValue | null
+      icon: string | null
       isActive: boolean
       lastFetchedAt: Date | null
       lastFetchStatus: $Enums.FetchStatus
@@ -2002,6 +2023,8 @@ export namespace Prisma {
     readonly name: FieldRef<"BlogSource", 'String'>
     readonly url: FieldRef<"BlogSource", 'String'>
     readonly type: FieldRef<"BlogSource", 'FeedType'>
+    readonly scrapingConfig: FieldRef<"BlogSource", 'Json'>
+    readonly icon: FieldRef<"BlogSource", 'String'>
     readonly isActive: FieldRef<"BlogSource", 'Boolean'>
     readonly lastFetchedAt: FieldRef<"BlogSource", 'DateTime'>
     readonly lastFetchStatus: FieldRef<"BlogSource", 'FetchStatus'>
@@ -5883,6 +5906,8 @@ export namespace Prisma {
     name: 'name',
     url: 'url',
     type: 'type',
+    scrapingConfig: 'scrapingConfig',
+    icon: 'icon',
     isActive: 'isActive',
     lastFetchedAt: 'lastFetchedAt',
     lastFetchStatus: 'lastFetchStatus',
@@ -5966,14 +5991,6 @@ export namespace Prisma {
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-  export const NullsOrder: {
-    first: 'first',
-    last: 'last'
-  };
-
-  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
   export const JsonNullValueFilter: {
     DbNull: typeof DbNull,
     JsonNull: typeof JsonNull,
@@ -5981,6 +5998,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -6013,6 +6038,20 @@ export namespace Prisma {
    * Reference to a field of type 'FeedType[]'
    */
   export type ListEnumFeedTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FeedType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -6066,20 +6105,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -6104,6 +6129,8 @@ export namespace Prisma {
     name?: StringFilter<"BlogSource"> | string
     url?: StringFilter<"BlogSource"> | string
     type?: EnumFeedTypeFilter<"BlogSource"> | $Enums.FeedType
+    scrapingConfig?: JsonNullableFilter<"BlogSource">
+    icon?: StringNullableFilter<"BlogSource"> | string | null
     isActive?: BoolFilter<"BlogSource"> | boolean
     lastFetchedAt?: DateTimeNullableFilter<"BlogSource"> | Date | string | null
     lastFetchStatus?: EnumFetchStatusFilter<"BlogSource"> | $Enums.FetchStatus
@@ -6119,6 +6146,8 @@ export namespace Prisma {
     name?: SortOrder
     url?: SortOrder
     type?: SortOrder
+    scrapingConfig?: SortOrderInput | SortOrder
+    icon?: SortOrderInput | SortOrder
     isActive?: SortOrder
     lastFetchedAt?: SortOrderInput | SortOrder
     lastFetchStatus?: SortOrder
@@ -6137,6 +6166,8 @@ export namespace Prisma {
     NOT?: BlogSourceWhereInput | BlogSourceWhereInput[]
     name?: StringFilter<"BlogSource"> | string
     type?: EnumFeedTypeFilter<"BlogSource"> | $Enums.FeedType
+    scrapingConfig?: JsonNullableFilter<"BlogSource">
+    icon?: StringNullableFilter<"BlogSource"> | string | null
     isActive?: BoolFilter<"BlogSource"> | boolean
     lastFetchedAt?: DateTimeNullableFilter<"BlogSource"> | Date | string | null
     lastFetchStatus?: EnumFetchStatusFilter<"BlogSource"> | $Enums.FetchStatus
@@ -6152,6 +6183,8 @@ export namespace Prisma {
     name?: SortOrder
     url?: SortOrder
     type?: SortOrder
+    scrapingConfig?: SortOrderInput | SortOrder
+    icon?: SortOrderInput | SortOrder
     isActive?: SortOrder
     lastFetchedAt?: SortOrderInput | SortOrder
     lastFetchStatus?: SortOrder
@@ -6174,6 +6207,8 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"BlogSource"> | string
     url?: StringWithAggregatesFilter<"BlogSource"> | string
     type?: EnumFeedTypeWithAggregatesFilter<"BlogSource"> | $Enums.FeedType
+    scrapingConfig?: JsonNullableWithAggregatesFilter<"BlogSource">
+    icon?: StringNullableWithAggregatesFilter<"BlogSource"> | string | null
     isActive?: BoolWithAggregatesFilter<"BlogSource"> | boolean
     lastFetchedAt?: DateTimeNullableWithAggregatesFilter<"BlogSource"> | Date | string | null
     lastFetchStatus?: EnumFetchStatusWithAggregatesFilter<"BlogSource"> | $Enums.FetchStatus
@@ -6394,6 +6429,8 @@ export namespace Prisma {
     name: string
     url: string
     type?: $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
     lastFetchStatus?: $Enums.FetchStatus
@@ -6409,6 +6446,8 @@ export namespace Prisma {
     name: string
     url: string
     type?: $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
     lastFetchStatus?: $Enums.FetchStatus
@@ -6424,6 +6463,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastFetchStatus?: EnumFetchStatusFieldUpdateOperationsInput | $Enums.FetchStatus
@@ -6439,6 +6480,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastFetchStatus?: EnumFetchStatusFieldUpdateOperationsInput | $Enums.FetchStatus
@@ -6454,6 +6497,8 @@ export namespace Prisma {
     name: string
     url: string
     type?: $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
     lastFetchStatus?: $Enums.FetchStatus
@@ -6468,6 +6513,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastFetchStatus?: EnumFetchStatusFieldUpdateOperationsInput | $Enums.FetchStatus
@@ -6482,6 +6529,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastFetchStatus?: EnumFetchStatusFieldUpdateOperationsInput | $Enums.FetchStatus
@@ -6736,6 +6785,44 @@ export namespace Prisma {
     notIn?: $Enums.FeedType[] | ListEnumFeedTypeFieldRefInput<$PrismaModel>
     not?: NestedEnumFeedTypeFilter<$PrismaModel> | $Enums.FeedType
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
 
   export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
@@ -6758,21 +6845,6 @@ export namespace Prisma {
     in?: $Enums.FetchStatus[] | ListEnumFetchStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.FetchStatus[] | ListEnumFetchStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumFetchStatusFilter<$PrismaModel> | $Enums.FetchStatus
-  }
-
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -6817,6 +6889,8 @@ export namespace Prisma {
     name?: SortOrder
     url?: SortOrder
     type?: SortOrder
+    scrapingConfig?: SortOrder
+    icon?: SortOrder
     isActive?: SortOrder
     lastFetchedAt?: SortOrder
     lastFetchStatus?: SortOrder
@@ -6835,6 +6909,7 @@ export namespace Prisma {
     name?: SortOrder
     url?: SortOrder
     type?: SortOrder
+    icon?: SortOrder
     isActive?: SortOrder
     lastFetchedAt?: SortOrder
     lastFetchStatus?: SortOrder
@@ -6849,6 +6924,7 @@ export namespace Prisma {
     name?: SortOrder
     url?: SortOrder
     type?: SortOrder
+    icon?: SortOrder
     isActive?: SortOrder
     lastFetchedAt?: SortOrder
     lastFetchStatus?: SortOrder
@@ -6904,6 +6980,50 @@ export namespace Prisma {
     _min?: NestedEnumFeedTypeFilter<$PrismaModel>
     _max?: NestedEnumFeedTypeFilter<$PrismaModel>
   }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
@@ -6935,24 +7055,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumFetchStatusFilter<$PrismaModel>
     _max?: NestedEnumFetchStatusFilter<$PrismaModel>
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -6995,29 +7097,6 @@ export namespace Prisma {
     gte?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
     not?: NestedUuidNullableFilter<$PrismaModel> | string | null
-  }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type PostTagsListRelationFilter = {
@@ -7100,32 +7179,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type TagsCountOrderByAggregateInput = {
@@ -7219,6 +7272,10 @@ export namespace Prisma {
     set?: $Enums.FeedType
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
   }
@@ -7229,10 +7286,6 @@ export namespace Prisma {
 
   export type EnumFetchStatusFieldUpdateOperationsInput = {
     set?: $Enums.FetchStatus
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -7435,6 +7488,20 @@ export namespace Prisma {
     not?: NestedEnumFeedTypeFilter<$PrismaModel> | $Enums.FeedType
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -7456,20 +7523,6 @@ export namespace Prisma {
     in?: $Enums.FetchStatus[] | ListEnumFetchStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.FetchStatus[] | ListEnumFetchStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumFetchStatusFilter<$PrismaModel> | $Enums.FetchStatus
-  }
-
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -7535,6 +7588,57 @@ export namespace Prisma {
     _max?: NestedEnumFeedTypeFilter<$PrismaModel>
   }
 
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
@@ -7557,17 +7661,6 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type NestedEnumFetchStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.FetchStatus | EnumFetchStatusFieldRefInput<$PrismaModel>
     in?: $Enums.FetchStatus[] | ListEnumFetchStatusFieldRefInput<$PrismaModel>
@@ -7576,23 +7669,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumFetchStatusFilter<$PrismaModel>
     _max?: NestedEnumFetchStatusFilter<$PrismaModel>
-  }
-
-  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -7659,29 +7735,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type PostsCreateWithoutSourceInput = {
@@ -7792,6 +7845,8 @@ export namespace Prisma {
     name: string
     url: string
     type?: $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
     lastFetchStatus?: $Enums.FetchStatus
@@ -7806,6 +7861,8 @@ export namespace Prisma {
     name: string
     url: string
     type?: $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
     lastFetchStatus?: $Enums.FetchStatus
@@ -7861,6 +7918,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastFetchStatus?: EnumFetchStatusFieldUpdateOperationsInput | $Enums.FetchStatus
@@ -7875,6 +7934,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
+    scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastFetchStatus?: EnumFetchStatusFieldUpdateOperationsInput | $Enums.FetchStatus
