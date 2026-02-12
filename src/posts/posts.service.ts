@@ -7,7 +7,7 @@ export class PostsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: PostQueryDto) {
-    const { sourceId, isDisplay, tag, limit = 20, offset = 0 } = query;
+    const { sourceId, tag, limit = 20, offset = 0 } = query;
 
     const where: any = {};
 
@@ -56,7 +56,7 @@ export class PostsService {
         },
         where,
         take: limit,
-        skip: offset,
+        skip: (offset * limit),
         orderBy: { originalPublishedAt: 'desc' },
       }),
       this.prisma.posts.count({ where }),
