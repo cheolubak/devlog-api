@@ -2,7 +2,7 @@ export interface FeedItem {
   categories?: string[];
   content?: string;
   contentSnippet?: string;
-  creator?: string;
+  creator?: string | { name: string[] } | unknown;
   guid?: string;
   isoDate?: string;
   link: string;

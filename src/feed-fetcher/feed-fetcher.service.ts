@@ -117,49 +117,54 @@ export class FeedFetcherService {
   }
 
   private async processAndSaveItem(item: FeedItem, sourceId: string) {
-    if (!item.link) {
-      throw new Error('Item has no link');
+    try {
+      if (!item.link) {
+        throw new Error('Item has no link');
+      }
+
+      const existing = await this.prisma.posts.findUnique({
+        where: { sourceUrl: item.link },
+      });
+
+      if (existing) {
+        this.logger.debug(`Post already exists: ${item.link}`);
+        return { created: false, post: existing };
+      }
+
+      const content = item.content || item.contentSnippet || '';
+      const description = FeedNormalizerUtil.extractDescription(
+        item.content || '',
+        item.contentSnippet || '',
+      );
+      const imageUrl = FeedNormalizerUtil.extractFirstImage(item.content || '');
+      const contentHash = generateContentHash(content);
+
+      const post = await this.prisma.posts.create({
+        data: {
+          content: content,
+          contentHash: contentHash,
+          description: description,
+          imageUrl: imageUrl,
+          isDisplay: false,
+          originalAuthor: FeedNormalizerUtil.normalizeCreator(item.creator),
+          originalPublishedAt: item.isoDate || item.pubDate || new Date(),
+          rawFeedData: item as any,
+          sourceId: sourceId,
+          sourceUrl: item.link,
+          title: FeedNormalizerUtil.truncateText(item.title, 500),
+        },
+      });
+
+      if (item.categories && item.categories.length > 0) {
+        await this.createTagsForPost(post.id, item.categories);
+      }
+
+      this.logger.debug(`Created new post: ${post.title}`);
+      return { created: true, post };
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
-
-    const existing = await this.prisma.posts.findUnique({
-      where: { sourceUrl: item.link },
-    });
-
-    if (existing) {
-      this.logger.debug(`Post already exists: ${item.link}`);
-      return { created: false, post: existing };
-    }
-
-    const content = item.content || item.contentSnippet || '';
-    const description = FeedNormalizerUtil.extractDescription(
-      item.content || '',
-      item.contentSnippet || '',
-    );
-    const imageUrl = FeedNormalizerUtil.extractFirstImage(item.content || '');
-    const contentHash = generateContentHash(content);
-
-    const post = await this.prisma.posts.create({
-      data: {
-        content: content,
-        contentHash: contentHash,
-        description: description,
-        imageUrl: imageUrl,
-        isDisplay: false,
-        originalAuthor: item.creator,
-        originalPublishedAt: item.isoDate || item.pubDate || new Date(),
-        rawFeedData: item as any,
-        sourceId: sourceId,
-        sourceUrl: item.link,
-        title: FeedNormalizerUtil.truncateText(item.title, 500),
-      },
-    });
-
-    if (item.categories && item.categories.length > 0) {
-      await this.createTagsForPost(post.id, item.categories);
-    }
-
-    this.logger.debug(`Created new post: ${post.title}`);
-    return { created: true, post };
   }
 
   private async createTagsForPost(postId: string, categories: string[]) {

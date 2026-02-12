@@ -19,8 +19,9 @@ export class FeedParserService {
 
   async parseFeed(url: string): Promise<ParsedFeed> {
     try {
-      this.logger.log(`Parsing feed: ${url}`);
-      const feed = await this.parser.parseURL(url);
+      const encodedUrl = encodeURI(url);
+      this.logger.log(`Parsing feed: ${encodedUrl}`);
+      const feed = await this.parser.parseURL(encodedUrl);
 
       this.logger.log(
         `Successfully parsed feed: ${feed.title}, ${feed.items?.length || 0} items`,

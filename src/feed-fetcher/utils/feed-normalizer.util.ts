@@ -39,6 +39,17 @@ export class FeedNormalizerUtil {
       .substring(0, 50);
   }
 
+  static normalizeCreator(creator: unknown): string | null {
+    if (!creator) return null;
+    if (typeof creator === 'string') return creator;
+    if (typeof creator === 'object') {
+      const obj = creator as Record<string, unknown>;
+      if (Array.isArray(obj.name)) return (obj.name[0] as string) ?? null;
+      if (typeof obj.name === 'string') return obj.name;
+    }
+    return String(creator);
+  }
+
   static extractDescription(content: string, contentSnippet: string): string {
     const text = contentSnippet || this.stripHtml(content);
     return this.truncateText(text, 500);
