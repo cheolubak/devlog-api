@@ -1,18 +1,18 @@
 export interface FeedItem {
-  title: string;
-  link: string;
-  pubDate?: string;
-  creator?: string;
+  categories?: string[];
   content?: string;
   contentSnippet?: string;
-  categories?: string[];
+  creator?: string;
   guid?: string;
   isoDate?: string;
+  link: string;
+  pubDate?: string;
+  title: string;
 }
 
 export interface ParsedFeed {
-  items: FeedItem[];
-  title?: string;
   description?: string;
+  items: FeedItem[];
   link?: string;
+  title?: string;
 }

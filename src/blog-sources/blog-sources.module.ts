@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { BlogSourcesService } from './blog-sources.service';
-import { BlogSourcesController } from './blog-sources.controller';
+
 import { DatabaseModule } from '../database/database.module';
+import { BlogSourcesController } from './blog-sources.controller';
+import { BlogSourcesService } from './blog-sources.service';
 
 @Module({
-  imports: [DatabaseModule],
   controllers: [BlogSourcesController],
-  providers: [BlogSourcesService],
   exports: [BlogSourcesService],
+  imports: [DatabaseModule],
+  providers: [BlogSourcesService],
 })
 export class BlogSourcesModule {}

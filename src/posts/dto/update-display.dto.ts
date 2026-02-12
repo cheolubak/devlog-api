@@ -1,7 +1,7 @@
 import { IsBoolean, IsNotEmpty } from 'class-validator';
 
 export class UpdateDisplayDto {
-  @IsNotEmpty()
   @IsBoolean()
+  @IsNotEmpty()
   isDisplay: boolean;
 }

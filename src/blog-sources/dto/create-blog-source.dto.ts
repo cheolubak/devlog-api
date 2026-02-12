@@ -1,4 +1,11 @@
-import { IsEnum, IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  MaxLength,
+} from 'class-validator';
+
 import { FeedType } from '../../database/generated/prisma';
 
 export class CreateBlogSourceDto {

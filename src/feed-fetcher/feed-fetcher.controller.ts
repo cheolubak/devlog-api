@@ -1,4 +1,5 @@
-import { Controller, Post, Param } from '@nestjs/common';
+import { Controller, Param, Post } from '@nestjs/common';
+
 import { FeedFetcherService } from './feed-fetcher.service';
 
 @Controller('feed-fetcher')

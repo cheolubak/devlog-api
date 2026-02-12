@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as RssParser from 'rss-parser';
+
 import { ParsedFeed } from './interfaces/feed-item.interface';
 
 @Injectable()
@@ -9,10 +10,10 @@ export class FeedParserService {
 
   constructor() {
     this.parser = new RssParser({
-      timeout: 15000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; DevlogAPI/1.0)',
       },
+      timeout: 15000,
     });
   }
 
@@ -21,23 +22,25 @@ export class FeedParserService {
       this.logger.log(`Parsing feed: ${url}`);
       const feed = await this.parser.parseURL(url);
 
-      this.logger.log(`Successfully parsed feed: ${feed.title}, ${feed.items?.length || 0} items`);
+      this.logger.log(
+        `Successfully parsed feed: ${feed.title}, ${feed.items?.length || 0} items`,
+      );
 
       return {
+        description: feed.description,
         items: feed.items.map((item) => ({
-          title: item.title || 'Untitled',
-          link: item.link || '',
-          pubDate: item.pubDate,
-          creator: item.creator || item['dc:creator'] || item.author,
+          categories: item.categories || [],
           content: item.content || item['content:encoded'] || '',
           contentSnippet: item.contentSnippet || '',
-          categories: item.categories || [],
+          creator: item.creator || item['dc:creator'] || item.author,
           guid: item.guid || item.id,
           isoDate: item.isoDate,
+          link: item.link || '',
+          pubDate: item.pubDate,
+          title: item.title || 'Untitled',
         })),
-        title: feed.title,
-        description: feed.description,
         link: feed.link,
+        title: feed.title,
       };
     } catch (error) {
       this.logger.error(`Failed to parse feed ${url}: ${error.message}`);

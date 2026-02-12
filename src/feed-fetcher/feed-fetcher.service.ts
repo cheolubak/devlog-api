@@ -1,11 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+
 import { BlogSourcesService } from '../blog-sources/blog-sources.service';
+import { FetchStatus } from '../database/generated/prisma';
+import { PrismaService } from '../database/prisma.service';
 import { FeedParserService } from './feed-parser.service';
 import { FeedItem } from './interfaces/feed-item.interface';
-import { FeedNormalizerUtil } from './utils/feed-normalizer.util';
 import { generateContentHash } from './utils/content-hash.util';
-import { FetchStatus } from '../database/generated/prisma';
+import { FeedNormalizerUtil } from './utils/feed-normalizer.util';
 
 @Injectable()
 export class FeedFetcherService {
@@ -22,7 +23,7 @@ export class FeedFetcherService {
 
     if (!source.isActive) {
       this.logger.warn(`Source ${source.name} is not active, skipping`);
-      return { success: false, message: 'Source is not active' };
+      return { message: 'Source is not active', success: false };
     }
 
     try {
@@ -37,7 +38,7 @@ export class FeedFetcherService {
           null,
           0,
         );
-        return { success: true, message: 'No new items', newPostsCount: 0 };
+        return { message: 'No new items', newPostsCount: 0, success: true };
       }
 
       const results = await Promise.allSettled(
@@ -47,7 +48,9 @@ export class FeedFetcherService {
       const successCount = results.filter(
         (r) => r.status === 'fulfilled' && r.value.created,
       ).length;
-      const failureCount = results.filter((r) => r.status === 'rejected').length;
+      const failureCount = results.filter(
+        (r) => r.status === 'rejected',
+      ).length;
 
       let status: FetchStatus;
       if (failureCount === 0) {
@@ -70,25 +73,29 @@ export class FeedFetcherService {
       );
 
       return {
-        success: true,
+        failureCount,
         message: 'Fetch completed',
         newPostsCount: successCount,
-        failureCount,
+        success: true,
       };
     } catch (error) {
-      this.logger.error(`Error fetching from source ${source.name}: ${error.message}`);
+      this.logger.error(
+        `Error fetching from source ${source.name}: ${error.message}`,
+      );
       await this.blogSourcesService.updateFetchStatus(
         sourceId,
         FetchStatus.FAILED,
         error.message,
       );
-      return { success: false, message: error.message };
+      return { message: error.message, success: false };
     }
   }
 
   async fetchAllActiveSources() {
     const sources = await this.blogSourcesService.findAllActive();
-    this.logger.log(`Starting batch fetch for ${sources.length} active sources`);
+    this.logger.log(
+      `Starting batch fetch for ${sources.length} active sources`,
+    );
 
     const results = await Promise.allSettled(
       sources.map((source) => this.fetchFromSource(source.id)),
@@ -103,9 +110,9 @@ export class FeedFetcherService {
     );
 
     return {
-      total: sources.length,
-      successful: successCount,
       failed: sources.length - successCount,
+      successful: successCount,
+      total: sources.length,
     };
   }
 
@@ -133,17 +140,17 @@ export class FeedFetcherService {
 
     const post = await this.prisma.posts.create({
       data: {
-        title: FeedNormalizerUtil.truncateText(item.title, 500),
         content: content,
-        sourceId: sourceId,
-        sourceUrl: item.link,
-        originalPublishedAt: item.isoDate || item.pubDate || new Date(),
-        originalAuthor: item.creator,
+        contentHash: contentHash,
         description: description,
         imageUrl: imageUrl,
-        rawFeedData: item as any,
-        contentHash: contentHash,
         isDisplay: false,
+        originalAuthor: item.creator,
+        originalPublishedAt: item.isoDate || item.pubDate || new Date(),
+        rawFeedData: item as any,
+        sourceId: sourceId,
+        sourceUrl: item.link,
+        title: FeedNormalizerUtil.truncateText(item.title, 500),
       },
     });
 
@@ -164,19 +171,21 @@ export class FeedFetcherService {
     for (const tagName of normalizedTags) {
       try {
         const tag = await this.prisma.tags.upsert({
-          where: { name: tagName },
+          create: { count: 1, name: tagName },
           update: { count: { increment: 1 } },
-          create: { name: tagName, count: 1 },
+          where: { name: tagName },
         });
 
-        await this.prisma.postTags.create({
-          data: {
-            postId: postId,
-            tagId: tag.id,
-          },
-        }).catch(() => {
-          // Ignore duplicate postTag errors
-        });
+        await this.prisma.postTags
+          .create({
+            data: {
+              postId: postId,
+              tagId: tag.id,
+            },
+          })
+          .catch(() => {
+            // Ignore duplicate postTag errors
+          });
       } catch (error) {
         this.logger.warn(`Failed to create tag ${tagName}: ${error.message}`);
       }

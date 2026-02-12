@@ -3,10 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+
+import { FetchStatus } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { CreateBlogSourceDto } from './dto/create-blog-source.dto';
 import { UpdateBlogSourceDto } from './dto/update-blog-source.dto';
-import { FetchStatus } from '../database/generated/prisma';
 
 @Injectable()
 export class BlogSourcesService {
@@ -30,34 +31,34 @@ export class BlogSourcesService {
     const where = includeInactive ? {} : { isActive: true };
 
     return this.prisma.blogSource.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
       include: {
         _count: {
           select: { posts: true },
         },
       },
+      orderBy: { createdAt: 'desc' },
+      where,
     });
   }
 
   async findOne(id: string) {
     const source = await this.prisma.blogSource.findUnique({
-      where: { id },
       include: {
-        posts: {
-          take: 10,
-          orderBy: { originalPublishedAt: 'desc' },
-          select: {
-            id: true,
-            title: true,
-            originalPublishedAt: true,
-            isDisplay: true,
-          },
-        },
         _count: {
           select: { posts: true },
         },
+        posts: {
+          orderBy: { originalPublishedAt: 'desc' },
+          select: {
+            id: true,
+            isDisplay: true,
+            originalPublishedAt: true,
+            title: true,
+          },
+          take: 10,
+        },
       },
+      where: { id },
     });
 
     if (!source) {
@@ -79,8 +80,8 @@ export class BlogSourcesService {
     if (updateBlogSourceDto.url) {
       const existingSource = await this.prisma.blogSource.findFirst({
         where: {
-          url: updateBlogSourceDto.url,
           id: { not: id },
+          url: updateBlogSourceDto.url,
         },
       });
 
@@ -90,8 +91,8 @@ export class BlogSourcesService {
     }
 
     return this.prisma.blogSource.update({
-      where: { id },
       data: updateBlogSourceDto,
+      where: { id },
     });
   }
 
@@ -105,8 +106,8 @@ export class BlogSourcesService {
     }
 
     return this.prisma.blogSource.update({
-      where: { id },
       data: { isActive: false },
+      where: { id },
     });
   }
 
@@ -118,8 +119,8 @@ export class BlogSourcesService {
   ) {
     const updateData: any = {
       lastFetchedAt: new Date(),
-      lastFetchStatus: status,
       lastFetchError: error || null,
+      lastFetchStatus: status,
     };
 
     if (newPostsCount !== undefined) {
@@ -129,15 +130,15 @@ export class BlogSourcesService {
     }
 
     return this.prisma.blogSource.update({
-      where: { id },
       data: updateData,
+      where: { id },
     });
   }
 
   async findAllActive() {
     return this.prisma.blogSource.findMany({
-      where: { isActive: true },
       orderBy: { lastFetchedAt: 'asc' },
+      where: { isActive: true },
     });
   }
 }

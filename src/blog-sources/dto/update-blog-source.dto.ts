@@ -1,4 +1,12 @@
-import { IsBoolean, IsEnum, IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+} from 'class-validator';
+
 import { FeedType } from '../../database/generated/prisma';
 
 export class UpdateBlogSourceDto {
@@ -12,11 +20,11 @@ export class UpdateBlogSourceDto {
   @MaxLength(500)
   url?: string;
 
-  @IsOptional()
   @IsEnum(FeedType)
+  @IsOptional()
   type?: FeedType;
 
-  @IsOptional()
   @IsBoolean()
+  @IsOptional()
   isActive?: boolean;
 }

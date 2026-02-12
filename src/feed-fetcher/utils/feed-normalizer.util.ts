@@ -12,7 +12,7 @@ export class FeedNormalizerUtil {
       .trim();
   }
 
-  static extractFirstImage(html: string): string | null {
+  static extractFirstImage(html: string): null | string {
     if (!html) return null;
 
     const imgRegex = /<img[^>]+src="([^">]+)"/i;

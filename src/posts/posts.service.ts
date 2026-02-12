@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+
 import { PrismaService } from '../database/prisma.service';
 import { PostQueryDto } from './dto/post-query.dto';
 
@@ -7,7 +8,7 @@ export class PostsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: PostQueryDto) {
-    const { sourceId, tag, limit = 20, offset = 0 } = query;
+    const { limit = 20, offset = 0, sourceId, tag } = query;
 
     const where: any = {};
 
@@ -29,20 +30,12 @@ export class PostsService {
 
     const [posts, total] = await Promise.all([
       this.prisma.posts.findMany({
+        orderBy: { originalPublishedAt: 'desc' },
         select: {
-          id: true,
-          title: true,
           description: true,
+          id: true,
           imageUrl: true,
           originalPublishedAt: true,
-          sourceUrl: true,
-          source: {
-            select: {
-              id: true,
-              name: true,
-              url: true,
-            },
-          },
           postTags: {
             include: {
               tag: {
@@ -53,11 +46,19 @@ export class PostsService {
               },
             },
           },
+          source: {
+            select: {
+              id: true,
+              name: true,
+              url: true,
+            },
+          },
+          sourceUrl: true,
+          title: true,
         },
-        where,
+        skip: offset * limit,
         take: limit,
-        skip: (offset * limit),
-        orderBy: { originalPublishedAt: 'desc' },
+        where,
       }),
       this.prisma.posts.count({ where }),
     ]);
@@ -65,25 +66,17 @@ export class PostsService {
     return {
       data: posts,
       pagination: {
-        total,
+        hasMore: offset + limit < total,
         limit,
         offset,
-        hasMore: offset + limit < total,
+        total,
       },
     };
   }
 
   async findOne(id: string) {
     const post = await this.prisma.posts.findUnique({
-      where: { id },
       include: {
-        source: {
-          select: {
-            id: true,
-            name: true,
-            url: true,
-          },
-        },
         postTags: {
           include: {
             tag: {
@@ -94,7 +87,15 @@ export class PostsService {
             },
           },
         },
+        source: {
+          select: {
+            id: true,
+            name: true,
+            url: true,
+          },
+        },
       },
+      where: { id },
     });
 
     if (!post) {
@@ -114,8 +115,8 @@ export class PostsService {
     }
 
     return this.prisma.posts.update({
-      where: { id },
       data: { isDisplay },
+      where: { id },
     });
   }
 }
