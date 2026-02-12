@@ -135,6 +135,11 @@ exports.Prisma.BlogSourceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.RelationLoadStrategy = {
+  query: 'query',
+  join: 'join'
+};
+
 exports.Prisma.PostsScalarFieldEnum = {
   id: 'id',
   title: 'title',

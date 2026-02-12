@@ -31,6 +31,7 @@ export class PostsService {
     const [posts, total] = await Promise.all([
       this.prisma.posts.findMany({
         orderBy: { originalPublishedAt: 'desc' },
+        relationLoadStrategy: 'join',
         select: {
           description: true,
           id: true,
@@ -95,6 +96,7 @@ export class PostsService {
           },
         },
       },
+      relationLoadStrategy: 'join',
       where: { id },
     });
 

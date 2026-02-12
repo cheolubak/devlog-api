@@ -1581,7 +1581,7 @@ export namespace Prisma {
   type BlogSourceGetPayload<S extends boolean | null | undefined | BlogSourceDefaultArgs> = $Result.GetResult<Prisma.$BlogSourcePayload, S>
 
   type BlogSourceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<BlogSourceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    Omit<BlogSourceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
       select?: BlogSourceCountAggregateInputType | true
     }
 
@@ -2033,6 +2033,7 @@ export namespace Prisma {
      * Filter, which BlogSource to fetch.
      */
     where: BlogSourceWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -2055,6 +2056,7 @@ export namespace Prisma {
      * Filter, which BlogSource to fetch.
      */
     where: BlogSourceWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -2107,6 +2109,7 @@ export namespace Prisma {
      * Filter by unique combinations of BlogSources.
      */
     distinct?: BlogSourceScalarFieldEnum | BlogSourceScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -2159,6 +2162,7 @@ export namespace Prisma {
      * Filter by unique combinations of BlogSources.
      */
     distinct?: BlogSourceScalarFieldEnum | BlogSourceScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -2206,6 +2210,7 @@ export namespace Prisma {
      */
     skip?: number
     distinct?: BlogSourceScalarFieldEnum | BlogSourceScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -2228,6 +2233,7 @@ export namespace Prisma {
      * The data needed to create a BlogSource.
      */
     data: XOR<BlogSourceCreateInput, BlogSourceUncheckedCreateInput>
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -2284,6 +2290,7 @@ export namespace Prisma {
      * Choose, which BlogSource to update.
      */
     where: BlogSourceWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -2358,6 +2365,7 @@ export namespace Prisma {
      * In case the BlogSource was found with the provided `where` argument, update it with this data.
      */
     update: XOR<BlogSourceUpdateInput, BlogSourceUncheckedUpdateInput>
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -2380,6 +2388,7 @@ export namespace Prisma {
      * Filter which BlogSource to delete.
      */
     where: BlogSourceWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -2782,7 +2791,7 @@ export namespace Prisma {
   type PostsGetPayload<S extends boolean | null | undefined | PostsDefaultArgs> = $Result.GetResult<Prisma.$PostsPayload, S>
 
   type PostsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<PostsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    Omit<PostsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
       select?: PostsCountAggregateInputType | true
     }
 
@@ -3239,6 +3248,7 @@ export namespace Prisma {
      * Filter, which Posts to fetch.
      */
     where: PostsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -3261,6 +3271,7 @@ export namespace Prisma {
      * Filter, which Posts to fetch.
      */
     where: PostsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -3313,6 +3324,7 @@ export namespace Prisma {
      * Filter by unique combinations of Posts.
      */
     distinct?: PostsScalarFieldEnum | PostsScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -3365,6 +3377,7 @@ export namespace Prisma {
      * Filter by unique combinations of Posts.
      */
     distinct?: PostsScalarFieldEnum | PostsScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -3412,6 +3425,7 @@ export namespace Prisma {
      */
     skip?: number
     distinct?: PostsScalarFieldEnum | PostsScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -3434,6 +3448,7 @@ export namespace Prisma {
      * The data needed to create a Posts.
      */
     data: XOR<PostsCreateInput, PostsUncheckedCreateInput>
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -3494,6 +3509,7 @@ export namespace Prisma {
      * Choose, which Posts to update.
      */
     where: PostsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -3572,6 +3588,7 @@ export namespace Prisma {
      * In case the Posts was found with the provided `where` argument, update it with this data.
      */
     update: XOR<PostsUpdateInput, PostsUncheckedUpdateInput>
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -3594,6 +3611,7 @@ export namespace Prisma {
      * Filter which Posts to delete.
      */
     where: PostsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -3904,7 +3922,7 @@ export namespace Prisma {
   type TagsGetPayload<S extends boolean | null | undefined | TagsDefaultArgs> = $Result.GetResult<Prisma.$TagsPayload, S>
 
   type TagsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<TagsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    Omit<TagsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
       select?: TagsCountAggregateInputType | true
     }
 
@@ -4348,6 +4366,7 @@ export namespace Prisma {
      * Filter, which Tags to fetch.
      */
     where: TagsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -4370,6 +4389,7 @@ export namespace Prisma {
      * Filter, which Tags to fetch.
      */
     where: TagsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -4422,6 +4442,7 @@ export namespace Prisma {
      * Filter by unique combinations of Tags.
      */
     distinct?: TagsScalarFieldEnum | TagsScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -4474,6 +4495,7 @@ export namespace Prisma {
      * Filter by unique combinations of Tags.
      */
     distinct?: TagsScalarFieldEnum | TagsScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -4521,6 +4543,7 @@ export namespace Prisma {
      */
     skip?: number
     distinct?: TagsScalarFieldEnum | TagsScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -4543,6 +4566,7 @@ export namespace Prisma {
      * The data needed to create a Tags.
      */
     data: XOR<TagsCreateInput, TagsUncheckedCreateInput>
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -4599,6 +4623,7 @@ export namespace Prisma {
      * Choose, which Tags to update.
      */
     where: TagsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -4673,6 +4698,7 @@ export namespace Prisma {
      * In case the Tags was found with the provided `where` argument, update it with this data.
      */
     update: XOR<TagsUpdateInput, TagsUncheckedUpdateInput>
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -4695,6 +4721,7 @@ export namespace Prisma {
      * Filter which Tags to delete.
      */
     where: TagsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -4993,7 +5020,7 @@ export namespace Prisma {
   type PostTagsGetPayload<S extends boolean | null | undefined | PostTagsDefaultArgs> = $Result.GetResult<Prisma.$PostTagsPayload, S>
 
   type PostTagsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<PostTagsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    Omit<PostTagsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
       select?: PostTagsCountAggregateInputType | true
     }
 
@@ -5438,6 +5465,7 @@ export namespace Prisma {
      * Filter, which PostTags to fetch.
      */
     where: PostTagsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -5460,6 +5488,7 @@ export namespace Prisma {
      * Filter, which PostTags to fetch.
      */
     where: PostTagsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -5512,6 +5541,7 @@ export namespace Prisma {
      * Filter by unique combinations of PostTags.
      */
     distinct?: PostTagsScalarFieldEnum | PostTagsScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -5564,6 +5594,7 @@ export namespace Prisma {
      * Filter by unique combinations of PostTags.
      */
     distinct?: PostTagsScalarFieldEnum | PostTagsScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -5611,6 +5642,7 @@ export namespace Prisma {
      */
     skip?: number
     distinct?: PostTagsScalarFieldEnum | PostTagsScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -5633,6 +5665,7 @@ export namespace Prisma {
      * The data needed to create a PostTags.
      */
     data: XOR<PostTagsCreateInput, PostTagsUncheckedCreateInput>
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -5693,6 +5726,7 @@ export namespace Prisma {
      * Choose, which PostTags to update.
      */
     where: PostTagsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -5771,6 +5805,7 @@ export namespace Prisma {
      * In case the PostTags was found with the provided `where` argument, update it with this data.
      */
     update: XOR<PostTagsUpdateInput, PostTagsUncheckedUpdateInput>
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -5793,6 +5828,7 @@ export namespace Prisma {
      * Filter which PostTags to delete.
      */
     where: PostTagsWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
   }
 
   /**
@@ -5857,6 +5893,14 @@ export namespace Prisma {
   };
 
   export type BlogSourceScalarFieldEnum = (typeof BlogSourceScalarFieldEnum)[keyof typeof BlogSourceScalarFieldEnum]
+
+
+  export const RelationLoadStrategy: {
+    query: 'query',
+    join: 'join'
+  };
+
+  export type RelationLoadStrategy = (typeof RelationLoadStrategy)[keyof typeof RelationLoadStrategy]
 
 
   export const PostsScalarFieldEnum: {

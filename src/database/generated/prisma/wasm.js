@@ -107,6 +107,11 @@ exports.Prisma.BlogSourceScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.RelationLoadStrategy = {
+  query: 'query',
+  join: 'join'
+};
+
 exports.Prisma.PostsScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -191,7 +196,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/dabot/Documents/develop/devlog-api/src/database/generated/prisma",
+      "value": "/Users/dev/Documents/test/devlog-api/src/database/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -205,13 +210,14 @@ const config = {
         "native": true
       }
     ],
-    "previewFeatures": [],
-    "sourceFilePath": "/Users/dabot/Documents/develop/devlog-api/prisma/schema.prisma",
+    "previewFeatures": [
+      "relationJoins"
+    ],
+    "sourceFilePath": "/Users/dev/Documents/test/devlog-api/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../../prisma",
   "clientVersion": "6.19.1",
@@ -220,6 +226,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -228,8 +235,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider     = \"prisma-client-js\"\n  output       = \"../src/database/generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DIRECT_URL\")\n}\n\nenum FeedType {\n  RSS\n  ATOM\n}\n\nenum FetchStatus {\n  PENDING\n  SUCCESS\n  FAILED\n  PARTIAL\n}\n\nmodel BlogSource {\n  id                String      @id @default(uuid()) @db.Uuid\n  name              String      @db.VarChar(100)\n  url               String      @unique @db.VarChar(500)\n  type              FeedType    @default(RSS)\n  isActive          Boolean     @default(true)\n  lastFetchedAt     DateTime?\n  lastFetchStatus   FetchStatus @default(PENDING)\n  lastFetchError    String?     @db.Text\n  totalPostsFetched Int         @default(0)\n  createdAt         DateTime    @default(now())\n  updatedAt         DateTime    @updatedAt\n  posts             Posts[]\n\n  @@index([isActive])\n  @@index([lastFetchedAt])\n}\n\nmodel Posts {\n  id                  String      @id @default(uuid()) @db.Uuid\n  title               String      @db.VarChar(500)\n  content             String      @db.Text\n  isDisplay           Boolean     @default(false)\n  tags                String?     @db.VarChar(100)\n  sourceId            String?     @db.Uuid\n  sourceUrl           String?     @unique @db.VarChar(1000)\n  originalPublishedAt DateTime?\n  originalAuthor      String?     @db.VarChar(200)\n  description         String?     @db.Text\n  imageUrl            String?     @db.VarChar(1000)\n  rawFeedData         Json?\n  contentHash         String?     @db.VarChar(64)\n  createdAt           DateTime    @default(now())\n  updatedAt           DateTime    @default(now())\n  postTags            PostTags[]\n  source              BlogSource? @relation(fields: [sourceId], references: [id])\n\n  @@index([sourceId])\n  @@index([isDisplay])\n  @@index([originalPublishedAt])\n}\n\nmodel Tags {\n  id       Int        @id @default(autoincrement())\n  name     String     @unique @db.VarChar(50)\n  count    Int\n  postTags PostTags[]\n\n  @@index([name])\n}\n\nmodel PostTags {\n  postId    String   @db.Uuid\n  tagId     Int\n  createdAt DateTime @default(now())\n  post      Posts    @relation(fields: [postId], references: [id])\n  tag       Tags     @relation(fields: [tagId], references: [id])\n\n  @@id([postId, tagId])\n}\n",
-  "inlineSchemaHash": "00e39443df9003540f67462109664872abcbe740d4c9e46f701ea1200a6bfcbc",
+  "inlineSchema": "generator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../src/database/generated/prisma\"\n  moduleFormat    = \"cjs\"\n  previewFeatures = [\"relationJoins\"]\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DIRECT_URL\")\n}\n\nenum FeedType {\n  RSS\n  ATOM\n}\n\nenum FetchStatus {\n  PENDING\n  SUCCESS\n  FAILED\n  PARTIAL\n}\n\nmodel BlogSource {\n  id                String      @id @default(uuid()) @db.Uuid\n  name              String      @db.VarChar(100)\n  url               String      @unique @db.VarChar(500)\n  type              FeedType    @default(RSS)\n  isActive          Boolean     @default(true)\n  lastFetchedAt     DateTime?\n  lastFetchStatus   FetchStatus @default(PENDING)\n  lastFetchError    String?     @db.Text\n  totalPostsFetched Int         @default(0)\n  createdAt         DateTime    @default(now())\n  updatedAt         DateTime    @updatedAt\n  posts             Posts[]\n\n  @@index([isActive])\n  @@index([lastFetchedAt])\n}\n\nmodel Posts {\n  id                  String      @id @default(uuid()) @db.Uuid\n  title               String      @db.VarChar(500)\n  content             String      @db.Text\n  isDisplay           Boolean     @default(false)\n  tags                String?     @db.VarChar(100)\n  sourceId            String?     @db.Uuid\n  sourceUrl           String?     @unique @db.VarChar(1000)\n  originalPublishedAt DateTime?\n  originalAuthor      String?     @db.VarChar(200)\n  description         String?     @db.Text\n  imageUrl            String?     @db.VarChar(1000)\n  rawFeedData         Json?\n  contentHash         String?     @db.VarChar(64)\n  createdAt           DateTime    @default(now())\n  updatedAt           DateTime    @default(now())\n  postTags            PostTags[]\n  source              BlogSource? @relation(fields: [sourceId], references: [id])\n\n  @@index([sourceId])\n  @@index([isDisplay])\n  @@index([originalPublishedAt])\n  @@index([isDisplay, originalPublishedAt])\n}\n\nmodel Tags {\n  id       Int        @id @default(autoincrement())\n  name     String     @unique @db.VarChar(50)\n  count    Int\n  postTags PostTags[]\n\n  @@index([name])\n}\n\nmodel PostTags {\n  postId    String   @db.Uuid\n  tagId     Int\n  createdAt DateTime @default(now())\n  post      Posts    @relation(fields: [postId], references: [id])\n  tag       Tags     @relation(fields: [tagId], references: [id])\n\n  @@id([postId, tagId])\n  @@index([tagId])\n}\n",
+  "inlineSchemaHash": "0fb2361fc5c59c3f655abf6ba53fcbb10426722171376d2e16daa0ad8b172bdd",
   "copyEngine": true
 }
 config.dirname = '/'
