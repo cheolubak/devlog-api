@@ -160,6 +160,11 @@ exports.Prisma.PostsScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.PostDeletionLogScalarFieldEnum = {
+  postId: 'postId',
+  deletedAt: 'deletedAt'
+};
+
 exports.Prisma.TagsScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -213,6 +218,7 @@ exports.FetchStatus = exports.$Enums.FetchStatus = {
 exports.Prisma.ModelName = {
   BlogSource: 'BlogSource',
   Posts: 'Posts',
+  PostDeletionLog: 'PostDeletionLog',
   Tags: 'Tags',
   PostTags: 'PostTags'
 };

@@ -24,6 +24,11 @@ export type BlogSource = $Result.DefaultSelection<Prisma.$BlogSourcePayload>
  */
 export type Posts = $Result.DefaultSelection<Prisma.$PostsPayload>
 /**
+ * Model PostDeletionLog
+ * 
+ */
+export type PostDeletionLog = $Result.DefaultSelection<Prisma.$PostDeletionLogPayload>
+/**
  * Model Tags
  * 
  */
@@ -203,6 +208,16 @@ export class PrismaClient<
     * ```
     */
   get posts(): Prisma.PostsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.postDeletionLog`: Exposes CRUD operations for the **PostDeletionLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PostDeletionLogs
+    * const postDeletionLogs = await prisma.postDeletionLog.findMany()
+    * ```
+    */
+  get postDeletionLog(): Prisma.PostDeletionLogDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.tags`: Exposes CRUD operations for the **Tags** model.
@@ -666,6 +681,7 @@ export namespace Prisma {
   export const ModelName: {
     BlogSource: 'BlogSource',
     Posts: 'Posts',
+    PostDeletionLog: 'PostDeletionLog',
     Tags: 'Tags',
     PostTags: 'PostTags'
   };
@@ -686,7 +702,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "blogSource" | "posts" | "tags" | "postTags"
+      modelProps: "blogSource" | "posts" | "postDeletionLog" | "tags" | "postTags"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -835,6 +851,80 @@ export namespace Prisma {
           count: {
             args: Prisma.PostsCountArgs<ExtArgs>
             result: $Utils.Optional<PostsCountAggregateOutputType> | number
+          }
+        }
+      }
+      PostDeletionLog: {
+        payload: Prisma.$PostDeletionLogPayload<ExtArgs>
+        fields: Prisma.PostDeletionLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PostDeletionLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PostDeletionLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload>
+          }
+          findFirst: {
+            args: Prisma.PostDeletionLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PostDeletionLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload>
+          }
+          findMany: {
+            args: Prisma.PostDeletionLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload>[]
+          }
+          create: {
+            args: Prisma.PostDeletionLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload>
+          }
+          createMany: {
+            args: Prisma.PostDeletionLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PostDeletionLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload>[]
+          }
+          delete: {
+            args: Prisma.PostDeletionLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload>
+          }
+          update: {
+            args: Prisma.PostDeletionLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.PostDeletionLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PostDeletionLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PostDeletionLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.PostDeletionLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PostDeletionLogPayload>
+          }
+          aggregate: {
+            args: Prisma.PostDeletionLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePostDeletionLog>
+          }
+          groupBy: {
+            args: Prisma.PostDeletionLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PostDeletionLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PostDeletionLogCountArgs<ExtArgs>
+            result: $Utils.Optional<PostDeletionLogCountAggregateOutputType> | number
           }
         }
       }
@@ -1084,6 +1174,7 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     blogSource?: BlogSourceOmit
     posts?: PostsOmit
+    postDeletionLog?: PostDeletionLogOmit
     tags?: TagsOmit
     postTags?: PostTagsOmit
   }
@@ -2713,6 +2804,7 @@ export namespace Prisma {
     updatedAt?: boolean
     postTags?: boolean | Posts$postTagsArgs<ExtArgs>
     source?: boolean | Posts$sourceArgs<ExtArgs>
+    deletionLog?: boolean | Posts$deletionLogArgs<ExtArgs>
     _count?: boolean | PostsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["posts"]>
 
@@ -2776,6 +2868,7 @@ export namespace Prisma {
   export type PostsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     postTags?: boolean | Posts$postTagsArgs<ExtArgs>
     source?: boolean | Posts$sourceArgs<ExtArgs>
+    deletionLog?: boolean | Posts$deletionLogArgs<ExtArgs>
     _count?: boolean | PostsCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PostsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2790,6 +2883,7 @@ export namespace Prisma {
     objects: {
       postTags: Prisma.$PostTagsPayload<ExtArgs>[]
       source: Prisma.$BlogSourcePayload<ExtArgs> | null
+      deletionLog: Prisma.$PostDeletionLogPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3203,6 +3297,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     postTags<T extends Posts$postTagsArgs<ExtArgs> = {}>(args?: Subset<T, Posts$postTagsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostTagsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     source<T extends Posts$sourceArgs<ExtArgs> = {}>(args?: Subset<T, Posts$sourceArgs<ExtArgs>>): Prisma__BlogSourceClient<$Result.GetResult<Prisma.$BlogSourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    deletionLog<T extends Posts$deletionLogArgs<ExtArgs> = {}>(args?: Subset<T, Posts$deletionLogArgs<ExtArgs>>): Prisma__PostDeletionLogClient<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3695,6 +3790,25 @@ export namespace Prisma {
   }
 
   /**
+   * Posts.deletionLog
+   */
+  export type Posts$deletionLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    where?: PostDeletionLogWhereInput
+  }
+
+  /**
    * Posts without action
    */
   export type PostsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3710,6 +3824,1034 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: PostsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PostDeletionLog
+   */
+
+  export type AggregatePostDeletionLog = {
+    _count: PostDeletionLogCountAggregateOutputType | null
+    _min: PostDeletionLogMinAggregateOutputType | null
+    _max: PostDeletionLogMaxAggregateOutputType | null
+  }
+
+  export type PostDeletionLogMinAggregateOutputType = {
+    postId: string | null
+    deletedAt: Date | null
+  }
+
+  export type PostDeletionLogMaxAggregateOutputType = {
+    postId: string | null
+    deletedAt: Date | null
+  }
+
+  export type PostDeletionLogCountAggregateOutputType = {
+    postId: number
+    deletedAt: number
+    _all: number
+  }
+
+
+  export type PostDeletionLogMinAggregateInputType = {
+    postId?: true
+    deletedAt?: true
+  }
+
+  export type PostDeletionLogMaxAggregateInputType = {
+    postId?: true
+    deletedAt?: true
+  }
+
+  export type PostDeletionLogCountAggregateInputType = {
+    postId?: true
+    deletedAt?: true
+    _all?: true
+  }
+
+  export type PostDeletionLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PostDeletionLog to aggregate.
+     */
+    where?: PostDeletionLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PostDeletionLogs to fetch.
+     */
+    orderBy?: PostDeletionLogOrderByWithRelationInput | PostDeletionLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PostDeletionLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PostDeletionLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PostDeletionLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PostDeletionLogs
+    **/
+    _count?: true | PostDeletionLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PostDeletionLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PostDeletionLogMaxAggregateInputType
+  }
+
+  export type GetPostDeletionLogAggregateType<T extends PostDeletionLogAggregateArgs> = {
+        [P in keyof T & keyof AggregatePostDeletionLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePostDeletionLog[P]>
+      : GetScalarType<T[P], AggregatePostDeletionLog[P]>
+  }
+
+
+
+
+  export type PostDeletionLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PostDeletionLogWhereInput
+    orderBy?: PostDeletionLogOrderByWithAggregationInput | PostDeletionLogOrderByWithAggregationInput[]
+    by: PostDeletionLogScalarFieldEnum[] | PostDeletionLogScalarFieldEnum
+    having?: PostDeletionLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PostDeletionLogCountAggregateInputType | true
+    _min?: PostDeletionLogMinAggregateInputType
+    _max?: PostDeletionLogMaxAggregateInputType
+  }
+
+  export type PostDeletionLogGroupByOutputType = {
+    postId: string
+    deletedAt: Date
+    _count: PostDeletionLogCountAggregateOutputType | null
+    _min: PostDeletionLogMinAggregateOutputType | null
+    _max: PostDeletionLogMaxAggregateOutputType | null
+  }
+
+  type GetPostDeletionLogGroupByPayload<T extends PostDeletionLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PostDeletionLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PostDeletionLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PostDeletionLogGroupByOutputType[P]>
+            : GetScalarType<T[P], PostDeletionLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PostDeletionLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    postId?: boolean
+    deletedAt?: boolean
+    post?: boolean | PostsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["postDeletionLog"]>
+
+  export type PostDeletionLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    postId?: boolean
+    deletedAt?: boolean
+    post?: boolean | PostsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["postDeletionLog"]>
+
+  export type PostDeletionLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    postId?: boolean
+    deletedAt?: boolean
+    post?: boolean | PostsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["postDeletionLog"]>
+
+  export type PostDeletionLogSelectScalar = {
+    postId?: boolean
+    deletedAt?: boolean
+  }
+
+  export type PostDeletionLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"postId" | "deletedAt", ExtArgs["result"]["postDeletionLog"]>
+  export type PostDeletionLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    post?: boolean | PostsDefaultArgs<ExtArgs>
+  }
+  export type PostDeletionLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    post?: boolean | PostsDefaultArgs<ExtArgs>
+  }
+  export type PostDeletionLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    post?: boolean | PostsDefaultArgs<ExtArgs>
+  }
+
+  export type $PostDeletionLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PostDeletionLog"
+    objects: {
+      post: Prisma.$PostsPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      postId: string
+      deletedAt: Date
+    }, ExtArgs["result"]["postDeletionLog"]>
+    composites: {}
+  }
+
+  type PostDeletionLogGetPayload<S extends boolean | null | undefined | PostDeletionLogDefaultArgs> = $Result.GetResult<Prisma.$PostDeletionLogPayload, S>
+
+  type PostDeletionLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PostDeletionLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
+      select?: PostDeletionLogCountAggregateInputType | true
+    }
+
+  export interface PostDeletionLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PostDeletionLog'], meta: { name: 'PostDeletionLog' } }
+    /**
+     * Find zero or one PostDeletionLog that matches the filter.
+     * @param {PostDeletionLogFindUniqueArgs} args - Arguments to find a PostDeletionLog
+     * @example
+     * // Get one PostDeletionLog
+     * const postDeletionLog = await prisma.postDeletionLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PostDeletionLogFindUniqueArgs>(args: SelectSubset<T, PostDeletionLogFindUniqueArgs<ExtArgs>>): Prisma__PostDeletionLogClient<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PostDeletionLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PostDeletionLogFindUniqueOrThrowArgs} args - Arguments to find a PostDeletionLog
+     * @example
+     * // Get one PostDeletionLog
+     * const postDeletionLog = await prisma.postDeletionLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PostDeletionLogFindUniqueOrThrowArgs>(args: SelectSubset<T, PostDeletionLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PostDeletionLogClient<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PostDeletionLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostDeletionLogFindFirstArgs} args - Arguments to find a PostDeletionLog
+     * @example
+     * // Get one PostDeletionLog
+     * const postDeletionLog = await prisma.postDeletionLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PostDeletionLogFindFirstArgs>(args?: SelectSubset<T, PostDeletionLogFindFirstArgs<ExtArgs>>): Prisma__PostDeletionLogClient<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PostDeletionLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostDeletionLogFindFirstOrThrowArgs} args - Arguments to find a PostDeletionLog
+     * @example
+     * // Get one PostDeletionLog
+     * const postDeletionLog = await prisma.postDeletionLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PostDeletionLogFindFirstOrThrowArgs>(args?: SelectSubset<T, PostDeletionLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__PostDeletionLogClient<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PostDeletionLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostDeletionLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PostDeletionLogs
+     * const postDeletionLogs = await prisma.postDeletionLog.findMany()
+     * 
+     * // Get first 10 PostDeletionLogs
+     * const postDeletionLogs = await prisma.postDeletionLog.findMany({ take: 10 })
+     * 
+     * // Only select the `postId`
+     * const postDeletionLogWithPostIdOnly = await prisma.postDeletionLog.findMany({ select: { postId: true } })
+     * 
+     */
+    findMany<T extends PostDeletionLogFindManyArgs>(args?: SelectSubset<T, PostDeletionLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PostDeletionLog.
+     * @param {PostDeletionLogCreateArgs} args - Arguments to create a PostDeletionLog.
+     * @example
+     * // Create one PostDeletionLog
+     * const PostDeletionLog = await prisma.postDeletionLog.create({
+     *   data: {
+     *     // ... data to create a PostDeletionLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends PostDeletionLogCreateArgs>(args: SelectSubset<T, PostDeletionLogCreateArgs<ExtArgs>>): Prisma__PostDeletionLogClient<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PostDeletionLogs.
+     * @param {PostDeletionLogCreateManyArgs} args - Arguments to create many PostDeletionLogs.
+     * @example
+     * // Create many PostDeletionLogs
+     * const postDeletionLog = await prisma.postDeletionLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PostDeletionLogCreateManyArgs>(args?: SelectSubset<T, PostDeletionLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PostDeletionLogs and returns the data saved in the database.
+     * @param {PostDeletionLogCreateManyAndReturnArgs} args - Arguments to create many PostDeletionLogs.
+     * @example
+     * // Create many PostDeletionLogs
+     * const postDeletionLog = await prisma.postDeletionLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PostDeletionLogs and only return the `postId`
+     * const postDeletionLogWithPostIdOnly = await prisma.postDeletionLog.createManyAndReturn({
+     *   select: { postId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PostDeletionLogCreateManyAndReturnArgs>(args?: SelectSubset<T, PostDeletionLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PostDeletionLog.
+     * @param {PostDeletionLogDeleteArgs} args - Arguments to delete one PostDeletionLog.
+     * @example
+     * // Delete one PostDeletionLog
+     * const PostDeletionLog = await prisma.postDeletionLog.delete({
+     *   where: {
+     *     // ... filter to delete one PostDeletionLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PostDeletionLogDeleteArgs>(args: SelectSubset<T, PostDeletionLogDeleteArgs<ExtArgs>>): Prisma__PostDeletionLogClient<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PostDeletionLog.
+     * @param {PostDeletionLogUpdateArgs} args - Arguments to update one PostDeletionLog.
+     * @example
+     * // Update one PostDeletionLog
+     * const postDeletionLog = await prisma.postDeletionLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PostDeletionLogUpdateArgs>(args: SelectSubset<T, PostDeletionLogUpdateArgs<ExtArgs>>): Prisma__PostDeletionLogClient<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PostDeletionLogs.
+     * @param {PostDeletionLogDeleteManyArgs} args - Arguments to filter PostDeletionLogs to delete.
+     * @example
+     * // Delete a few PostDeletionLogs
+     * const { count } = await prisma.postDeletionLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PostDeletionLogDeleteManyArgs>(args?: SelectSubset<T, PostDeletionLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PostDeletionLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostDeletionLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PostDeletionLogs
+     * const postDeletionLog = await prisma.postDeletionLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PostDeletionLogUpdateManyArgs>(args: SelectSubset<T, PostDeletionLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PostDeletionLogs and returns the data updated in the database.
+     * @param {PostDeletionLogUpdateManyAndReturnArgs} args - Arguments to update many PostDeletionLogs.
+     * @example
+     * // Update many PostDeletionLogs
+     * const postDeletionLog = await prisma.postDeletionLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PostDeletionLogs and only return the `postId`
+     * const postDeletionLogWithPostIdOnly = await prisma.postDeletionLog.updateManyAndReturn({
+     *   select: { postId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PostDeletionLogUpdateManyAndReturnArgs>(args: SelectSubset<T, PostDeletionLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PostDeletionLog.
+     * @param {PostDeletionLogUpsertArgs} args - Arguments to update or create a PostDeletionLog.
+     * @example
+     * // Update or create a PostDeletionLog
+     * const postDeletionLog = await prisma.postDeletionLog.upsert({
+     *   create: {
+     *     // ... data to create a PostDeletionLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PostDeletionLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PostDeletionLogUpsertArgs>(args: SelectSubset<T, PostDeletionLogUpsertArgs<ExtArgs>>): Prisma__PostDeletionLogClient<$Result.GetResult<Prisma.$PostDeletionLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PostDeletionLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostDeletionLogCountArgs} args - Arguments to filter PostDeletionLogs to count.
+     * @example
+     * // Count the number of PostDeletionLogs
+     * const count = await prisma.postDeletionLog.count({
+     *   where: {
+     *     // ... the filter for the PostDeletionLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends PostDeletionLogCountArgs>(
+      args?: Subset<T, PostDeletionLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PostDeletionLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PostDeletionLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostDeletionLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PostDeletionLogAggregateArgs>(args: Subset<T, PostDeletionLogAggregateArgs>): Prisma.PrismaPromise<GetPostDeletionLogAggregateType<T>>
+
+    /**
+     * Group by PostDeletionLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostDeletionLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PostDeletionLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PostDeletionLogGroupByArgs['orderBy'] }
+        : { orderBy?: PostDeletionLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PostDeletionLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPostDeletionLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PostDeletionLog model
+   */
+  readonly fields: PostDeletionLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PostDeletionLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PostDeletionLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    post<T extends PostsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PostsDefaultArgs<ExtArgs>>): Prisma__PostsClient<$Result.GetResult<Prisma.$PostsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PostDeletionLog model
+   */
+  interface PostDeletionLogFieldRefs {
+    readonly postId: FieldRef<"PostDeletionLog", 'String'>
+    readonly deletedAt: FieldRef<"PostDeletionLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PostDeletionLog findUnique
+   */
+  export type PostDeletionLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    /**
+     * Filter, which PostDeletionLog to fetch.
+     */
+    where: PostDeletionLogWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * PostDeletionLog findUniqueOrThrow
+   */
+  export type PostDeletionLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    /**
+     * Filter, which PostDeletionLog to fetch.
+     */
+    where: PostDeletionLogWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * PostDeletionLog findFirst
+   */
+  export type PostDeletionLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    /**
+     * Filter, which PostDeletionLog to fetch.
+     */
+    where?: PostDeletionLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PostDeletionLogs to fetch.
+     */
+    orderBy?: PostDeletionLogOrderByWithRelationInput | PostDeletionLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PostDeletionLogs.
+     */
+    cursor?: PostDeletionLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PostDeletionLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PostDeletionLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PostDeletionLogs.
+     */
+    distinct?: PostDeletionLogScalarFieldEnum | PostDeletionLogScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * PostDeletionLog findFirstOrThrow
+   */
+  export type PostDeletionLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    /**
+     * Filter, which PostDeletionLog to fetch.
+     */
+    where?: PostDeletionLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PostDeletionLogs to fetch.
+     */
+    orderBy?: PostDeletionLogOrderByWithRelationInput | PostDeletionLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PostDeletionLogs.
+     */
+    cursor?: PostDeletionLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PostDeletionLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PostDeletionLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PostDeletionLogs.
+     */
+    distinct?: PostDeletionLogScalarFieldEnum | PostDeletionLogScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * PostDeletionLog findMany
+   */
+  export type PostDeletionLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    /**
+     * Filter, which PostDeletionLogs to fetch.
+     */
+    where?: PostDeletionLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PostDeletionLogs to fetch.
+     */
+    orderBy?: PostDeletionLogOrderByWithRelationInput | PostDeletionLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PostDeletionLogs.
+     */
+    cursor?: PostDeletionLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PostDeletionLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PostDeletionLogs.
+     */
+    skip?: number
+    distinct?: PostDeletionLogScalarFieldEnum | PostDeletionLogScalarFieldEnum[]
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * PostDeletionLog create
+   */
+  export type PostDeletionLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PostDeletionLog.
+     */
+    data: XOR<PostDeletionLogCreateInput, PostDeletionLogUncheckedCreateInput>
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * PostDeletionLog createMany
+   */
+  export type PostDeletionLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PostDeletionLogs.
+     */
+    data: PostDeletionLogCreateManyInput | PostDeletionLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PostDeletionLog createManyAndReturn
+   */
+  export type PostDeletionLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many PostDeletionLogs.
+     */
+    data: PostDeletionLogCreateManyInput | PostDeletionLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PostDeletionLog update
+   */
+  export type PostDeletionLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PostDeletionLog.
+     */
+    data: XOR<PostDeletionLogUpdateInput, PostDeletionLogUncheckedUpdateInput>
+    /**
+     * Choose, which PostDeletionLog to update.
+     */
+    where: PostDeletionLogWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * PostDeletionLog updateMany
+   */
+  export type PostDeletionLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PostDeletionLogs.
+     */
+    data: XOR<PostDeletionLogUpdateManyMutationInput, PostDeletionLogUncheckedUpdateManyInput>
+    /**
+     * Filter which PostDeletionLogs to update
+     */
+    where?: PostDeletionLogWhereInput
+    /**
+     * Limit how many PostDeletionLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PostDeletionLog updateManyAndReturn
+   */
+  export type PostDeletionLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * The data used to update PostDeletionLogs.
+     */
+    data: XOR<PostDeletionLogUpdateManyMutationInput, PostDeletionLogUncheckedUpdateManyInput>
+    /**
+     * Filter which PostDeletionLogs to update
+     */
+    where?: PostDeletionLogWhereInput
+    /**
+     * Limit how many PostDeletionLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PostDeletionLog upsert
+   */
+  export type PostDeletionLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PostDeletionLog to update in case it exists.
+     */
+    where: PostDeletionLogWhereUniqueInput
+    /**
+     * In case the PostDeletionLog found by the `where` argument doesn't exist, create a new PostDeletionLog with this data.
+     */
+    create: XOR<PostDeletionLogCreateInput, PostDeletionLogUncheckedCreateInput>
+    /**
+     * In case the PostDeletionLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PostDeletionLogUpdateInput, PostDeletionLogUncheckedUpdateInput>
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * PostDeletionLog delete
+   */
+  export type PostDeletionLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
+    /**
+     * Filter which PostDeletionLog to delete.
+     */
+    where: PostDeletionLogWhereUniqueInput
+    relationLoadStrategy?: RelationLoadStrategy
+  }
+
+  /**
+   * PostDeletionLog deleteMany
+   */
+  export type PostDeletionLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PostDeletionLogs to delete
+     */
+    where?: PostDeletionLogWhereInput
+    /**
+     * Limit how many PostDeletionLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PostDeletionLog without action
+   */
+  export type PostDeletionLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PostDeletionLog
+     */
+    select?: PostDeletionLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PostDeletionLog
+     */
+    omit?: PostDeletionLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PostDeletionLogInclude<ExtArgs> | null
   }
 
 
@@ -5949,6 +7091,14 @@ export namespace Prisma {
   export type PostsScalarFieldEnum = (typeof PostsScalarFieldEnum)[keyof typeof PostsScalarFieldEnum]
 
 
+  export const PostDeletionLogScalarFieldEnum: {
+    postId: 'postId',
+    deletedAt: 'deletedAt'
+  };
+
+  export type PostDeletionLogScalarFieldEnum = (typeof PostDeletionLogScalarFieldEnum)[keyof typeof PostDeletionLogScalarFieldEnum]
+
+
   export const TagsScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -6239,6 +7389,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Posts"> | Date | string
     postTags?: PostTagsListRelationFilter
     source?: XOR<BlogSourceNullableScalarRelationFilter, BlogSourceWhereInput> | null
+    deletionLog?: XOR<PostDeletionLogNullableScalarRelationFilter, PostDeletionLogWhereInput> | null
   }
 
   export type PostsOrderByWithRelationInput = {
@@ -6259,6 +7410,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     postTags?: PostTagsOrderByRelationAggregateInput
     source?: BlogSourceOrderByWithRelationInput
+    deletionLog?: PostDeletionLogOrderByWithRelationInput
   }
 
   export type PostsWhereUniqueInput = Prisma.AtLeast<{
@@ -6282,6 +7434,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Posts"> | Date | string
     postTags?: PostTagsListRelationFilter
     source?: XOR<BlogSourceNullableScalarRelationFilter, BlogSourceWhereInput> | null
+    deletionLog?: XOR<PostDeletionLogNullableScalarRelationFilter, PostDeletionLogWhereInput> | null
   }, "id" | "sourceUrl">
 
   export type PostsOrderByWithAggregationInput = {
@@ -6324,6 +7477,46 @@ export namespace Prisma {
     contentHash?: StringNullableWithAggregatesFilter<"Posts"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Posts"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Posts"> | Date | string
+  }
+
+  export type PostDeletionLogWhereInput = {
+    AND?: PostDeletionLogWhereInput | PostDeletionLogWhereInput[]
+    OR?: PostDeletionLogWhereInput[]
+    NOT?: PostDeletionLogWhereInput | PostDeletionLogWhereInput[]
+    postId?: UuidFilter<"PostDeletionLog"> | string
+    deletedAt?: DateTimeFilter<"PostDeletionLog"> | Date | string
+    post?: XOR<PostsScalarRelationFilter, PostsWhereInput>
+  }
+
+  export type PostDeletionLogOrderByWithRelationInput = {
+    postId?: SortOrder
+    deletedAt?: SortOrder
+    post?: PostsOrderByWithRelationInput
+  }
+
+  export type PostDeletionLogWhereUniqueInput = Prisma.AtLeast<{
+    postId?: string
+    AND?: PostDeletionLogWhereInput | PostDeletionLogWhereInput[]
+    OR?: PostDeletionLogWhereInput[]
+    NOT?: PostDeletionLogWhereInput | PostDeletionLogWhereInput[]
+    deletedAt?: DateTimeFilter<"PostDeletionLog"> | Date | string
+    post?: XOR<PostsScalarRelationFilter, PostsWhereInput>
+  }, "postId">
+
+  export type PostDeletionLogOrderByWithAggregationInput = {
+    postId?: SortOrder
+    deletedAt?: SortOrder
+    _count?: PostDeletionLogCountOrderByAggregateInput
+    _max?: PostDeletionLogMaxOrderByAggregateInput
+    _min?: PostDeletionLogMinOrderByAggregateInput
+  }
+
+  export type PostDeletionLogScalarWhereWithAggregatesInput = {
+    AND?: PostDeletionLogScalarWhereWithAggregatesInput | PostDeletionLogScalarWhereWithAggregatesInput[]
+    OR?: PostDeletionLogScalarWhereWithAggregatesInput[]
+    NOT?: PostDeletionLogScalarWhereWithAggregatesInput | PostDeletionLogScalarWhereWithAggregatesInput[]
+    postId?: UuidWithAggregatesFilter<"PostDeletionLog"> | string
+    deletedAt?: DateTimeWithAggregatesFilter<"PostDeletionLog"> | Date | string
   }
 
   export type TagsWhereInput = {
@@ -6557,6 +7750,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     postTags?: PostTagsCreateNestedManyWithoutPostInput
     source?: BlogSourceCreateNestedOneWithoutPostsInput
+    deletionLog?: PostDeletionLogCreateNestedOneWithoutPostInput
   }
 
   export type PostsUncheckedCreateInput = {
@@ -6576,6 +7770,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     postTags?: PostTagsUncheckedCreateNestedManyWithoutPostInput
+    deletionLog?: PostDeletionLogUncheckedCreateNestedOneWithoutPostInput
   }
 
   export type PostsUpdateInput = {
@@ -6595,6 +7790,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postTags?: PostTagsUpdateManyWithoutPostNestedInput
     source?: BlogSourceUpdateOneWithoutPostsNestedInput
+    deletionLog?: PostDeletionLogUpdateOneWithoutPostNestedInput
   }
 
   export type PostsUncheckedUpdateInput = {
@@ -6614,6 +7810,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postTags?: PostTagsUncheckedUpdateManyWithoutPostNestedInput
+    deletionLog?: PostDeletionLogUncheckedUpdateOneWithoutPostNestedInput
   }
 
   export type PostsCreateManyInput = {
@@ -6667,6 +7864,40 @@ export namespace Prisma {
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PostDeletionLogCreateInput = {
+    deletedAt?: Date | string
+    post: PostsCreateNestedOneWithoutDeletionLogInput
+  }
+
+  export type PostDeletionLogUncheckedCreateInput = {
+    postId: string
+    deletedAt?: Date | string
+  }
+
+  export type PostDeletionLogUpdateInput = {
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    post?: PostsUpdateOneRequiredWithoutDeletionLogNestedInput
+  }
+
+  export type PostDeletionLogUncheckedUpdateInput = {
+    postId?: StringFieldUpdateOperationsInput | string
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PostDeletionLogCreateManyInput = {
+    postId: string
+    deletedAt?: Date | string
+  }
+
+  export type PostDeletionLogUpdateManyMutationInput = {
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PostDeletionLogUncheckedUpdateManyInput = {
+    postId?: StringFieldUpdateOperationsInput | string
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TagsCreateInput = {
@@ -7110,6 +8341,11 @@ export namespace Prisma {
     isNot?: BlogSourceWhereInput | null
   }
 
+  export type PostDeletionLogNullableScalarRelationFilter = {
+    is?: PostDeletionLogWhereInput | null
+    isNot?: PostDeletionLogWhereInput | null
+  }
+
   export type PostTagsOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -7181,6 +8417,26 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type PostsScalarRelationFilter = {
+    is?: PostsWhereInput
+    isNot?: PostsWhereInput
+  }
+
+  export type PostDeletionLogCountOrderByAggregateInput = {
+    postId?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type PostDeletionLogMaxOrderByAggregateInput = {
+    postId?: SortOrder
+    deletedAt?: SortOrder
+  }
+
+  export type PostDeletionLogMinOrderByAggregateInput = {
+    postId?: SortOrder
+    deletedAt?: SortOrder
+  }
+
   export type TagsCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -7207,11 +8463,6 @@ export namespace Prisma {
   export type TagsSumOrderByAggregateInput = {
     id?: SortOrder
     count?: SortOrder
-  }
-
-  export type PostsScalarRelationFilter = {
-    is?: PostsWhereInput
-    isNot?: PostsWhereInput
   }
 
   export type TagsScalarRelationFilter = {
@@ -7341,11 +8592,23 @@ export namespace Prisma {
     connect?: BlogSourceWhereUniqueInput
   }
 
+  export type PostDeletionLogCreateNestedOneWithoutPostInput = {
+    create?: XOR<PostDeletionLogCreateWithoutPostInput, PostDeletionLogUncheckedCreateWithoutPostInput>
+    connectOrCreate?: PostDeletionLogCreateOrConnectWithoutPostInput
+    connect?: PostDeletionLogWhereUniqueInput
+  }
+
   export type PostTagsUncheckedCreateNestedManyWithoutPostInput = {
     create?: XOR<PostTagsCreateWithoutPostInput, PostTagsUncheckedCreateWithoutPostInput> | PostTagsCreateWithoutPostInput[] | PostTagsUncheckedCreateWithoutPostInput[]
     connectOrCreate?: PostTagsCreateOrConnectWithoutPostInput | PostTagsCreateOrConnectWithoutPostInput[]
     createMany?: PostTagsCreateManyPostInputEnvelope
     connect?: PostTagsWhereUniqueInput | PostTagsWhereUniqueInput[]
+  }
+
+  export type PostDeletionLogUncheckedCreateNestedOneWithoutPostInput = {
+    create?: XOR<PostDeletionLogCreateWithoutPostInput, PostDeletionLogUncheckedCreateWithoutPostInput>
+    connectOrCreate?: PostDeletionLogCreateOrConnectWithoutPostInput
+    connect?: PostDeletionLogWhereUniqueInput
   }
 
   export type PostTagsUpdateManyWithoutPostNestedInput = {
@@ -7372,6 +8635,16 @@ export namespace Prisma {
     update?: XOR<XOR<BlogSourceUpdateToOneWithWhereWithoutPostsInput, BlogSourceUpdateWithoutPostsInput>, BlogSourceUncheckedUpdateWithoutPostsInput>
   }
 
+  export type PostDeletionLogUpdateOneWithoutPostNestedInput = {
+    create?: XOR<PostDeletionLogCreateWithoutPostInput, PostDeletionLogUncheckedCreateWithoutPostInput>
+    connectOrCreate?: PostDeletionLogCreateOrConnectWithoutPostInput
+    upsert?: PostDeletionLogUpsertWithoutPostInput
+    disconnect?: PostDeletionLogWhereInput | boolean
+    delete?: PostDeletionLogWhereInput | boolean
+    connect?: PostDeletionLogWhereUniqueInput
+    update?: XOR<XOR<PostDeletionLogUpdateToOneWithWhereWithoutPostInput, PostDeletionLogUpdateWithoutPostInput>, PostDeletionLogUncheckedUpdateWithoutPostInput>
+  }
+
   export type PostTagsUncheckedUpdateManyWithoutPostNestedInput = {
     create?: XOR<PostTagsCreateWithoutPostInput, PostTagsUncheckedCreateWithoutPostInput> | PostTagsCreateWithoutPostInput[] | PostTagsUncheckedCreateWithoutPostInput[]
     connectOrCreate?: PostTagsCreateOrConnectWithoutPostInput | PostTagsCreateOrConnectWithoutPostInput[]
@@ -7384,6 +8657,30 @@ export namespace Prisma {
     update?: PostTagsUpdateWithWhereUniqueWithoutPostInput | PostTagsUpdateWithWhereUniqueWithoutPostInput[]
     updateMany?: PostTagsUpdateManyWithWhereWithoutPostInput | PostTagsUpdateManyWithWhereWithoutPostInput[]
     deleteMany?: PostTagsScalarWhereInput | PostTagsScalarWhereInput[]
+  }
+
+  export type PostDeletionLogUncheckedUpdateOneWithoutPostNestedInput = {
+    create?: XOR<PostDeletionLogCreateWithoutPostInput, PostDeletionLogUncheckedCreateWithoutPostInput>
+    connectOrCreate?: PostDeletionLogCreateOrConnectWithoutPostInput
+    upsert?: PostDeletionLogUpsertWithoutPostInput
+    disconnect?: PostDeletionLogWhereInput | boolean
+    delete?: PostDeletionLogWhereInput | boolean
+    connect?: PostDeletionLogWhereUniqueInput
+    update?: XOR<XOR<PostDeletionLogUpdateToOneWithWhereWithoutPostInput, PostDeletionLogUpdateWithoutPostInput>, PostDeletionLogUncheckedUpdateWithoutPostInput>
+  }
+
+  export type PostsCreateNestedOneWithoutDeletionLogInput = {
+    create?: XOR<PostsCreateWithoutDeletionLogInput, PostsUncheckedCreateWithoutDeletionLogInput>
+    connectOrCreate?: PostsCreateOrConnectWithoutDeletionLogInput
+    connect?: PostsWhereUniqueInput
+  }
+
+  export type PostsUpdateOneRequiredWithoutDeletionLogNestedInput = {
+    create?: XOR<PostsCreateWithoutDeletionLogInput, PostsUncheckedCreateWithoutDeletionLogInput>
+    connectOrCreate?: PostsCreateOrConnectWithoutDeletionLogInput
+    upsert?: PostsUpsertWithoutDeletionLogInput
+    connect?: PostsWhereUniqueInput
+    update?: XOR<XOR<PostsUpdateToOneWithWhereWithoutDeletionLogInput, PostsUpdateWithoutDeletionLogInput>, PostsUncheckedUpdateWithoutDeletionLogInput>
   }
 
   export type PostTagsCreateNestedManyWithoutTagInput = {
@@ -7753,6 +9050,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     postTags?: PostTagsCreateNestedManyWithoutPostInput
+    deletionLog?: PostDeletionLogCreateNestedOneWithoutPostInput
   }
 
   export type PostsUncheckedCreateWithoutSourceInput = {
@@ -7771,6 +9069,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     postTags?: PostTagsUncheckedCreateNestedManyWithoutPostInput
+    deletionLog?: PostDeletionLogUncheckedCreateNestedOneWithoutPostInput
   }
 
   export type PostsCreateOrConnectWithoutSourceInput = {
@@ -7877,6 +9176,19 @@ export namespace Prisma {
     create: XOR<BlogSourceCreateWithoutPostsInput, BlogSourceUncheckedCreateWithoutPostsInput>
   }
 
+  export type PostDeletionLogCreateWithoutPostInput = {
+    deletedAt?: Date | string
+  }
+
+  export type PostDeletionLogUncheckedCreateWithoutPostInput = {
+    deletedAt?: Date | string
+  }
+
+  export type PostDeletionLogCreateOrConnectWithoutPostInput = {
+    where: PostDeletionLogWhereUniqueInput
+    create: XOR<PostDeletionLogCreateWithoutPostInput, PostDeletionLogUncheckedCreateWithoutPostInput>
+  }
+
   export type PostTagsUpsertWithWhereUniqueWithoutPostInput = {
     where: PostTagsWhereUniqueInput
     update: XOR<PostTagsUpdateWithoutPostInput, PostTagsUncheckedUpdateWithoutPostInput>
@@ -7945,6 +9257,117 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PostDeletionLogUpsertWithoutPostInput = {
+    update: XOR<PostDeletionLogUpdateWithoutPostInput, PostDeletionLogUncheckedUpdateWithoutPostInput>
+    create: XOR<PostDeletionLogCreateWithoutPostInput, PostDeletionLogUncheckedCreateWithoutPostInput>
+    where?: PostDeletionLogWhereInput
+  }
+
+  export type PostDeletionLogUpdateToOneWithWhereWithoutPostInput = {
+    where?: PostDeletionLogWhereInput
+    data: XOR<PostDeletionLogUpdateWithoutPostInput, PostDeletionLogUncheckedUpdateWithoutPostInput>
+  }
+
+  export type PostDeletionLogUpdateWithoutPostInput = {
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PostDeletionLogUncheckedUpdateWithoutPostInput = {
+    deletedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PostsCreateWithoutDeletionLogInput = {
+    id?: string
+    title: string
+    content: string
+    isDisplay?: boolean
+    tags?: string | null
+    sourceUrl?: string | null
+    originalPublishedAt?: Date | string | null
+    originalAuthor?: string | null
+    description?: string | null
+    imageUrl?: string | null
+    rawFeedData?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    postTags?: PostTagsCreateNestedManyWithoutPostInput
+    source?: BlogSourceCreateNestedOneWithoutPostsInput
+  }
+
+  export type PostsUncheckedCreateWithoutDeletionLogInput = {
+    id?: string
+    title: string
+    content: string
+    isDisplay?: boolean
+    tags?: string | null
+    sourceId?: string | null
+    sourceUrl?: string | null
+    originalPublishedAt?: Date | string | null
+    originalAuthor?: string | null
+    description?: string | null
+    imageUrl?: string | null
+    rawFeedData?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    postTags?: PostTagsUncheckedCreateNestedManyWithoutPostInput
+  }
+
+  export type PostsCreateOrConnectWithoutDeletionLogInput = {
+    where: PostsWhereUniqueInput
+    create: XOR<PostsCreateWithoutDeletionLogInput, PostsUncheckedCreateWithoutDeletionLogInput>
+  }
+
+  export type PostsUpsertWithoutDeletionLogInput = {
+    update: XOR<PostsUpdateWithoutDeletionLogInput, PostsUncheckedUpdateWithoutDeletionLogInput>
+    create: XOR<PostsCreateWithoutDeletionLogInput, PostsUncheckedCreateWithoutDeletionLogInput>
+    where?: PostsWhereInput
+  }
+
+  export type PostsUpdateToOneWithWhereWithoutDeletionLogInput = {
+    where?: PostsWhereInput
+    data: XOR<PostsUpdateWithoutDeletionLogInput, PostsUncheckedUpdateWithoutDeletionLogInput>
+  }
+
+  export type PostsUpdateWithoutDeletionLogInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    isDisplay?: BoolFieldUpdateOperationsInput | boolean
+    tags?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    originalPublishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    originalAuthor?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFeedData?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postTags?: PostTagsUpdateManyWithoutPostNestedInput
+    source?: BlogSourceUpdateOneWithoutPostsNestedInput
+  }
+
+  export type PostsUncheckedUpdateWithoutDeletionLogInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    isDisplay?: BoolFieldUpdateOperationsInput | boolean
+    tags?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceId?: NullableStringFieldUpdateOperationsInput | string | null
+    sourceUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    originalPublishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    originalAuthor?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rawFeedData?: NullableJsonNullValueInput | InputJsonValue
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    postTags?: PostTagsUncheckedUpdateManyWithoutPostNestedInput
+  }
+
   export type PostTagsCreateWithoutTagInput = {
     createdAt?: Date | string
     post: PostsCreateNestedOneWithoutPostTagsInput
@@ -7997,6 +9420,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     source?: BlogSourceCreateNestedOneWithoutPostsInput
+    deletionLog?: PostDeletionLogCreateNestedOneWithoutPostInput
   }
 
   export type PostsUncheckedCreateWithoutPostTagsInput = {
@@ -8015,6 +9439,7 @@ export namespace Prisma {
     contentHash?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    deletionLog?: PostDeletionLogUncheckedCreateNestedOneWithoutPostInput
   }
 
   export type PostsCreateOrConnectWithoutPostTagsInput = {
@@ -8065,6 +9490,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     source?: BlogSourceUpdateOneWithoutPostsNestedInput
+    deletionLog?: PostDeletionLogUpdateOneWithoutPostNestedInput
   }
 
   export type PostsUncheckedUpdateWithoutPostTagsInput = {
@@ -8083,6 +9509,7 @@ export namespace Prisma {
     contentHash?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletionLog?: PostDeletionLogUncheckedUpdateOneWithoutPostNestedInput
   }
 
   export type TagsUpsertWithoutPostTagsInput = {
@@ -8140,6 +9567,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postTags?: PostTagsUpdateManyWithoutPostNestedInput
+    deletionLog?: PostDeletionLogUpdateOneWithoutPostNestedInput
   }
 
   export type PostsUncheckedUpdateWithoutSourceInput = {
@@ -8158,6 +9586,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     postTags?: PostTagsUncheckedUpdateManyWithoutPostNestedInput
+    deletionLog?: PostDeletionLogUncheckedUpdateOneWithoutPostNestedInput
   }
 
   export type PostsUncheckedUpdateManyWithoutSourceInput = {

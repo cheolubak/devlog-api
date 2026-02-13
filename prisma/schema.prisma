@@ -25,48 +25,58 @@ enum FetchStatus {
 }
 
 model BlogSource {
-  id                 String       @db.Uuid @id @default(uuid())
-  name               String       @db.VarChar(100)
-  url                String       @unique @db.VarChar(500)
-  type               FeedType     @default(RSS)
-  scrapingConfig     Json?
-  icon               String?
-  isActive           Boolean      @default(true)
-  lastFetchedAt      DateTime?
-  lastFetchStatus    FetchStatus  @default(PENDING)
-  lastFetchError     String?      @db.Text
-  totalPostsFetched  Int          @default(0)
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
-  posts              Posts[]
+  id                String      @db.Uuid @id @default(uuid())
+  name              String      @db.VarChar(100)
+  url               String      @unique @db.VarChar(500)
+  type              FeedType    @default(RSS)
+  scrapingConfig    Json?
+  icon              String?
+  isActive          Boolean     @default(true)
+  lastFetchedAt     DateTime?
+  lastFetchStatus   FetchStatus @default(PENDING)
+  lastFetchError    String?     @db.Text
+  totalPostsFetched Int         @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt @default(now())
+  posts             Posts[]
 
   @@index([isActive])
   @@index([lastFetchedAt])
 }
 
 model Posts {
-  id                   String      @db.Uuid @id @default(uuid())
-  title                String      @db.VarChar(500)
-  content              String      @db.Text
-  isDisplay            Boolean     @default(false)
-  tags                 String?     @db.VarChar(100)
-  sourceId             String?     @db.Uuid
-  sourceUrl            String?     @unique @db.VarChar(1000)
-  originalPublishedAt  DateTime?
-  originalAuthor       String?     @db.VarChar(200)
-  description          String?     @db.Text
-  imageUrl             String?     @db.VarChar(1000)
-  rawFeedData          Json?
-  contentHash          String?     @db.VarChar(64)
-  createdAt            DateTime    @default(now())
-  updatedAt            DateTime    @default(now())
-  postTags             PostTags[]
-  source               BlogSource? @relation(fields: [sourceId], references: [id])
+  id                  String           @db.Uuid @id @default(uuid())
+  title               String           @db.VarChar(500)
+  content             String           @db.Text
+  isDisplay           Boolean          @default(false)
+  tags                String?          @db.VarChar(100)
+  sourceId            String?          @db.Uuid
+  sourceUrl           String?          @unique @db.VarChar(1000)
+  originalPublishedAt DateTime?
+  originalAuthor      String?          @db.VarChar(200)
+  description         String?          @db.Text
+  imageUrl            String?          @db.VarChar(1000)
+  rawFeedData         Json?
+  contentHash         String?          @db.VarChar(64)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @default(now())
+  postTags            PostTags[]
+  source              BlogSource?      @relation(fields: [sourceId], references: [id])
+  deletionLog         PostDeletionLog?
 
   @@index([sourceId])
   @@index([isDisplay])
   @@index([originalPublishedAt])
   @@index([isDisplay, originalPublishedAt])
+}
+
+model PostDeletionLog {
+  postId    String   @unique @db.Uuid
+  deletedAt DateTime @default(now())
+  post      Posts    @relation(fields: [postId], references: [id])
+
+  @@index([postId])
+  @@index([postId, deletedAt])
 }
 
 model Tags {

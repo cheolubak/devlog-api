@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { PrismaService } from '../database/prisma.service';
 import { PostQueryDto } from './dto/post-query.dto';
@@ -10,7 +14,9 @@ export class PostsService {
   async findDisplayPosts(query: PostQueryDto) {
     const { limit = 20, offset = 0, sourceId, tag } = query;
 
-    const where: any = {};
+    const where: any = {
+      deletionLog: null,
+    };
 
     if (sourceId) {
       where.sourceId = sourceId;
@@ -126,7 +132,9 @@ export class PostsService {
   async findAll(query: PostQueryDto) {
     const { limit = 20, offset = 0, isDisplay } = query;
 
-    const where: any = {};
+    const where: any = {
+      deletionLog: null,
+    };
 
     where.isDisplay = isDisplay;
 
@@ -180,6 +188,26 @@ export class PostsService {
   }
 
   async deletePost(id: string) {
-    return this.prisma.posts.delete({ where: { id } });
+    const post = await this.prisma.posts.findUnique({
+      where: { id },
+    });
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const isDelete = await this.prisma.postDeletionLog.findUnique({
+      where: {
+        postId: id,
+      },
+    });
+
+    if (isDelete) {
+      throw new BadRequestException();
+    }
+
+    return this.prisma.postDeletionLog.create({
+      data: { postId: id },
+    });
   }
 }

@@ -37,7 +37,7 @@ model BlogSource {
   lastFetchError    String?     @db.Text
   totalPostsFetched Int         @default(0)
   createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  updatedAt         DateTime    @default(now()) @updatedAt
   posts             Posts[]
 
   @@index([isActive])
@@ -45,28 +45,38 @@ model BlogSource {
 }
 
 model Posts {
-  id                  String      @id @default(uuid()) @db.Uuid
-  title               String      @db.VarChar(500)
-  content             String      @db.Text
-  isDisplay           Boolean     @default(false)
-  tags                String?     @db.VarChar(100)
-  sourceId            String?     @db.Uuid
-  sourceUrl           String?     @unique @db.VarChar(1000)
+  id                  String           @id @default(uuid()) @db.Uuid
+  title               String           @db.VarChar(500)
+  content             String           @db.Text
+  isDisplay           Boolean          @default(false)
+  tags                String?          @db.VarChar(100)
+  sourceId            String?          @db.Uuid
+  sourceUrl           String?          @unique @db.VarChar(1000)
   originalPublishedAt DateTime?
-  originalAuthor      String?     @db.VarChar(200)
-  description         String?     @db.Text
-  imageUrl            String?     @db.VarChar(1000)
+  originalAuthor      String?          @db.VarChar(200)
+  description         String?          @db.Text
+  imageUrl            String?          @db.VarChar(1000)
   rawFeedData         Json?
-  contentHash         String?     @db.VarChar(64)
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @default(now())
+  contentHash         String?          @db.VarChar(64)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @default(now())
   postTags            PostTags[]
-  source              BlogSource? @relation(fields: [sourceId], references: [id])
+  source              BlogSource?      @relation(fields: [sourceId], references: [id])
+  deletionLog         PostDeletionLog?
 
   @@index([sourceId])
   @@index([isDisplay])
   @@index([originalPublishedAt])
   @@index([isDisplay, originalPublishedAt])
+}
+
+model PostDeletionLog {
+  postId    String   @unique @db.Uuid
+  deletedAt DateTime @default(now())
+  post      Posts    @relation(fields: [postId], references: [id])
+
+  @@index([postId])
+  @@index([postId, deletedAt])
 }
 
 model Tags {
