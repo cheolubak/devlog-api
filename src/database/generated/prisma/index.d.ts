@@ -1382,6 +1382,7 @@ export namespace Prisma {
     totalPostsFetched: number | null
     createdAt: Date | null
     updatedAt: Date | null
+    blogUrl: string | null
   }
 
   export type BlogSourceMaxAggregateOutputType = {
@@ -1397,6 +1398,7 @@ export namespace Prisma {
     totalPostsFetched: number | null
     createdAt: Date | null
     updatedAt: Date | null
+    blogUrl: string | null
   }
 
   export type BlogSourceCountAggregateOutputType = {
@@ -1413,6 +1415,7 @@ export namespace Prisma {
     totalPostsFetched: number
     createdAt: number
     updatedAt: number
+    blogUrl: number
     _all: number
   }
 
@@ -1438,6 +1441,7 @@ export namespace Prisma {
     totalPostsFetched?: true
     createdAt?: true
     updatedAt?: true
+    blogUrl?: true
   }
 
   export type BlogSourceMaxAggregateInputType = {
@@ -1453,6 +1457,7 @@ export namespace Prisma {
     totalPostsFetched?: true
     createdAt?: true
     updatedAt?: true
+    blogUrl?: true
   }
 
   export type BlogSourceCountAggregateInputType = {
@@ -1469,6 +1474,7 @@ export namespace Prisma {
     totalPostsFetched?: true
     createdAt?: true
     updatedAt?: true
+    blogUrl?: true
     _all?: true
   }
 
@@ -1572,6 +1578,7 @@ export namespace Prisma {
     totalPostsFetched: number
     createdAt: Date
     updatedAt: Date
+    blogUrl: string
     _count: BlogSourceCountAggregateOutputType | null
     _avg: BlogSourceAvgAggregateOutputType | null
     _sum: BlogSourceSumAggregateOutputType | null
@@ -1607,6 +1614,7 @@ export namespace Prisma {
     totalPostsFetched?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    blogUrl?: boolean
     posts?: boolean | BlogSource$postsArgs<ExtArgs>
     _count?: boolean | BlogSourceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["blogSource"]>
@@ -1625,6 +1633,7 @@ export namespace Prisma {
     totalPostsFetched?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    blogUrl?: boolean
   }, ExtArgs["result"]["blogSource"]>
 
   export type BlogSourceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1641,6 +1650,7 @@ export namespace Prisma {
     totalPostsFetched?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    blogUrl?: boolean
   }, ExtArgs["result"]["blogSource"]>
 
   export type BlogSourceSelectScalar = {
@@ -1657,9 +1667,10 @@ export namespace Prisma {
     totalPostsFetched?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    blogUrl?: boolean
   }
 
-  export type BlogSourceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "type" | "scrapingConfig" | "icon" | "isActive" | "lastFetchedAt" | "lastFetchStatus" | "lastFetchError" | "totalPostsFetched" | "createdAt" | "updatedAt", ExtArgs["result"]["blogSource"]>
+  export type BlogSourceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "type" | "scrapingConfig" | "icon" | "isActive" | "lastFetchedAt" | "lastFetchStatus" | "lastFetchError" | "totalPostsFetched" | "createdAt" | "updatedAt" | "blogUrl", ExtArgs["result"]["blogSource"]>
   export type BlogSourceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     posts?: boolean | BlogSource$postsArgs<ExtArgs>
     _count?: boolean | BlogSourceCountOutputTypeDefaultArgs<ExtArgs>
@@ -1686,6 +1697,7 @@ export namespace Prisma {
       totalPostsFetched: number
       createdAt: Date
       updatedAt: Date
+      blogUrl: string
     }, ExtArgs["result"]["blogSource"]>
     composites: {}
   }
@@ -2123,6 +2135,7 @@ export namespace Prisma {
     readonly totalPostsFetched: FieldRef<"BlogSource", 'Int'>
     readonly createdAt: FieldRef<"BlogSource", 'DateTime'>
     readonly updatedAt: FieldRef<"BlogSource", 'DateTime'>
+    readonly blogUrl: FieldRef<"BlogSource", 'String'>
   }
     
 
@@ -7056,7 +7069,8 @@ export namespace Prisma {
     lastFetchError: 'lastFetchError',
     totalPostsFetched: 'totalPostsFetched',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    blogUrl: 'blogUrl'
   };
 
   export type BlogSourceScalarFieldEnum = (typeof BlogSourceScalarFieldEnum)[keyof typeof BlogSourceScalarFieldEnum]
@@ -7288,6 +7302,7 @@ export namespace Prisma {
     totalPostsFetched?: IntFilter<"BlogSource"> | number
     createdAt?: DateTimeFilter<"BlogSource"> | Date | string
     updatedAt?: DateTimeFilter<"BlogSource"> | Date | string
+    blogUrl?: StringFilter<"BlogSource"> | string
     posts?: PostsListRelationFilter
   }
 
@@ -7305,6 +7320,7 @@ export namespace Prisma {
     totalPostsFetched?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    blogUrl?: SortOrder
     posts?: PostsOrderByRelationAggregateInput
   }
 
@@ -7325,6 +7341,7 @@ export namespace Prisma {
     totalPostsFetched?: IntFilter<"BlogSource"> | number
     createdAt?: DateTimeFilter<"BlogSource"> | Date | string
     updatedAt?: DateTimeFilter<"BlogSource"> | Date | string
+    blogUrl?: StringFilter<"BlogSource"> | string
     posts?: PostsListRelationFilter
   }, "id" | "url">
 
@@ -7342,6 +7359,7 @@ export namespace Prisma {
     totalPostsFetched?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    blogUrl?: SortOrder
     _count?: BlogSourceCountOrderByAggregateInput
     _avg?: BlogSourceAvgOrderByAggregateInput
     _max?: BlogSourceMaxOrderByAggregateInput
@@ -7366,6 +7384,7 @@ export namespace Prisma {
     totalPostsFetched?: IntWithAggregatesFilter<"BlogSource"> | number
     createdAt?: DateTimeWithAggregatesFilter<"BlogSource"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BlogSource"> | Date | string
+    blogUrl?: StringWithAggregatesFilter<"BlogSource"> | string
   }
 
   export type PostsWhereInput = {
@@ -7631,6 +7650,7 @@ export namespace Prisma {
     totalPostsFetched?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    blogUrl: string
     posts?: PostsCreateNestedManyWithoutSourceInput
   }
 
@@ -7648,6 +7668,7 @@ export namespace Prisma {
     totalPostsFetched?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    blogUrl: string
     posts?: PostsUncheckedCreateNestedManyWithoutSourceInput
   }
 
@@ -7665,6 +7686,7 @@ export namespace Prisma {
     totalPostsFetched?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blogUrl?: StringFieldUpdateOperationsInput | string
     posts?: PostsUpdateManyWithoutSourceNestedInput
   }
 
@@ -7682,6 +7704,7 @@ export namespace Prisma {
     totalPostsFetched?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blogUrl?: StringFieldUpdateOperationsInput | string
     posts?: PostsUncheckedUpdateManyWithoutSourceNestedInput
   }
 
@@ -7699,6 +7722,7 @@ export namespace Prisma {
     totalPostsFetched?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    blogUrl: string
   }
 
   export type BlogSourceUpdateManyMutationInput = {
@@ -7715,6 +7739,7 @@ export namespace Prisma {
     totalPostsFetched?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blogUrl?: StringFieldUpdateOperationsInput | string
   }
 
   export type BlogSourceUncheckedUpdateManyInput = {
@@ -7731,6 +7756,7 @@ export namespace Prisma {
     totalPostsFetched?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blogUrl?: StringFieldUpdateOperationsInput | string
   }
 
   export type PostsCreateInput = {
@@ -8129,6 +8155,7 @@ export namespace Prisma {
     totalPostsFetched?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    blogUrl?: SortOrder
   }
 
   export type BlogSourceAvgOrderByAggregateInput = {
@@ -8148,6 +8175,7 @@ export namespace Prisma {
     totalPostsFetched?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    blogUrl?: SortOrder
   }
 
   export type BlogSourceMinOrderByAggregateInput = {
@@ -8163,6 +8191,7 @@ export namespace Prisma {
     totalPostsFetched?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    blogUrl?: SortOrder
   }
 
   export type BlogSourceSumOrderByAggregateInput = {
@@ -9153,6 +9182,7 @@ export namespace Prisma {
     totalPostsFetched?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    blogUrl: string
   }
 
   export type BlogSourceUncheckedCreateWithoutPostsInput = {
@@ -9169,6 +9199,7 @@ export namespace Prisma {
     totalPostsFetched?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    blogUrl: string
   }
 
   export type BlogSourceCreateOrConnectWithoutPostsInput = {
@@ -9239,6 +9270,7 @@ export namespace Prisma {
     totalPostsFetched?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blogUrl?: StringFieldUpdateOperationsInput | string
   }
 
   export type BlogSourceUncheckedUpdateWithoutPostsInput = {
@@ -9255,6 +9287,7 @@ export namespace Prisma {
     totalPostsFetched?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    blogUrl?: StringFieldUpdateOperationsInput | string
   }
 
   export type PostDeletionLogUpsertWithoutPostInput = {

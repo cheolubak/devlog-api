@@ -134,7 +134,8 @@ exports.Prisma.BlogSourceScalarFieldEnum = {
   lastFetchError: 'lastFetchError',
   totalPostsFetched: 'totalPostsFetched',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  blogUrl: 'blogUrl'
 };
 
 exports.Prisma.RelationLoadStrategy = {

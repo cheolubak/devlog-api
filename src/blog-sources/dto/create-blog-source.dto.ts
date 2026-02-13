@@ -32,4 +32,9 @@ export class CreateBlogSourceDto {
   @IsUrl()
   @MaxLength(500)
   url: string;
+
+  @IsNotEmpty()
+  @IsUrl()
+  @MaxLength(500)
+  blogUrl: string;
 }

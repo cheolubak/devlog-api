@@ -39,6 +39,7 @@ model BlogSource {
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt @default(now())
   posts             Posts[]
+  blogUrl           String
 
   @@index([isActive])
   @@index([lastFetchedAt])
