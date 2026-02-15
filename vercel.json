@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/feed-fetcher/cron",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
