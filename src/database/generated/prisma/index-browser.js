@@ -206,7 +206,8 @@ exports.Prisma.NullsOrder = {
 exports.FeedType = exports.$Enums.FeedType = {
   RSS: 'RSS',
   ATOM: 'ATOM',
-  SCRAPING: 'SCRAPING'
+  SCRAPING: 'SCRAPING',
+  YOUTUBE: 'YOUTUBE'
 };
 
 exports.FetchStatus = exports.$Enums.FetchStatus = {

@@ -8,6 +8,7 @@ import { FeedFetcherService } from './feed-fetcher.service';
 import { FeedParserService } from './feed-parser.service';
 import { FeedSchedulerService } from './feed-scheduler.service';
 import { WebScraperService } from './web-scraper.service';
+import { YoutubeFetcherService } from './youtube-fetcher.service';
 
 @Module({
   controllers: [FeedFetcherController],
@@ -18,6 +19,7 @@ import { WebScraperService } from './web-scraper.service';
     FeedParserService,
     FeedSchedulerService,
     WebScraperService,
+    YoutubeFetcherService,
   ],
 })
 export class FeedFetcherModule {}

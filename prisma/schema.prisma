@@ -15,6 +15,7 @@ enum FeedType {
   RSS
   ATOM
   SCRAPING
+  YOUTUBE
 }
 
 enum FetchStatus {

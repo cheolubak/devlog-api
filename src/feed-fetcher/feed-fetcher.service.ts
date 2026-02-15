@@ -9,6 +9,7 @@ import { ScrapingConfig } from './interfaces/scraping-config.interface';
 import { generateContentHash } from './utils/content-hash.util';
 import { FeedNormalizerUtil } from './utils/feed-normalizer.util';
 import { WebScraperService } from './web-scraper.service';
+import { YoutubeFetcherService } from './youtube-fetcher.service';
 
 @Injectable()
 export class FeedFetcherService {
@@ -19,6 +20,7 @@ export class FeedFetcherService {
     private readonly blogSourcesService: BlogSourcesService,
     private readonly feedParserService: FeedParserService,
     private readonly webScraperService: WebScraperService,
+    private readonly youtubeFetcherService: YoutubeFetcherService,
   ) {}
 
   async fetchFromSource(sourceId: string) {
@@ -132,6 +134,8 @@ export class FeedFetcherService {
           source.url,
           source.scrapingConfig as unknown as ScrapingConfig,
         );
+      case FeedType.YOUTUBE:
+        return this.youtubeFetcherService.fetchVideos(source.url);
       default:
         throw new Error(`Unknown feed type: ${source.type}`);
     }

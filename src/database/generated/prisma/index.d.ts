@@ -46,7 +46,8 @@ export namespace $Enums {
   export const FeedType: {
   RSS: 'RSS',
   ATOM: 'ATOM',
-  SCRAPING: 'SCRAPING'
+  SCRAPING: 'SCRAPING',
+  YOUTUBE: 'YOUTUBE'
 };
 
 export type FeedType = (typeof FeedType)[keyof typeof FeedType]
