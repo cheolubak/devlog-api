@@ -8,8 +8,8 @@ import { FeedItem, ParsedFeed } from './interfaces/feed-item.interface';
 import { ScrapingConfig } from './interfaces/scraping-config.interface';
 import { withRetry } from './utils/retry.util';
 
-type CheerioRoot = ReturnType<typeof cheerio.load>;
 type CheerioElement = ReturnType<CheerioRoot>[number];
+type CheerioRoot = ReturnType<typeof cheerio.load>;
 
 @Injectable()
 export class WebScraperService implements OnModuleDestroy {

@@ -51,16 +51,16 @@ export class ScrapingConfigDto {
   listSelector: string;
 
   @IsIn(['static', 'dynamic'])
-  renderMode: 'static' | 'dynamic';
+  renderMode: 'dynamic' | 'static';
 
-  @ValidateNested()
   @Type(() => ScrapingSelectorsDto)
+  @ValidateNested()
   selectors: ScrapingSelectorsDto;
 
-  @IsOptional()
   @IsInt()
+  @IsOptional()
   @Min(0)
   waitFor?: number;
 
-  [key: string]: string | number | ScrapingSelectorsDto | undefined;
+  [key: string]: number | ScrapingSelectorsDto | string | undefined;
 }

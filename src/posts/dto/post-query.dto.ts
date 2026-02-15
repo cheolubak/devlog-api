@@ -1,12 +1,15 @@
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
   IsUUID,
   Min,
 } from 'class-validator';
+
+import { FeedType } from '../../database/generated/prisma';
 
 export class PostQueryDto {
   @IsOptional()
@@ -33,4 +36,7 @@ export class PostQueryDto {
   @Min(0)
   @Transform(({ value }) => parseInt(value, 10))
   offset?: number = 0;
+
+  @IsEnum(FeedType)
+  type?: FeedType[];
 }

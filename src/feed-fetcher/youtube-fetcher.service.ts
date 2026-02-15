@@ -5,13 +5,14 @@ import { firstValueFrom } from 'rxjs';
 
 import { ParsedFeed } from './interfaces/feed-item.interface';
 
-interface YouTubeSearchResponse {
-  items: YouTubeSearchItem[];
-  nextPageToken?: string;
-  pageInfo: {
-    resultsPerPage: number;
-    totalResults: number;
-  };
+interface YouTubeChannelResponse {
+  items: {
+    id: string;
+    snippet: {
+      customUrl?: string;
+      title: string;
+    };
+  }[];
 }
 
 interface YouTubeSearchItem {
@@ -33,20 +34,19 @@ interface YouTubeSearchItem {
   };
 }
 
+interface YouTubeSearchResponse {
+  items: YouTubeSearchItem[];
+  nextPageToken?: string;
+  pageInfo: {
+    resultsPerPage: number;
+    totalResults: number;
+  };
+}
+
 interface YouTubeThumbnail {
   height: number;
   url: string;
   width: number;
-}
-
-interface YouTubeChannelResponse {
-  items: {
-    id: string;
-    snippet: {
-      customUrl?: string;
-      title: string;
-    };
-  }[];
 }
 
 @Injectable()
@@ -191,7 +191,9 @@ export class YoutubeFetcherService {
     return channelId;
   }
 
-  private async searchVideos(channelId: string): Promise<YouTubeSearchResponse> {
+  private async searchVideos(
+    channelId: string,
+  ): Promise<YouTubeSearchResponse> {
     const searchUrl = `${this.baseUrl}/search`;
     const params = {
       channelId,
@@ -213,8 +215,12 @@ export class YoutubeFetcherService {
     return response.data;
   }
 
-  private getBestThumbnail(thumbnails: YouTubeSearchItem['snippet']['thumbnails']): string {
-    return thumbnails.high?.url || thumbnails.medium?.url || thumbnails.default?.url;
+  private getBestThumbnail(
+    thumbnails: YouTubeSearchItem['snippet']['thumbnails'],
+  ): string {
+    return (
+      thumbnails.high?.url || thumbnails.medium?.url || thumbnails.default?.url
+    );
   }
 
   private truncateDescription(description: string, maxLength: number): string {

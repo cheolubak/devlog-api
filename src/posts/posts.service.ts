@@ -12,7 +12,7 @@ export class PostsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findDisplayPosts(query: PostQueryDto) {
-    const { limit = 20, offset = 0, sourceId, tag } = query;
+    const { limit = 20, offset = 0, sourceId, tag, type } = query;
 
     const where: any = {
       deletionLog: null,
@@ -20,6 +20,10 @@ export class PostsService {
 
     if (sourceId) {
       where.sourceId = sourceId;
+    }
+
+    if (type) {
+      where.source = { type: { in: Array.isArray(type) ? type : [type] } };
     }
 
     where.isDisplay = true;
@@ -55,10 +59,10 @@ export class PostsService {
           },
           source: {
             select: {
+              blogUrl: true,
               id: true,
               name: true,
               url: true,
-              blogUrl: true,
             },
           },
           sourceUrl: true,
@@ -97,11 +101,11 @@ export class PostsService {
         },
         source: {
           select: {
+            blogUrl: true,
+            icon: true,
             id: true,
             name: true,
             url: true,
-            icon: true,
-            blogUrl: true,
           },
         },
       },
@@ -132,13 +136,17 @@ export class PostsService {
   }
 
   async findAll(query: PostQueryDto) {
-    const { limit = 20, offset = 0, isDisplay } = query;
+    const { isDisplay, limit = 20, offset = 0, type } = query;
 
     const where: any = {
       deletionLog: null,
     };
 
     where.isDisplay = isDisplay;
+
+    if (type) {
+      where.source = { type };
+    }
 
     const [posts, total] = await Promise.all([
       this.prisma.posts.findMany({
@@ -148,8 +156,8 @@ export class PostsService {
           description: true,
           id: true,
           imageUrl: true,
-          originalPublishedAt: true,
           isDisplay: true,
+          originalPublishedAt: true,
           postTags: {
             include: {
               tag: {
@@ -162,11 +170,11 @@ export class PostsService {
           },
           source: {
             select: {
+              blogUrl: true,
+              icon: true,
               id: true,
               name: true,
               url: true,
-              icon: true,
-              blogUrl: true,
             },
           },
           sourceUrl: true,

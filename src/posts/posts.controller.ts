@@ -26,6 +26,19 @@ export class PostsController {
     return this.postsService.findAll(query);
   }
 
+  @Get('blog')
+  findBlog(@Query() query: PostQueryDto) {
+    return this.postsService.findAll({
+      ...query,
+      type: ['RSS', 'ATOM', 'SCRAPING'],
+    });
+  }
+
+  @Get('youtube')
+  findYoutube(@Query() query: PostQueryDto) {
+    return this.postsService.findAll({ ...query, type: ['YOUTUBE'] });
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(id);

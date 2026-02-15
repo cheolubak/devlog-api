@@ -1,7 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { BlogSourcesService } from '../blog-sources/blog-sources.service';
-import { BlogSource, FeedType, FetchStatus } from '../database/generated/prisma';
+import {
+  BlogSource,
+  FeedType,
+  FetchStatus,
+} from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { FeedParserService } from './feed-parser.service';
 import { FeedItem, ParsedFeed } from './interfaces/feed-item.interface';
@@ -123,8 +127,8 @@ export class FeedFetcherService {
 
   private async getFeedByType(source: BlogSource): Promise<ParsedFeed> {
     switch (source.type) {
-      case FeedType.RSS:
       case FeedType.ATOM:
+      case FeedType.RSS:
         return this.feedParserService.parseFeed(source.url);
       case FeedType.SCRAPING:
         if (!source.scrapingConfig) {

@@ -19,10 +19,10 @@ export class CreateBlogSourceDto {
   @MaxLength(100)
   name: string;
 
-  @ValidateIf((o) => o.type === 'SCRAPING')
   @IsObject()
-  @ValidateNested()
   @Type(() => ScrapingConfigDto)
+  @ValidateIf((o) => o.type === 'SCRAPING')
+  @ValidateNested()
   scrapingConfig?: ScrapingConfigDto;
 
   @IsEnum(FeedType)

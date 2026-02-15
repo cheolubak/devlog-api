@@ -39,7 +39,7 @@ export class FeedNormalizerUtil {
       .substring(0, 50);
   }
 
-  static normalizeCreator(creator: unknown): string | null {
+  static normalizeCreator(creator: unknown): null | string {
     if (!creator) return null;
     if (typeof creator === 'string') return creator;
     if (typeof creator === 'object') {
