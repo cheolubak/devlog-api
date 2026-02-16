@@ -8,6 +8,7 @@ import { BlogSourcesModule } from './blog-sources/blog-sources.module';
 import { DatabaseModule } from './database/database.module';
 import { FeedFetcherModule } from './feed-fetcher/feed-fetcher.module';
 import { PostsModule } from './posts/posts.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   controllers: [AppController],
@@ -18,6 +19,7 @@ import { PostsModule } from './posts/posts.module';
     BlogSourcesModule,
     FeedFetcherModule,
     PostsModule,
+    SearchModule,
   ],
   providers: [AppService],
 })
