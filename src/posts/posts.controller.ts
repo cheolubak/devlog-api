@@ -8,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 
+import { FeedType } from '../database/generated/prisma';
 import { PostQueryDto } from './dto/post-query.dto';
 import { UpdateDisplayDto } from './dto/update-display.dto';
 import { PostsService } from './posts.service';
@@ -30,13 +31,13 @@ export class PostsController {
   findBlog(@Query() query: PostQueryDto) {
     return this.postsService.findAll({
       ...query,
-      type: ['RSS', 'ATOM', 'SCRAPING'],
+      type: [FeedType.RSS, FeedType.ATOM, FeedType.SCRAPING],
     });
   }
 
   @Get('youtube')
   findYoutube(@Query() query: PostQueryDto) {
-    return this.postsService.findAll({ ...query, type: ['YOUTUBE'] });
+    return this.postsService.findAll({ ...query, type: [FeedType.YOUTUBE] });
   }
 
   @Get(':id')

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 
@@ -9,10 +10,14 @@ import { PostQueryDto } from './dto/post-query.dto';
 
 @Injectable()
 export class PostsService {
+  private readonly logger = new Logger(PostsService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async findDisplayPosts(query: PostQueryDto) {
     const { limit = 20, offset = 0, sourceId, tag, type } = query;
+
+    this.logger.log('Finding display posts with query:', query);
 
     const where: any = {
       deletionLog: null,
@@ -87,6 +92,8 @@ export class PostsService {
   }
 
   async findOne(id: string) {
+    this.logger.log(`Finding post with id: ${id}`);
+
     const post = await this.prisma.posts.findUnique({
       include: {
         postTags: {
@@ -121,6 +128,8 @@ export class PostsService {
   }
 
   async updateDisplay(id: string, isDisplay: boolean) {
+    this.logger.log(`Updating display status for post ${id}: ${isDisplay}`);
+
     const post = await this.prisma.posts.findUnique({
       where: { id },
     });
@@ -136,6 +145,8 @@ export class PostsService {
   }
 
   async findAll(query: PostQueryDto) {
+    this.logger.log('Finding all posts with query:', query);
+
     const { isDisplay, limit = 20, offset = 0, type } = query;
 
     const where: any = {
@@ -145,7 +156,7 @@ export class PostsService {
     where.isDisplay = isDisplay;
 
     if (type) {
-      where.source = { type };
+      where.source = { type: { in: Array.isArray(type) ? type : [type] } };
     }
 
     const [posts, total] = await Promise.all([
@@ -199,6 +210,8 @@ export class PostsService {
   }
 
   async deletePost(id: string) {
+    this.logger.log(`Deleting post with id: ${id}`);
+
     const post = await this.prisma.posts.findUnique({
       where: { id },
     });

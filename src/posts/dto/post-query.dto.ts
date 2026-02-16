@@ -37,6 +37,8 @@ export class PostQueryDto {
   @Transform(({ value }) => parseInt(value, 10))
   offset?: number = 0;
 
-  @IsEnum(FeedType)
+  @IsEnum(FeedType, { each: true })
+  @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
   type?: FeedType[];
 }
