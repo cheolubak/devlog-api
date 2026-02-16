@@ -29,7 +29,7 @@ export class PostsController {
 
   @Get('blog')
   findBlog(@Query() query: PostQueryDto) {
-    return this.postsService.findAll({
+    return this.postsService.findDisplayPosts({
       ...query,
       type: [FeedType.RSS, FeedType.ATOM, FeedType.SCRAPING],
     });
@@ -37,7 +37,10 @@ export class PostsController {
 
   @Get('youtube')
   findYoutube(@Query() query: PostQueryDto) {
-    return this.postsService.findAll({ ...query, type: [FeedType.YOUTUBE] });
+    return this.postsService.findDisplayPosts({
+      ...query,
+      type: [FeedType.YOUTUBE],
+    });
   }
 
   @Get(':id')
