@@ -43,6 +43,17 @@ interface YouTubeSearchResponse {
   };
 }
 
+interface YouTubeVideoDetail {
+  contentDetails: {
+    duration: string;
+  };
+  id: string;
+}
+
+interface YouTubeVideoListResponse {
+  items: YouTubeVideoDetail[];
+}
+
 interface YouTubeThumbnail {
   height: number;
   url: string;
@@ -71,8 +82,9 @@ export class YoutubeFetcherService {
     this.logger.log(`Fetching videos for channel: ${channelId}`);
 
     const response = await this.searchVideos(channelId);
+    const filteredItems = await this.filterOutShorts(response.items);
 
-    const items = response.items.map((item) => ({
+    const items = filteredItems.map((item) => ({
       content: item.snippet.description,
       contentSnippet: this.truncateDescription(item.snippet.description, 300),
       creator: item.snippet.channelTitle,
@@ -88,7 +100,7 @@ export class YoutubeFetcherService {
       description: `YouTube channel videos`,
       items,
       link: channelUrl,
-      title: response.items[0]?.snippet.channelTitle || 'YouTube Channel',
+      title: filteredItems[0]?.snippet.channelTitle || 'YouTube Channel',
     };
   }
 
@@ -213,6 +225,46 @@ export class YoutubeFetcherService {
     );
 
     return response.data;
+  }
+
+  private async filterOutShorts(
+    items: YouTubeSearchItem[],
+  ): Promise<YouTubeSearchItem[]> {
+    if (items.length === 0) return items;
+
+    const videoIds = items.map((item) => item.id.videoId).join(',');
+    const videosUrl = `${this.baseUrl}/videos`;
+    const params = {
+      id: videoIds,
+      key: this.apiKey,
+      part: 'contentDetails',
+    };
+
+    const response = await firstValueFrom(
+      this.httpService.get<YouTubeVideoListResponse>(videosUrl, { params }),
+    );
+
+    const shortsIds = new Set(
+      response.data.items
+        .filter((video) => this.parseDuration(video.contentDetails.duration) <= 60)
+        .map((video) => video.id),
+    );
+
+    const filtered = items.filter((item) => !shortsIds.has(item.id.videoId));
+    this.logger.log(
+      `Filtered out ${items.length - filtered.length} Shorts from ${items.length} videos`,
+    );
+
+    return filtered;
+  }
+
+  private parseDuration(duration: string): number {
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return 0;
+    const hours = parseInt(match[1] || '0', 10);
+    const minutes = parseInt(match[2] || '0', 10);
+    const seconds = parseInt(match[3] || '0', 10);
+    return hours * 3600 + minutes * 60 + seconds;
   }
 
   private getBestThumbnail(
