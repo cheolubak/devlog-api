@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { FetchStatus } from '../database/generated/prisma';
+import { FeedType, FetchStatus } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { CreateBlogSourceDto } from './dto/create-blog-source.dto';
 import { UpdateBlogSourceDto } from './dto/update-blog-source.dto';
@@ -38,6 +38,37 @@ export class BlogSourcesService {
       },
       orderBy: { createdAt: 'desc' },
       where,
+    });
+  }
+
+  async findAllYoutube() {
+    const where = { isActive: true, type: FeedType.YOUTUBE };
+
+    return this.prisma.blogSource.findMany({
+      include: {
+        _count: {
+          select: { posts: true },
+        },
+      },
+      orderBy: { lastFetchedAt: 'asc' },
+      where,
+    });
+  }
+
+  async findAllBlog() {
+    return this.prisma.blogSource.findMany({
+      include: {
+        _count: {
+          select: { posts: true },
+        },
+      },
+      orderBy: { lastFetchedAt: 'asc' },
+      where: {
+        isActive: true,
+        type: {
+          in: [FeedType.RSS, FeedType.ATOM, FeedType.SCRAPING],
+        },
+      },
     });
   }
 

@@ -27,6 +27,16 @@ export class BlogSourcesController {
     return this.blogSourcesService.findAll(includeInactive === 'true');
   }
 
+  @Get('youtubes')
+  findAllYoutubes() {
+    return this.blogSourcesService.findAllYoutube();
+  }
+
+  @Get('blogs')
+  findAllBlogs() {
+    return this.blogSourcesService.findAllBlog();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.blogSourcesService.findOne(id);
