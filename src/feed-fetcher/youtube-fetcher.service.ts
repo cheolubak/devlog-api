@@ -43,6 +43,12 @@ interface YouTubeSearchResponse {
   };
 }
 
+interface YouTubeThumbnail {
+  height: number;
+  url: string;
+  width: number;
+}
+
 interface YouTubeVideoDetail {
   contentDetails: {
     duration: string;
@@ -52,12 +58,6 @@ interface YouTubeVideoDetail {
 
 interface YouTubeVideoListResponse {
   items: YouTubeVideoDetail[];
-}
-
-interface YouTubeThumbnail {
-  height: number;
-  url: string;
-  width: number;
 }
 
 @Injectable()
@@ -246,7 +246,9 @@ export class YoutubeFetcherService {
 
     const shortsIds = new Set(
       response.data.items
-        .filter((video) => this.parseDuration(video.contentDetails.duration) <= 60)
+        .filter(
+          (video) => this.parseDuration(video.contentDetails.duration) <= 60,
+        )
         .map((video) => video.id),
     );
 
