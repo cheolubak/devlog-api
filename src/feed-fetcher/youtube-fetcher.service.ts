@@ -5,6 +5,16 @@ import { firstValueFrom } from 'rxjs';
 
 import { ParsedFeed } from './interfaces/feed-item.interface';
 
+export interface FetchVideosOptions {
+  cachedChannelId?: string;
+  existingVideoUrls?: Set<string>;
+}
+
+export interface FetchVideosResult {
+  channelId: string;
+  feed: ParsedFeed;
+}
+
 interface YouTubeChannelResponse {
   items: {
     id: string;
@@ -13,6 +23,34 @@ interface YouTubeChannelResponse {
       title: string;
     };
   }[];
+}
+
+interface YouTubePlaylistItem {
+  snippet: {
+    channelId: string;
+    channelTitle: string;
+    description: string;
+    publishedAt: string;
+    resourceId: {
+      kind: string;
+      videoId: string;
+    };
+    thumbnails: {
+      default: YouTubeThumbnail;
+      high: YouTubeThumbnail;
+      medium: YouTubeThumbnail;
+    };
+    title: string;
+  };
+}
+
+interface YouTubePlaylistItemsResponse {
+  items: YouTubePlaylistItem[];
+  nextPageToken?: string;
+  pageInfo: {
+    resultsPerPage: number;
+    totalResults: number;
+  };
 }
 
 interface YouTubeSearchItem {
@@ -73,34 +111,63 @@ export class YoutubeFetcherService {
     this.apiKey = this.configService.get<string>('YOUTUBE_API_KEY') || '';
   }
 
-  async fetchVideos(channelUrl: string): Promise<ParsedFeed> {
+  async fetchVideos(
+    channelUrl: string,
+    options?: FetchVideosOptions,
+  ): Promise<FetchVideosResult> {
     if (!this.apiKey) {
       throw new Error('YOUTUBE_API_KEY is not configured');
     }
 
-    const channelId = await this.extractChannelId(channelUrl);
+    const channelId =
+      options?.cachedChannelId || (await this.extractChannelId(channelUrl));
+
+    if (options?.cachedChannelId) {
+      this.logger.log(`Using cached channel ID: ${channelId}`);
+    }
+
     this.logger.log(`Fetching videos for channel: ${channelId}`);
 
-    const response = await this.searchVideos(channelId);
-    const filteredItems = await this.filterOutShorts(response.items);
+    const response = await this.listUploadedVideos(channelId);
+
+    // Filter out already-existing videos before calling filterOutShorts
+    let newItems = response.items;
+    if (options?.existingVideoUrls?.size) {
+      newItems = newItems.filter(
+        (item) =>
+          !options.existingVideoUrls.has(
+            `https://www.youtube.com/watch?v=${item.snippet.resourceId.videoId}`,
+          ),
+      );
+      this.logger.log(
+        `${response.items.length - newItems.length} videos already in DB, ${newItems.length} new videos to check`,
+      );
+    }
+
+    // Only call filterOutShorts if there are new videos
+    const filteredItems =
+      newItems.length > 0 ? await this.filterOutShorts(newItems) : [];
 
     const items = filteredItems.map((item) => ({
       content: item.snippet.description,
       contentSnippet: this.truncateDescription(item.snippet.description, 300),
       creator: item.snippet.channelTitle,
-      guid: item.id.videoId,
+      guid: item.snippet.resourceId.videoId,
       imageUrl: this.getBestThumbnail(item.snippet.thumbnails),
       isoDate: item.snippet.publishedAt,
-      link: `https://www.youtube.com/watch?v=${item.id.videoId}`,
+      link: `https://www.youtube.com/watch?v=${item.snippet.resourceId.videoId}`,
       rawData: item,
       title: item.snippet.title,
     }));
 
     return {
-      description: `YouTube channel videos`,
-      items,
-      link: channelUrl,
-      title: filteredItems[0]?.snippet.channelTitle || 'YouTube Channel',
+      channelId,
+      feed: {
+        description: `YouTube channel videos`,
+        items,
+        link: channelUrl,
+        title: filteredItems[0]?.snippet.channelTitle || 'YouTube Channel',
+      },
     };
   }
 
@@ -131,24 +198,22 @@ export class YoutubeFetcherService {
   private async resolveHandleToChannelId(handle: string): Promise<string> {
     this.logger.debug(`Resolving handle @${handle} to channel ID`);
 
-    const searchUrl = `${this.baseUrl}/search`;
+    const channelsUrl = `${this.baseUrl}/channels`;
     const params = {
+      forHandle: `@${handle}`,
       key: this.apiKey,
-      maxResults: '1',
-      part: 'snippet',
-      q: `@${handle}`,
-      type: 'channel',
+      part: 'id',
     };
 
     const response = await firstValueFrom(
-      this.httpService.get<YouTubeSearchResponse>(searchUrl, { params }),
+      this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
     );
 
     if (response.data.items.length === 0) {
       throw new Error(`Channel not found for handle: @${handle}`);
     }
 
-    const channelId = response.data.items[0].snippet.channelId;
+    const channelId = response.data.items[0].id;
     this.logger.debug(`Resolved @${handle} to channel ID: ${channelId}`);
     return channelId;
   }
@@ -158,8 +223,33 @@ export class YoutubeFetcherService {
   ): Promise<string> {
     this.logger.debug(`Resolving custom URL ${customUrl} to channel ID`);
 
+    // Try channels API with forHandle first (1 unit)
+    try {
+      const channelsUrl = `${this.baseUrl}/channels`;
+      const params = {
+        forHandle: `@${customUrl}`,
+        key: this.apiKey,
+        part: 'id',
+      };
+
+      const response = await firstValueFrom(
+        this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
+      );
+
+      if (response.data.items.length > 0) {
+        const channelId = response.data.items[0].id;
+        this.logger.debug(`Resolved ${customUrl} to channel ID: ${channelId}`);
+        return channelId;
+      }
+    } catch {
+      this.logger.debug(
+        `channels API failed for ${customUrl}, falling back to search`,
+      );
+    }
+
+    // Fallback to search API (100 units)
     const searchUrl = `${this.baseUrl}/search`;
-    const params = {
+    const searchParams = {
       key: this.apiKey,
       maxResults: '1',
       part: 'snippet',
@@ -168,7 +258,9 @@ export class YoutubeFetcherService {
     };
 
     const response = await firstValueFrom(
-      this.httpService.get<YouTubeSearchResponse>(searchUrl, { params }),
+      this.httpService.get<YouTubeSearchResponse>(searchUrl, {
+        params: searchParams,
+      }),
     );
 
     if (response.data.items.length === 0) {
@@ -203,21 +295,23 @@ export class YoutubeFetcherService {
     return channelId;
   }
 
-  private async searchVideos(
+  private async listUploadedVideos(
     channelId: string,
-  ): Promise<YouTubeSearchResponse> {
-    const searchUrl = `${this.baseUrl}/search`;
+  ): Promise<YouTubePlaylistItemsResponse> {
+    // Convert channel ID (UC...) to uploads playlist ID (UU...)
+    const uploadsPlaylistId = 'UU' + channelId.substring(2);
+    const playlistItemsUrl = `${this.baseUrl}/playlistItems`;
     const params = {
-      channelId,
       key: this.apiKey,
       maxResults: '50',
-      order: 'date',
       part: 'snippet',
-      type: 'video',
+      playlistId: uploadsPlaylistId,
     };
 
     const response = await firstValueFrom(
-      this.httpService.get<YouTubeSearchResponse>(searchUrl, { params }),
+      this.httpService.get<YouTubePlaylistItemsResponse>(playlistItemsUrl, {
+        params,
+      }),
     );
 
     this.logger.log(
@@ -228,11 +322,13 @@ export class YoutubeFetcherService {
   }
 
   private async filterOutShorts(
-    items: YouTubeSearchItem[],
-  ): Promise<YouTubeSearchItem[]> {
+    items: YouTubePlaylistItem[],
+  ): Promise<YouTubePlaylistItem[]> {
     if (items.length === 0) return items;
 
-    const videoIds = items.map((item) => item.id.videoId).join(',');
+    const videoIds = items
+      .map((item) => item.snippet.resourceId.videoId)
+      .join(',');
     const videosUrl = `${this.baseUrl}/videos`;
     const params = {
       id: videoIds,
@@ -252,7 +348,9 @@ export class YoutubeFetcherService {
         .map((video) => video.id),
     );
 
-    const filtered = items.filter((item) => !shortsIds.has(item.id.videoId));
+    const filtered = items.filter(
+      (item) => !shortsIds.has(item.snippet.resourceId.videoId),
+    );
     this.logger.log(
       `Filtered out ${items.length - filtered.length} Shorts from ${items.length} videos`,
     );
@@ -270,7 +368,7 @@ export class YoutubeFetcherService {
   }
 
   private getBestThumbnail(
-    thumbnails: YouTubeSearchItem['snippet']['thumbnails'],
+    thumbnails: YouTubePlaylistItem['snippet']['thumbnails'],
   ): string {
     return (
       thumbnails.high?.url || thumbnails.medium?.url || thumbnails.default?.url

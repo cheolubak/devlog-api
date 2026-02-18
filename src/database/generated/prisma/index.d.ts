@@ -1408,6 +1408,7 @@ export namespace Prisma {
     url: number
     type: number
     scrapingConfig: number
+    metadata: number
     icon: number
     isActive: number
     lastFetchedAt: number
@@ -1467,6 +1468,7 @@ export namespace Prisma {
     url?: true
     type?: true
     scrapingConfig?: true
+    metadata?: true
     icon?: true
     isActive?: true
     lastFetchedAt?: true
@@ -1571,6 +1573,7 @@ export namespace Prisma {
     url: string
     type: $Enums.FeedType
     scrapingConfig: JsonValue | null
+    metadata: JsonValue | null
     icon: string | null
     isActive: boolean
     lastFetchedAt: Date | null
@@ -1607,6 +1610,7 @@ export namespace Prisma {
     url?: boolean
     type?: boolean
     scrapingConfig?: boolean
+    metadata?: boolean
     icon?: boolean
     isActive?: boolean
     lastFetchedAt?: boolean
@@ -1626,6 +1630,7 @@ export namespace Prisma {
     url?: boolean
     type?: boolean
     scrapingConfig?: boolean
+    metadata?: boolean
     icon?: boolean
     isActive?: boolean
     lastFetchedAt?: boolean
@@ -1643,6 +1648,7 @@ export namespace Prisma {
     url?: boolean
     type?: boolean
     scrapingConfig?: boolean
+    metadata?: boolean
     icon?: boolean
     isActive?: boolean
     lastFetchedAt?: boolean
@@ -1660,6 +1666,7 @@ export namespace Prisma {
     url?: boolean
     type?: boolean
     scrapingConfig?: boolean
+    metadata?: boolean
     icon?: boolean
     isActive?: boolean
     lastFetchedAt?: boolean
@@ -1671,7 +1678,7 @@ export namespace Prisma {
     blogUrl?: boolean
   }
 
-  export type BlogSourceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "type" | "scrapingConfig" | "icon" | "isActive" | "lastFetchedAt" | "lastFetchStatus" | "lastFetchError" | "totalPostsFetched" | "createdAt" | "updatedAt" | "blogUrl", ExtArgs["result"]["blogSource"]>
+  export type BlogSourceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "url" | "type" | "scrapingConfig" | "metadata" | "icon" | "isActive" | "lastFetchedAt" | "lastFetchStatus" | "lastFetchError" | "totalPostsFetched" | "createdAt" | "updatedAt" | "blogUrl", ExtArgs["result"]["blogSource"]>
   export type BlogSourceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     posts?: boolean | BlogSource$postsArgs<ExtArgs>
     _count?: boolean | BlogSourceCountOutputTypeDefaultArgs<ExtArgs>
@@ -1690,6 +1697,7 @@ export namespace Prisma {
       url: string
       type: $Enums.FeedType
       scrapingConfig: Prisma.JsonValue | null
+      metadata: Prisma.JsonValue | null
       icon: string | null
       isActive: boolean
       lastFetchedAt: Date | null
@@ -2128,6 +2136,7 @@ export namespace Prisma {
     readonly url: FieldRef<"BlogSource", 'String'>
     readonly type: FieldRef<"BlogSource", 'FeedType'>
     readonly scrapingConfig: FieldRef<"BlogSource", 'Json'>
+    readonly metadata: FieldRef<"BlogSource", 'Json'>
     readonly icon: FieldRef<"BlogSource", 'String'>
     readonly isActive: FieldRef<"BlogSource", 'Boolean'>
     readonly lastFetchedAt: FieldRef<"BlogSource", 'DateTime'>
@@ -7063,6 +7072,7 @@ export namespace Prisma {
     url: 'url',
     type: 'type',
     scrapingConfig: 'scrapingConfig',
+    metadata: 'metadata',
     icon: 'icon',
     isActive: 'isActive',
     lastFetchedAt: 'lastFetchedAt',
@@ -7295,6 +7305,7 @@ export namespace Prisma {
     url?: StringFilter<"BlogSource"> | string
     type?: EnumFeedTypeFilter<"BlogSource"> | $Enums.FeedType
     scrapingConfig?: JsonNullableFilter<"BlogSource">
+    metadata?: JsonNullableFilter<"BlogSource">
     icon?: StringNullableFilter<"BlogSource"> | string | null
     isActive?: BoolFilter<"BlogSource"> | boolean
     lastFetchedAt?: DateTimeNullableFilter<"BlogSource"> | Date | string | null
@@ -7313,6 +7324,7 @@ export namespace Prisma {
     url?: SortOrder
     type?: SortOrder
     scrapingConfig?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     icon?: SortOrderInput | SortOrder
     isActive?: SortOrder
     lastFetchedAt?: SortOrderInput | SortOrder
@@ -7334,6 +7346,7 @@ export namespace Prisma {
     name?: StringFilter<"BlogSource"> | string
     type?: EnumFeedTypeFilter<"BlogSource"> | $Enums.FeedType
     scrapingConfig?: JsonNullableFilter<"BlogSource">
+    metadata?: JsonNullableFilter<"BlogSource">
     icon?: StringNullableFilter<"BlogSource"> | string | null
     isActive?: BoolFilter<"BlogSource"> | boolean
     lastFetchedAt?: DateTimeNullableFilter<"BlogSource"> | Date | string | null
@@ -7352,6 +7365,7 @@ export namespace Prisma {
     url?: SortOrder
     type?: SortOrder
     scrapingConfig?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
     icon?: SortOrderInput | SortOrder
     isActive?: SortOrder
     lastFetchedAt?: SortOrderInput | SortOrder
@@ -7377,6 +7391,7 @@ export namespace Prisma {
     url?: StringWithAggregatesFilter<"BlogSource"> | string
     type?: EnumFeedTypeWithAggregatesFilter<"BlogSource"> | $Enums.FeedType
     scrapingConfig?: JsonNullableWithAggregatesFilter<"BlogSource">
+    metadata?: JsonNullableWithAggregatesFilter<"BlogSource">
     icon?: StringNullableWithAggregatesFilter<"BlogSource"> | string | null
     isActive?: BoolWithAggregatesFilter<"BlogSource"> | boolean
     lastFetchedAt?: DateTimeNullableWithAggregatesFilter<"BlogSource"> | Date | string | null
@@ -7643,6 +7658,7 @@ export namespace Prisma {
     url: string
     type?: $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
@@ -7661,6 +7677,7 @@ export namespace Prisma {
     url: string
     type?: $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
@@ -7679,6 +7696,7 @@ export namespace Prisma {
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7697,6 +7715,7 @@ export namespace Prisma {
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7715,6 +7734,7 @@ export namespace Prisma {
     url: string
     type?: $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
@@ -7732,6 +7752,7 @@ export namespace Prisma {
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7749,6 +7770,7 @@ export namespace Prisma {
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8148,6 +8170,7 @@ export namespace Prisma {
     url?: SortOrder
     type?: SortOrder
     scrapingConfig?: SortOrder
+    metadata?: SortOrder
     icon?: SortOrder
     isActive?: SortOrder
     lastFetchedAt?: SortOrder
@@ -9175,6 +9198,7 @@ export namespace Prisma {
     url: string
     type?: $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
@@ -9192,6 +9216,7 @@ export namespace Prisma {
     url: string
     type?: $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: string | null
     isActive?: boolean
     lastFetchedAt?: Date | string | null
@@ -9263,6 +9288,7 @@ export namespace Prisma {
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -9280,6 +9306,7 @@ export namespace Prisma {
     url?: StringFieldUpdateOperationsInput | string
     type?: EnumFeedTypeFieldUpdateOperationsInput | $Enums.FeedType
     scrapingConfig?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
     icon?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     lastFetchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

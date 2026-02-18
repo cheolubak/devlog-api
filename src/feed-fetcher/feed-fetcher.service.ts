@@ -138,8 +138,37 @@ export class FeedFetcherService {
           source.url,
           source.scrapingConfig as unknown as ScrapingConfig,
         );
-      case FeedType.YOUTUBE:
-        return this.youtubeFetcherService.fetchVideos(source.url);
+      case FeedType.YOUTUBE: {
+        const metadata = source.metadata as null | { channelId?: string };
+        const cachedChannelId = metadata?.channelId;
+
+        // Get existing video URLs for this source to skip Shorts filtering
+        const existingPosts = await this.prisma.posts.findMany({
+          select: { sourceUrl: true },
+          where: { sourceId: source.id },
+        });
+        const existingVideoUrls = new Set(
+          existingPosts.map((p) => p.sourceUrl).filter(Boolean) as string[],
+        );
+
+        const result = await this.youtubeFetcherService.fetchVideos(
+          source.url,
+          { cachedChannelId, existingVideoUrls },
+        );
+
+        // Cache the channelId if not already cached
+        if (!cachedChannelId && result.channelId) {
+          await this.prisma.blogSource.update({
+            data: { metadata: { channelId: result.channelId } },
+            where: { id: source.id },
+          });
+          this.logger.log(
+            `Cached channel ID ${result.channelId} for source ${source.name}`,
+          );
+        }
+
+        return result.feed;
+      }
       default:
         throw new Error(`Unknown feed type: ${source.type}`);
     }

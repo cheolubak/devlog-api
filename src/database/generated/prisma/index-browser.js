@@ -127,6 +127,7 @@ exports.Prisma.BlogSourceScalarFieldEnum = {
   url: 'url',
   type: 'type',
   scrapingConfig: 'scrapingConfig',
+  metadata: 'metadata',
   icon: 'icon',
   isActive: 'isActive',
   lastFetchedAt: 'lastFetchedAt',
