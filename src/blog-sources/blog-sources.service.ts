@@ -14,6 +14,13 @@ export class BlogSourcesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createBlogSourceDto: CreateBlogSourceDto) {
+    // Normalize percent-encoded URLs to prevent duplicates (e.g. /@%ED%8F%AC vs /@포프티비)
+    try {
+      createBlogSourceDto.url = decodeURIComponent(createBlogSourceDto.url);
+    } catch {
+      // If decoding fails, use the original URL
+    }
+
     const existingSource = await this.prisma.blogSource.findUnique({
       where: { url: createBlogSourceDto.url },
     });

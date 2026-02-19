@@ -173,12 +173,19 @@ export class YoutubeFetcherService {
   }
 
   private async extractChannelId(url: string): Promise<string> {
+    // Decode percent-encoded URLs (e.g. Korean handles like /@%ED%8F%AC...)
+    try {
+      url = decodeURIComponent(url);
+    } catch {
+      // If decoding fails, use the original URL
+    }
+
     const channelIdMatch = url.match(/\/channel\/(UC[\w-]+)/);
     if (channelIdMatch) {
       return channelIdMatch[1];
     }
 
-    const handleMatch = url.match(/\/@([\w-]+)/);
+    const handleMatch = url.match(/\/@([^/?&#]+)/);
     if (handleMatch) {
       return this.resolveHandleToChannelId(handleMatch[1]);
     }
