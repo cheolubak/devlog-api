@@ -8,6 +8,7 @@ import { ParsedFeed } from './interfaces/feed-item.interface';
 export interface FetchVideosOptions {
   cachedChannelId?: string;
   existingVideoUrls?: Set<string>;
+  maxPages?: number;
 }
 
 export interface FetchVideosResult {
@@ -128,10 +129,10 @@ export class YoutubeFetcherService {
 
     this.logger.log(`Fetching videos for channel: ${channelId}`);
 
-    const response = await this.listUploadedVideos(channelId);
+    const allItems = await this.listUploadedVideos(channelId, options?.maxPages ?? 20);
 
     // Filter out already-existing videos before calling filterOutShorts
-    let newItems = response.items;
+    let newItems = allItems;
     if (options?.existingVideoUrls?.size) {
       newItems = newItems.filter(
         (item) =>
@@ -140,7 +141,7 @@ export class YoutubeFetcherService {
           ),
       );
       this.logger.log(
-        `${response.items.length - newItems.length} videos already in DB, ${newItems.length} new videos to check`,
+        `${allItems.length - newItems.length} videos already in DB, ${newItems.length} new videos to check`,
       );
     }
 
@@ -297,28 +298,40 @@ export class YoutubeFetcherService {
 
   private async listUploadedVideos(
     channelId: string,
-  ): Promise<YouTubePlaylistItemsResponse> {
+    maxPages: number = 20,
+  ): Promise<YouTubePlaylistItem[]> {
     // Convert channel ID (UC...) to uploads playlist ID (UU...)
     const uploadsPlaylistId = 'UU' + channelId.substring(2);
     const playlistItemsUrl = `${this.baseUrl}/playlistItems`;
-    const params = {
-      key: this.apiKey,
-      maxResults: '50',
-      part: 'snippet',
-      playlistId: uploadsPlaylistId,
-    };
+    const allItems: YouTubePlaylistItem[] = [];
+    let pageToken: string | undefined;
+    let currentPage = 0;
 
-    const response = await firstValueFrom(
-      this.httpService.get<YouTubePlaylistItemsResponse>(playlistItemsUrl, {
-        params,
-      }),
-    );
+    do {
+      const params: Record<string, string> = {
+        key: this.apiKey,
+        maxResults: '50',
+        part: 'snippet',
+        playlistId: uploadsPlaylistId,
+      };
+      if (pageToken) params.pageToken = pageToken;
 
-    this.logger.log(
-      `Fetched ${response.data.items.length} videos from channel ${channelId}`,
-    );
+      const response = await firstValueFrom(
+        this.httpService.get<YouTubePlaylistItemsResponse>(playlistItemsUrl, {
+          params,
+        }),
+      );
 
-    return response.data;
+      allItems.push(...response.data.items);
+      pageToken = response.data.nextPageToken;
+      currentPage++;
+
+      this.logger.log(
+        `Fetched page ${currentPage}: ${response.data.items.length} videos (total: ${allItems.length})`,
+      );
+    } while (pageToken && currentPage < maxPages);
+
+    return allItems;
   }
 
   private async filterOutShorts(
@@ -326,27 +339,31 @@ export class YoutubeFetcherService {
   ): Promise<YouTubePlaylistItem[]> {
     if (items.length === 0) return items;
 
-    const videoIds = items
-      .map((item) => item.snippet.resourceId.videoId)
-      .join(',');
+    const BATCH_SIZE = 50;
+    const shortsIds = new Set<string>();
     const videosUrl = `${this.baseUrl}/videos`;
-    const params = {
-      id: videoIds,
-      key: this.apiKey,
-      part: 'contentDetails',
-    };
 
-    const response = await firstValueFrom(
-      this.httpService.get<YouTubeVideoListResponse>(videosUrl, { params }),
-    );
+    for (let i = 0; i < items.length; i += BATCH_SIZE) {
+      const batch = items.slice(i, i + BATCH_SIZE);
+      const videoIds = batch
+        .map((item) => item.snippet.resourceId.videoId)
+        .join(',');
+      const params = {
+        id: videoIds,
+        key: this.apiKey,
+        part: 'contentDetails',
+      };
 
-    const shortsIds = new Set(
-      response.data.items
-        .filter(
-          (video) => this.parseDuration(video.contentDetails.duration) <= 60,
-        )
-        .map((video) => video.id),
-    );
+      const response = await firstValueFrom(
+        this.httpService.get<YouTubeVideoListResponse>(videosUrl, { params }),
+      );
+
+      for (const video of response.data.items) {
+        if (this.parseDuration(video.contentDetails.duration) <= 60) {
+          shortsIds.add(video.id);
+        }
+      }
+    }
 
     const filtered = items.filter(
       (item) => !shortsIds.has(item.snippet.resourceId.videoId),
