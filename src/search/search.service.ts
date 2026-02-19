@@ -44,48 +44,53 @@ export class SearchService {
           title: string;
         }[]
       >`
-        SELECT p.id,
-               p.title,
-               p.description,
-               p."imageUrl",
-               p."sourceUrl",
-               p."originalPublishedAt",
+        SELECT p2.id,
+               p2.title,
+               p2.description,
+               p2."imageUrl",
+               p2."sourceUrl",
+               p2."originalPublishedAt",
                json_build_object('id', s.id, 'name', s.name, 'blogUrl', s."blogUrl") AS source
-        FROM "Posts" p
-               LEFT JOIN "BlogSource" s ON s.id = p."sourceId" AND s."type"::text = ANY (${type})
+        FROM "PostSearchKeywords" p
+               LEFT JOIN "Posts" p2 ON p2.id = p."postId"
+               LEFT JOIN "BlogSource" s ON s.id = p2."sourceId" AND s."type"::text = ANY (${type})
           LEFT JOIN "PostDeletionLog" pdl
-        ON pdl."postId" = p.id
+        ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
-          AND p."isDisplay" = true
+          AND p2."isDisplay" = true
           AND (
-          coalesce (p.title
+          coalesce (p.keywords) || ' ' ||
+          coalesce (p2.title
             , '') || ' ' ||
-          coalesce (p.description
+          coalesce (p2.description
             , '') || ' ' ||
-          coalesce (p.tags
+          coalesce (p2.tags
             , '') || ' ' ||
           coalesce (s.name
             , '')
           )
           ILIKE ${pattern}
-        ORDER BY p."originalPublishedAt" DESC
+        ORDER BY p2."originalPublishedAt" DESC
           LIMIT ${limit}
         OFFSET ${skip}
       `,
       this.prisma.$queryRaw<{ count: bigint }[]>`
         SELECT COUNT(*) AS count
-        FROM "Posts" p
+        FROM "PostSearchKeywords" p
+          LEFT JOIN "Posts" p2
+        ON p2.id = p."postId"
           LEFT JOIN "BlogSource" s
-        ON s.id = p."sourceId"
-          LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p.id
+          ON s.id = p2."sourceId"
+          LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
-          AND p."isDisplay" = true
+          AND p2."isDisplay" = true
           AND (
-          coalesce (p.title
+          coalesce (p.keywords) || ' ' ||
+          coalesce (p2.title
             , '') || ' ' ||
-          coalesce (p.description
+          coalesce (p2.description
             , '') || ' ' ||
-          coalesce (p.tags
+          coalesce (p2.tags
             , '') || ' ' ||
           coalesce (s.name
             , '')
