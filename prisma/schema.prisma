@@ -48,24 +48,24 @@ model BlogSource {
 }
 
 model Posts {
-  id                  String               @db.Uuid @id @default(uuid())
-  title               String               @db.VarChar(500)
-  content             String               @db.Text
-  isDisplay           Boolean              @default(false)
-  tags                String?              @db.VarChar(100)
-  sourceId            String?              @db.Uuid
-  sourceUrl           String?              @unique @db.VarChar(1000)
+  id                  String              @db.Uuid @id @default(uuid())
+  title               String              @db.VarChar(500)
+  content             String              @db.Text
+  isDisplay           Boolean             @default(false)
+  tags                String?             @db.VarChar(100)
+  sourceId            String?             @db.Uuid
+  sourceUrl           String?             @unique @db.VarChar(1000)
   originalPublishedAt DateTime?
-  originalAuthor      String?              @db.VarChar(200)
-  description         String?              @db.Text
-  imageUrl            String?              @db.VarChar(1000)
+  originalAuthor      String?             @db.VarChar(200)
+  description         String?             @db.Text
+  imageUrl            String?             @db.VarChar(1000)
   rawFeedData         Json?
-  contentHash         String?              @db.VarChar(64)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @default(now())
+  contentHash         String?             @db.VarChar(64)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @default(now())
   postTags            PostTags[]
-  searchKeywords      PostSearchKeywords[]
-  source              BlogSource?          @relation(fields: [sourceId], references: [id])
+  searchKeywords      PostSearchKeywords?
+  source              BlogSource?         @relation(fields: [sourceId], references: [id])
   deletionLog         PostDeletionLog?
 
   @@index([sourceId])

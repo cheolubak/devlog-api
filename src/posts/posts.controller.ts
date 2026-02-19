@@ -5,12 +5,14 @@ import {
   Get,
   Param,
   Patch,
+  Put,
   Query,
 } from '@nestjs/common';
 
 import { FeedType } from '../database/generated/prisma';
 import { PostQueryDto } from './dto/post-query.dto';
 import { UpdateDisplayDto } from './dto/update-display.dto';
+import { UpdateKeywordDto } from './dto/update-keyword.dto';
 import { PostsService } from './posts.service';
 
 @Controller('posts')
@@ -41,6 +43,14 @@ export class PostsController {
       ...query,
       type: [FeedType.YOUTUBE],
     });
+  }
+
+  @Put(':id/keywords')
+  updateKeywords(
+    @Param('id') id: string,
+    @Body() { keywords }: UpdateKeywordDto,
+  ) {
+    return this.postsService.updateKeywords(id, keywords);
   }
 
   @Get(':id')

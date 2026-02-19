@@ -179,6 +179,11 @@ export class PostsService {
               },
             },
           },
+          searchKeywords: {
+            select: {
+              keywords: true,
+            },
+          },
           source: {
             select: {
               blogUrl: true,
@@ -232,6 +237,24 @@ export class PostsService {
 
     return this.prisma.postDeletionLog.create({
       data: { postId: id },
+    });
+  }
+
+  async updateKeywords(id: string, keywords: string) {
+    this.logger.log(`Updating keywords for post ${id}: ${keywords}`);
+
+    const post = await this.prisma.posts.findUnique({
+      where: { id },
+    });
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    return this.prisma.postSearchKeywords.upsert({
+      create: { keywords, postId: id },
+      update: { keywords },
+      where: { postId: id },
     });
   }
 }
