@@ -18,12 +18,7 @@ export class SearchService {
 
     const pattern = `%${q.trim().split(/\s+/).join('%')}%`;
 
-    const [posts, sources] = await Promise.all([
-      this.searchPosts(pattern, type, limit, skip),
-      this.searchSources(pattern, type, limit, skip),
-    ]);
-
-    return { posts, sources };
+    return await this.searchPosts(pattern, type, limit, skip, offset);
   }
 
   private async searchPosts(
@@ -31,43 +26,23 @@ export class SearchService {
     type: FeedType[],
     limit: number,
     skip: number,
+    offset: number,
   ) {
-    const [data, totalResult] = await Promise.all([
-      this.prisma.$queryRaw<
-        {
-          description: null | string;
-          id: string;
-          imageUrl: null | string;
-          originalPublishedAt: Date | null;
-          source: null | { blogUrl: string; id: string; name: string };
-          sourceUrl: string;
-          title: string;
-        }[]
-      >`
-        SELECT p2.id,
-               p2.title,
-               p2.description,
-               p2."imageUrl",
-               p2."sourceUrl",
-               p2."originalPublishedAt",
-               json_build_object('id', s.id, 'name', s.name, 'blogUrl', s."blogUrl") AS source
+    const [matchedIds, totalResult] = await Promise.all([
+      this.prisma.$queryRaw<{ id: string }[]>`
+        SELECT p2.id
         FROM "PostSearchKeywords" p
                LEFT JOIN "Posts" p2 ON p2.id = p."postId"
                LEFT JOIN "BlogSource" s ON s.id = p2."sourceId" AND s."type"::text = ANY (${type})
-          LEFT JOIN "PostDeletionLog" pdl
-        ON pdl."postId" = p2.id
+               LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
           AND p2."isDisplay" = true
           AND (
           coalesce (p.keywords) || ' ' ||
-          coalesce (p2.title
-            , '') || ' ' ||
-          coalesce (p2.description
-            , '') || ' ' ||
-          coalesce (p2.tags
-            , '') || ' ' ||
-          coalesce (s.name
-            , '')
+          coalesce (p2.title, '') || ' ' ||
+          coalesce (p2.description, '') || ' ' ||
+          coalesce (p2.tags, '') || ' ' ||
+          coalesce (s.name, '')
           )
           ILIKE ${pattern}
         ORDER BY p2."originalPublishedAt" DESC
@@ -77,30 +52,67 @@ export class SearchService {
       this.prisma.$queryRaw<{ count: bigint }[]>`
         SELECT COUNT(*) AS count
         FROM "PostSearchKeywords" p
-          LEFT JOIN "Posts" p2
-        ON p2.id = p."postId"
-          LEFT JOIN "BlogSource" s
-          ON s.id = p2."sourceId"
+          LEFT JOIN "Posts" p2 ON p2.id = p."postId"
+          LEFT JOIN "BlogSource" s ON s.id = p2."sourceId"
           LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
           AND p2."isDisplay" = true
           AND (
           coalesce (p.keywords) || ' ' ||
-          coalesce (p2.title
-            , '') || ' ' ||
-          coalesce (p2.description
-            , '') || ' ' ||
-          coalesce (p2.tags
-            , '') || ' ' ||
-          coalesce (s.name
-            , '')
+          coalesce (p2.title, '') || ' ' ||
+          coalesce (p2.description, '') || ' ' ||
+          coalesce (p2.tags, '') || ' ' ||
+          coalesce (s.name, '')
           ) ILIKE ${pattern}
       `,
     ]);
 
+    const total = Number(totalResult[0]?.count ?? 0);
+    const ids = matchedIds.map((r) => r.id);
+
+    const data =
+      ids.length > 0
+        ? await this.prisma.posts.findMany({
+            orderBy: { originalPublishedAt: 'desc' },
+            relationLoadStrategy: 'join',
+            select: {
+              description: true,
+              id: true,
+              imageUrl: true,
+              originalPublishedAt: true,
+              postTags: {
+                include: {
+                  tag: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+              source: {
+                select: {
+                  blogUrl: true,
+                  id: true,
+                  name: true,
+                  url: true,
+                },
+              },
+              sourceUrl: true,
+              title: true,
+            },
+            where: { id: { in: ids } },
+          })
+        : [];
+
     return {
       data,
-      total: Number(totalResult[0]?.count ?? 0),
+      pagination: {
+        hasMore: skip + limit < total,
+        limit,
+        offset,
+        total,
+      },
     };
   }
 
