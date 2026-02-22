@@ -31,14 +31,15 @@ export class SearchService {
     const [matchedIds, totalResult] = await Promise.all([
       this.prisma.$queryRaw<{ id: string }[]>`
         SELECT p2.id
-        FROM "PostSearchKeywords" p
-               LEFT JOIN "Posts" p2 ON p2.id = p."postId"
+        FROM "Posts" p2
+               LEFT JOIN "PostSearchKeywords" p ON p2.id = p."postId"
                LEFT JOIN "BlogSource" s ON s.id = p2."sourceId" AND s."type"::text = ANY (${type})
                LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
+          AND s."id" IS NOT NULL
           AND p2."isDisplay" = true
           AND (
-          coalesce (p.keywords) || ' ' ||
+          coalesce (p.keywords, '') || ' ' ||
           coalesce (p2.title, '') || ' ' ||
           coalesce (p2.description, '') || ' ' ||
           coalesce (p2.tags, '') || ' ' ||
@@ -51,11 +52,12 @@ export class SearchService {
       `,
       this.prisma.$queryRaw<{ count: bigint }[]>`
         SELECT COUNT(*) AS count
-        FROM "PostSearchKeywords" p
-          LEFT JOIN "Posts" p2 ON p2.id = p."postId"
-          LEFT JOIN "BlogSource" s ON s.id = p2."sourceId"
+        FROM "Posts" p2
+          LEFT JOIN "PostSearchKeywords" p ON p2.id = p."postId"
+          LEFT JOIN "BlogSource" s ON s.id = p2."sourceId" AND s."type"::text = ANY (${type})
           LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
+          AND s."id" IS NOT NULL
           AND p2."isDisplay" = true
           AND (
           coalesce (p.keywords) || ' ' ||
