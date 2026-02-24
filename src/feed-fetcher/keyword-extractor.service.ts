@@ -66,27 +66,36 @@ export class KeywordExtractorService {
     sourceUrl: string,
   ): Promise<null | string> {
     try {
-      const bodyText = await this.fetchPageText(sourceUrl);
-
-      if (!bodyText) {
-        this.logger.warn(`No text extracted from ${sourceUrl}`);
-        return null;
-      }
-
-      const truncatedText = FeedNormalizerUtil.truncateText(bodyText, 3000);
+      const keywordTool = {
+        input_schema: {
+          properties: {
+            keywords: {
+              description: '콤마로 구분된 한국어 키워드 문자열. 최대 50개',
+              type: 'string',
+            },
+          },
+          required: ['keywords'],
+          type: 'object' as const,
+        },
+        name: 'save_keywords',
+      };
 
       const message = await this.anthropic.messages.create(
         {
-          max_tokens: 200,
+          max_tokens: 1024,
           messages: [
             {
-              content: `제목: ${title}\n\n본문:\n${truncatedText}`,
+              content: `제목: ${title}\nURL: ${sourceUrl}\n\n위 URL의 블로그 포스트 콘텐츠를 web_fetch로 가져와서 분석한 후 키워드를 추출하세요.`,
               role: 'user',
             },
           ],
           model: 'claude-haiku-4-5-20251001',
           system:
-            '블로그 포스트의 제목과 본문을 분석하여 검색에 유용한 한국어 키워드를 폭 넓게 추출하세요. 콤마로 구분된 키워드만 반환하세요. 최대 50개',
+            '블로그 포스트의 제목과 본문을 분석하여 검색에 유용한 한국어 키워드를 폭 넓게 추출하세요. 먼저 web_fetch 도구로 URL의 콘텐츠를 가져온 후 분석하세요. 최종 응답은 콤마로 구분된 키워드만 반환하세요. 최대 50개',
+          tools: [
+            { name: 'web_fetch', type: 'web_fetch_20250910' },
+            keywordTool,
+          ],
         },
         {
           headers: {
@@ -95,13 +104,24 @@ export class KeywordExtractorService {
         },
       );
 
-      const textBlock = message.content.find((block) => block.type === 'text');
+      const keywordContent = message.content.find(
+        (block) =>
+          block.type === 'tool_use' &&
+          'name' in block &&
+          block.name === 'save_keywords',
+      );
 
-      if (!textBlock || textBlock.type !== 'text') {
+      if (
+        !keywordContent ||
+        !('input' in keywordContent) ||
+        typeof keywordContent.input !== 'object' ||
+        !('keywords' in keywordContent.input) ||
+        typeof keywordContent.input.keywords !== 'string'
+      ) {
         return null;
       }
 
-      return textBlock.text.trim();
+      return keywordContent.input.keywords || null;
     } catch (error) {
       this.logger.error(
         `Failed to extract keywords for "${title}": ${error.message}`,

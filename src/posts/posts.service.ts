@@ -152,11 +152,11 @@ export class PostsService {
                 update: { keywords },
                 where: { postId: id },
               });
-              this.logger.debug(`Keywords saved for post ${id}`);
+              this.logger.log(`Keywords saved for post ${id}`);
             }
           })
           .catch((error) => {
-            this.logger.warn(
+            this.logger.error(
               `Keyword extraction failed for post ${id}: ${error.message}`,
             );
           });
