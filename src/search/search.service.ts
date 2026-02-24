@@ -11,19 +11,18 @@ export class SearchService {
   constructor(private readonly prisma: PrismaService) {}
 
   async search(query: SearchQueryDto) {
-    const { limit = 20, offset = 0, q, type } = query;
+    const { limit = 20, offset = 0, q } = query;
     const skip = offset * limit;
 
     this.logger.log(`Searching for: "${q}" (limit=${limit}, offset=${offset})`);
 
     const pattern = `%${q.trim().split(/\s+/).join('%')}%`;
 
-    return await this.searchPosts(pattern, type, limit, skip, offset);
+    return await this.searchPosts(pattern, limit, skip, offset);
   }
 
   private async searchPosts(
     pattern: string,
-    type: FeedType[],
     limit: number,
     skip: number,
     offset: number,
@@ -33,10 +32,9 @@ export class SearchService {
         SELECT p2.id
         FROM "Posts" p2
                LEFT JOIN "PostSearchKeywords" p ON p2.id = p."postId"
-               LEFT JOIN "BlogSource" s ON s.id = p2."sourceId" AND s."type"::text = ANY (${type})
+               LEFT JOIN "BlogSource" s ON s.id = p2."sourceId"
                LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
-          AND s."id" IS NOT NULL
           AND p2."isDisplay" = true
           AND (
           coalesce (p.keywords, '') || ' ' ||
@@ -54,10 +52,9 @@ export class SearchService {
         SELECT COUNT(*) AS count
         FROM "Posts" p2
           LEFT JOIN "PostSearchKeywords" p ON p2.id = p."postId"
-          LEFT JOIN "BlogSource" s ON s.id = p2."sourceId" AND s."type"::text = ANY (${type})
+          LEFT JOIN "BlogSource" s ON s.id = p2."sourceId"
           LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
-          AND s."id" IS NOT NULL
           AND p2."isDisplay" = true
           AND (
           coalesce (p.keywords) || ' ' ||
@@ -82,21 +79,12 @@ export class SearchService {
               id: true,
               imageUrl: true,
               originalPublishedAt: true,
-              postTags: {
-                include: {
-                  tag: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                },
-              },
               source: {
                 select: {
                   blogUrl: true,
                   id: true,
                   name: true,
+                  type: true,
                   url: true,
                 },
               },

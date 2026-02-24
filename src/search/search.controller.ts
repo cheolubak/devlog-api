@@ -7,16 +7,8 @@ import { SearchService } from './search.service';
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
-  @Get('/blogs')
-  searchBlogPost(@Query() query: SearchQueryDto) {
-    return this.searchService.search({
-      ...query,
-      type: ['RSS', 'ATOM', 'SCRAPING'],
-    });
-  }
-
-  @Get('/youtubes')
-  searchYoutube(@Query() query: SearchQueryDto) {
-    return this.searchService.search({ ...query, type: ['YOUTUBE'] });
+  @Get()
+  searchPosts(@Query() query: SearchQueryDto) {
+    return this.searchService.search(query);
   }
 }

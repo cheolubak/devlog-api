@@ -1,14 +1,5 @@
 import { Transform } from 'class-transformer';
-import {
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsString,
-  Min,
-  MinLength,
-} from 'class-validator';
-
-import { FeedType } from '../../database/generated/prisma';
+import { IsInt, IsString, Min, MinLength } from 'class-validator';
 
 export class SearchQueryDto {
   @IsString()
@@ -24,9 +15,4 @@ export class SearchQueryDto {
   @Min(0)
   @Transform(({ value }) => parseInt(value, 10))
   offset: number = 0;
-
-  @IsEnum(FeedType, { each: true })
-  @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
-  type?: FeedType[];
 }

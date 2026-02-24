@@ -61,6 +61,7 @@ export class PostsService {
               blogUrl: true,
               id: true,
               name: true,
+              type: true,
               url: true,
             },
           },
