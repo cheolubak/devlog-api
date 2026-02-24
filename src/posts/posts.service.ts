@@ -56,16 +56,6 @@ export class PostsService {
           id: true,
           imageUrl: true,
           originalPublishedAt: true,
-          postTags: {
-            include: {
-              tag: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
           source: {
             select: {
               blogUrl: true,

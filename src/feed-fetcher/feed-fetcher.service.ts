@@ -52,16 +52,19 @@ export class FeedFetcherService {
         return { message: 'No new items', newPostsCount: 0, success: true };
       }
 
-      const results = await Promise.allSettled(
-        feed.items.map((item) => this.processAndSaveItem(item, sourceId)),
-      );
+      let successCount = 0;
+      let failureCount = 0;
 
-      const successCount = results.filter(
-        (r) => r.status === 'fulfilled' && r.value.created,
-      ).length;
-      const failureCount = results.filter(
-        (r) => r.status === 'rejected',
-      ).length;
+      for (const item of feed.items) {
+        try {
+          const result = await this.processAndSaveItem(item, sourceId);
+          if (result.created) {
+            successCount++;
+          }
+        } catch {
+          failureCount++;
+        }
+      }
 
       let status: FetchStatus;
       if (failureCount === 0) {
@@ -108,13 +111,20 @@ export class FeedFetcherService {
       `Starting batch fetch for ${sources.length} active sources`,
     );
 
-    const results = await Promise.allSettled(
-      sources.map((source) => this.fetchFromSource(source.id)),
-    );
+    let successCount = 0;
 
-    const successCount = results.filter(
-      (r) => r.status === 'fulfilled' && r.value.success,
-    ).length;
+    for (const source of sources) {
+      try {
+        const result = await this.fetchFromSource(source.id);
+        if (result.success) {
+          successCount++;
+        }
+      } catch (error) {
+        this.logger.error(
+          `Failed to fetch source ${source.name}: ${error.message}`,
+        );
+      }
+    }
 
     this.logger.log(
       `Batch fetch completed: ${successCount}/${sources.length} sources successful`,
