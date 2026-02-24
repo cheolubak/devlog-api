@@ -199,19 +199,25 @@ export class FeedFetcherService {
       const imageUrl = FeedNormalizerUtil.extractFirstImage(item.content || '');
       const contentHash = generateContentHash(content);
 
+      const title = FeedNormalizerUtil.truncateText(item.title, 500);
+      const isTechPost = await this.keywordExtractorService.isTechBlogPost(
+        title,
+        item.link,
+      );
+
       const post = await this.prisma.posts.create({
         data: {
           content: content,
           contentHash: contentHash,
           description: description,
           imageUrl: imageUrl,
-          isDisplay: false,
+          isDisplay: isTechPost,
           originalAuthor: FeedNormalizerUtil.normalizeCreator(item.creator),
           originalPublishedAt: item.isoDate || item.pubDate || new Date(),
           rawFeedData: item as any,
           sourceId: sourceId,
           sourceUrl: item.link,
-          title: FeedNormalizerUtil.truncateText(item.title, 500),
+          title: title,
         },
       });
 

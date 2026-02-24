@@ -13,7 +13,7 @@ import { YoutubeFetcherService } from './youtube-fetcher.service';
 
 @Module({
   controllers: [FeedFetcherController],
-  exports: [FeedFetcherService],
+  exports: [FeedFetcherService, KeywordExtractorService],
   imports: [DatabaseModule, BlogSourcesModule, HttpModule],
   providers: [
     FeedFetcherService,

@@ -6,13 +6,17 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '../database/prisma.service';
+import { KeywordExtractorService } from '../feed-fetcher/keyword-extractor.service';
 import { PostQueryDto } from './dto/post-query.dto';
 
 @Injectable()
 export class PostsService {
   private readonly logger = new Logger(PostsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly keywordExtractorService: KeywordExtractorService,
+  ) {}
 
   async findDisplayPosts(query: PostQueryDto) {
     const { limit = 20, offset = 0, sourceId, tag, type } = query;
@@ -138,10 +142,38 @@ export class PostsService {
       throw new NotFoundException('Post not found');
     }
 
-    return this.prisma.posts.update({
+    const updatedPost = await this.prisma.posts.update({
       data: { isDisplay },
       where: { id },
     });
+
+    if (isDisplay) {
+      const existingKeywords = await this.prisma.postSearchKeywords.findUnique({
+        where: { postId: id },
+      });
+
+      if (!existingKeywords && post.sourceUrl) {
+        this.keywordExtractorService
+          .extractKeywords(post.title, post.sourceUrl)
+          .then(async (keywords) => {
+            if (keywords) {
+              await this.prisma.postSearchKeywords.upsert({
+                create: { keywords, postId: id },
+                update: { keywords },
+                where: { postId: id },
+              });
+              this.logger.debug(`Keywords saved for post ${id}`);
+            }
+          })
+          .catch((error) => {
+            this.logger.warn(
+              `Keyword extraction failed for post ${id}: ${error.message}`,
+            );
+          });
+      }
+    }
+
+    return updatedPost;
   }
 
   async findAll(query: PostQueryDto) {
