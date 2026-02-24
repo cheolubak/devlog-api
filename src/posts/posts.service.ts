@@ -143,7 +143,7 @@ export class PostsService {
       });
 
       if (!existingKeywords && post.sourceUrl) {
-        this.keywordExtractorService
+        await this.keywordExtractorService
           .extractKeywords(post.title, post.sourceUrl)
           .then(async (keywords) => {
             if (keywords) {
