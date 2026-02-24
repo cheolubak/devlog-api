@@ -7,6 +7,7 @@ import { FeedFetcherController } from './feed-fetcher.controller';
 import { FeedFetcherService } from './feed-fetcher.service';
 import { FeedParserService } from './feed-parser.service';
 import { FeedSchedulerService } from './feed-scheduler.service';
+import { KeywordExtractorService } from './keyword-extractor.service';
 import { WebScraperService } from './web-scraper.service';
 import { YoutubeFetcherService } from './youtube-fetcher.service';
 
@@ -18,6 +19,7 @@ import { YoutubeFetcherService } from './youtube-fetcher.service';
     FeedFetcherService,
     FeedParserService,
     FeedSchedulerService,
+    KeywordExtractorService,
     WebScraperService,
     YoutubeFetcherService,
   ],

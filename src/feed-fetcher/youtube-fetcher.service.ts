@@ -129,7 +129,10 @@ export class YoutubeFetcherService {
 
     this.logger.log(`Fetching videos for channel: ${channelId}`);
 
-    const allItems = await this.listUploadedVideos(channelId, options?.maxPages ?? 20);
+    const allItems = await this.listUploadedVideos(
+      channelId,
+      options?.maxPages ?? 20,
+    );
 
     // Filter out already-existing videos before calling filterOutShorts
     let newItems = allItems;

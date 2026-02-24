@@ -25,6 +25,7 @@
     "posttest:e2e": "pnpm test:e2e:db:down"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^4.0.2",

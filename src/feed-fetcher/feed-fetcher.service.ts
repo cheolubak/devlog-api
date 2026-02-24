@@ -10,6 +10,7 @@ import { PrismaService } from '../database/prisma.service';
 import { FeedParserService } from './feed-parser.service';
 import { FeedItem, ParsedFeed } from './interfaces/feed-item.interface';
 import { ScrapingConfig } from './interfaces/scraping-config.interface';
+import { KeywordExtractorService } from './keyword-extractor.service';
 import { generateContentHash } from './utils/content-hash.util';
 import { FeedNormalizerUtil } from './utils/feed-normalizer.util';
 import { WebScraperService } from './web-scraper.service';
@@ -23,6 +24,7 @@ export class FeedFetcherService {
     private readonly prisma: PrismaService,
     private readonly blogSourcesService: BlogSourcesService,
     private readonly feedParserService: FeedParserService,
+    private readonly keywordExtractorService: KeywordExtractorService,
     private readonly webScraperService: WebScraperService,
     private readonly youtubeFetcherService: YoutubeFetcherService,
   ) {}
@@ -217,11 +219,39 @@ export class FeedFetcherService {
         await this.createTagsForPost(post.id, item.categories);
       }
 
+      this.extractAndSaveKeywords(post.id, post.title, item.link).catch(
+        (error) => {
+          this.logger.warn(
+            `Keyword extraction failed for post ${post.id}: ${error.message}`,
+          );
+        },
+      );
+
       this.logger.debug(`Created new post: ${post.title}`);
       return { created: true, post };
     } catch (e) {
       console.error(e);
       throw e;
+    }
+  }
+
+  private async extractAndSaveKeywords(
+    postId: string,
+    title: string,
+    sourceUrl: string,
+  ) {
+    const keywords = await this.keywordExtractorService.extractKeywords(
+      title,
+      sourceUrl,
+    );
+
+    if (keywords) {
+      await this.prisma.postSearchKeywords.upsert({
+        create: { keywords, postId },
+        update: { keywords },
+        where: { postId },
+      });
+      this.logger.debug(`Keywords saved for post ${postId}: ${keywords}`);
     }
   }
 

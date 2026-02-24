@@ -66,9 +66,9 @@ describe('Search (e2e)', () => {
         .expect(200);
 
       expect(body.posts.data.length).toBeGreaterThanOrEqual(1);
-      expect(
-        body.posts.data.some((p: any) => p.title.includes('NestJS')),
-      ).toBe(true);
+      expect(body.posts.data.some((p: any) => p.title.includes('NestJS'))).toBe(
+        true,
+      );
     });
 
     it('should search posts by description', async () => {
@@ -125,9 +125,7 @@ describe('Search (e2e)', () => {
     });
 
     it('should return 400 when q is less than 2 characters', async () => {
-      await request(app.getHttpServer())
-        .get('/search/blogs?q=a')
-        .expect(400);
+      await request(app.getHttpServer()).get('/search/blogs?q=a').expect(400);
     });
 
     it('should search blog sources by name', async () => {

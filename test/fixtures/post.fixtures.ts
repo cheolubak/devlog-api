@@ -1,3 +1,10 @@
+export function createDisplayPostData(
+  sourceId: string,
+  overrides?: Record<string, any>,
+) {
+  return createPostData(sourceId, { isDisplay: true, ...overrides });
+}
+
 export function createPostData(
   sourceId: string,
   overrides?: Record<string, any>,
@@ -14,11 +21,4 @@ export function createPostData(
     title: 'Test Post Title',
     ...overrides,
   };
-}
-
-export function createDisplayPostData(
-  sourceId: string,
-  overrides?: Record<string, any>,
-) {
-  return createPostData(sourceId, { isDisplay: true, ...overrides });
 }

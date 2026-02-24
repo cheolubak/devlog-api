@@ -3,7 +3,10 @@ import * as request from 'supertest';
 
 import { FeedType } from '../../src/database/generated/prisma';
 import { PrismaService } from '../../src/database/prisma.service';
-import { createDisplayPostData, createPostData } from '../fixtures/post.fixtures';
+import {
+  createDisplayPostData,
+  createPostData,
+} from '../fixtures/post.fixtures';
 import { createTestApp } from '../helpers/test-app.helper';
 import { cleanDatabase } from '../prisma-test.utils';
 

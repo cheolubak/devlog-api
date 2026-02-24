@@ -1,5 +1,14 @@
 import { ParsedFeed } from '../../src/feed-fetcher/interfaces/feed-item.interface';
 
+export function createMockEmptyFeed(): ParsedFeed {
+  return {
+    description: 'An empty feed',
+    items: [],
+    link: 'https://example-blog.com',
+    title: 'Empty Blog',
+  };
+}
+
 export function createMockRssFeed(overrides?: Partial<ParsedFeed>): ParsedFeed {
   return {
     description: 'A test RSS feed',
@@ -31,12 +40,24 @@ export function createMockRssFeed(overrides?: Partial<ParsedFeed>): ParsedFeed {
   };
 }
 
-export function createMockEmptyFeed(): ParsedFeed {
+export function createMockScrapingFeed(): ParsedFeed {
   return {
-    description: 'An empty feed',
-    items: [],
-    link: 'https://example-blog.com',
-    title: 'Empty Blog',
+    items: [
+      {
+        content: 'Scraped post content',
+        contentSnippet: 'Scraped post content',
+        link: 'https://example-scrape.com/article-1',
+        title: 'Scraped Article 1',
+      },
+      {
+        content: 'Another scraped content',
+        contentSnippet: 'Another scraped content',
+        link: 'https://example-scrape.com/article-2',
+        title: 'Scraped Article 2',
+      },
+    ],
+    link: 'https://example-scrape.com/posts',
+    title: 'Scraped Site',
   };
 }
 
@@ -68,26 +89,5 @@ export function createMockYoutubeFetchResult() {
       link: 'https://youtube.com/@testchannel',
       title: 'Test Channel',
     } as ParsedFeed,
-  };
-}
-
-export function createMockScrapingFeed(): ParsedFeed {
-  return {
-    items: [
-      {
-        content: 'Scraped post content',
-        contentSnippet: 'Scraped post content',
-        link: 'https://example-scrape.com/article-1',
-        title: 'Scraped Article 1',
-      },
-      {
-        content: 'Another scraped content',
-        contentSnippet: 'Another scraped content',
-        link: 'https://example-scrape.com/article-2',
-        title: 'Scraped Article 2',
-      },
-    ],
-    link: 'https://example-scrape.com/posts',
-    title: 'Scraped Site',
   };
 }
