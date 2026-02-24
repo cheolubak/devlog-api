@@ -137,31 +137,32 @@ export class PostsService {
       where: { id },
     });
 
-    if (isDisplay) {
-      const existingKeywords = await this.prisma.postSearchKeywords.findUnique({
-        where: { postId: id },
-      });
-
-      if (!existingKeywords && post.sourceUrl) {
-        await this.keywordExtractorService
-          .extractKeywords(post.title, post.sourceUrl)
-          .then(async (keywords) => {
-            if (keywords) {
-              await this.prisma.postSearchKeywords.upsert({
-                create: { keywords, postId: id },
-                update: { keywords },
-                where: { postId: id },
-              });
-              this.logger.log(`Keywords saved for post ${id}`);
-            }
-          })
-          .catch((error) => {
-            this.logger.error(
-              `Keyword extraction failed for post ${id}: ${error.message}`,
-            );
-          });
-      }
-    }
+    // TODO : 활성화 시 검색 키워드 추가는 좀더 생각해볼 필요가 있음
+    // if (isDisplay) {
+    //   const existingKeywords = await this.prisma.postSearchKeywords.findUnique({
+    //     where: { postId: id },
+    //   });
+    //
+    //   if (!existingKeywords && post.sourceUrl) {
+    //     await this.keywordExtractorService
+    //       .extractKeywords(post.title, post.sourceUrl)
+    //       .then(async (keywords) => {
+    //         if (keywords) {
+    //           await this.prisma.postSearchKeywords.upsert({
+    //             create: { keywords, postId: id },
+    //             update: { keywords },
+    //             where: { postId: id },
+    //           });
+    //           this.logger.log(`Keywords saved for post ${id}`);
+    //         }
+    //       })
+    //       .catch((error) => {
+    //         this.logger.error(
+    //           `Keyword extraction failed for post ${id}: ${error.message}`,
+    //         );
+    //       });
+    //   }
+    // }
 
     return updatedPost;
   }
