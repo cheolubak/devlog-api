@@ -132,6 +132,7 @@ export class YoutubeFetcherService {
     const allItems = await this.listUploadedVideos(
       channelId,
       options?.maxPages ?? 20,
+      options?.existingVideoUrls,
     );
 
     // Filter out already-existing videos before calling filterOutShorts
@@ -309,12 +310,14 @@ export class YoutubeFetcherService {
   private async listUploadedVideos(
     channelId: string,
     maxPages: number = 20,
+    existingVideoUrls?: Set<string>,
   ): Promise<YouTubePlaylistItem[]> {
     const uploadsPlaylistId = 'UU' + channelId.substring(2);
     const playlistItemsUrl = `${this.baseUrl}/playlistItems`;
     const allItems: YouTubePlaylistItem[] = [];
     let pageToken: string | undefined;
     let currentPage = 0;
+    let foundExisting = false;
 
     do {
       const params: Record<string, string> = {
@@ -333,14 +336,25 @@ export class YoutubeFetcherService {
         }),
       );
 
-      allItems.push(...response.data.items);
+      for (const item of response.data.items) {
+        const videoUrl = `https://www.youtube.com/watch?v=${item.snippet.resourceId.videoId}`;
+        if (existingVideoUrls?.has(videoUrl)) {
+          this.logger.log(
+            `Found existing video (${videoUrl}), stopping pagination early`,
+          );
+          foundExisting = true;
+          break;
+        }
+        allItems.push(item);
+      }
+
       pageToken = response.data.nextPageToken;
       currentPage++;
 
       this.logger.log(
         `Fetched page ${currentPage}: ${response.data.items.length} videos (total: ${allItems.length})`,
       );
-    } while (pageToken && currentPage < maxPages);
+    } while (pageToken && currentPage < maxPages && !foundExisting);
 
     return allItems;
   }
