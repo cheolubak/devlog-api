@@ -218,6 +218,10 @@ export class FeedFetcherService {
       );
 
       const source = await this.prisma.blogSource.findUnique({
+        select: {
+          blogUrl: true,
+          id: true,
+        },
         where: { id: sourceId },
       });
 
@@ -240,7 +244,7 @@ export class FeedFetcherService {
         const parseImageUrl = await this.imageParseService.uploadImageAsWebp(
           imageUrl.startsWith('https')
             ? imageUrl
-            : `${source.url.split('/').at(0) ?? ''}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`,
+            : `${source.blogUrl.split('/').at(0) ?? ''}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`,
           `thumbnails/posts/${post.id}`,
         );
 
