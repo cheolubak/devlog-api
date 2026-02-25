@@ -9,17 +9,17 @@ export class FeedSchedulerService {
 
   constructor(private readonly feedFetcherService: FeedFetcherService) {}
 
-  // @Cron(CronExpression.EVERY_HOUR)
-  // async handleHourlyFetch() {
-  //   this.logger.log('Starting scheduled feed fetch');
-  //
-  //   try {
-  //     const result = await this.feedFetcherService.fetchAllActiveSources();
-  //     this.logger.log(
-  //       `Scheduled fetch completed: ${result.successful}/${result.total} sources successful`,
-  //     );
-  //   } catch (error) {
-  //     this.logger.error(`Scheduled fetch failed: ${error.message}`);
-  //   }
-  // }
+  @Cron(CronExpression.EVERY_HOUR)
+  async handleHourlyFetch() {
+    this.logger.log('Starting scheduled feed fetch');
+
+    try {
+      const result = await this.feedFetcherService.fetchAllActiveSources();
+      this.logger.log(
+        `Scheduled fetch completed: ${result.successful}/${result.total} sources successful`,
+      );
+    } catch (error) {
+      this.logger.error(`Scheduled fetch failed: ${error.message}`);
+    }
+  }
 }
