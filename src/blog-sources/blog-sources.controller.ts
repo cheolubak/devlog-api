@@ -7,7 +7,10 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { BlogSourcesService } from './blog-sources.service';
 import { CreateBlogSourceDto } from './dto/create-blog-source.dto';
@@ -45,6 +48,15 @@ export class BlogSourcesController {
   @Patch('need-image-update')
   updateNeedImageUpdate() {
     return this.blogSourcesService.updateSourcesWithExternalIcons();
+  }
+
+  @Patch(':id/image-update')
+  @UseInterceptors(FileInterceptor('image'))
+  updateImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.blogSourcesService.updateThumbnailWithFile(id, file);
   }
 
   @Patch(':id')

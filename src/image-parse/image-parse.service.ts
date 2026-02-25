@@ -66,4 +66,42 @@ export class ImageParseService {
 
     return filePath;
   }
+
+  /**
+   * Express.Multer.File을 받아서 webp로 변환 후 Supabase Storage에 저장합니다.
+   * @param file Express.Multer.File 객체
+   * @param path 저장할 경로 (예: 'posts/my-image')  확장자 없이 전달하면 .webp가 자동 추가됩니다.
+   * @returns 저장된 이미지의 public URL
+   */
+  async uploadFileAsWebp(
+    file: Express.Multer.File,
+    path: string,
+  ): Promise<string> {
+    const webpBuffer = await sharp(file.buffer)
+      .resize({ width: 1024, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const filePath = path.endsWith('.webp') ? path : `${path}.webp`;
+
+    const { error } = await this.supabase.storage
+      .from(this.bucket)
+      .upload(filePath, webpBuffer, {
+        contentType: 'image/webp',
+        upsert: true,
+      });
+
+    if (error) {
+      this.logger.error(`Failed to upload image to Supabase: ${error.message}`);
+      throw new Error(`Failed to upload image: ${error.message}`);
+    }
+
+    const { data } = this.supabase.storage
+      .from(this.bucket)
+      .getPublicUrl(filePath);
+
+    this.logger.log(`Image uploaded successfully: ${data.publicUrl}`);
+
+    return filePath;
+  }
 }

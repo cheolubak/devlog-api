@@ -251,4 +251,28 @@ export class BlogSourcesService {
 
     return { failed: failedCount, success: successCount };
   }
+
+  async updateThumbnailWithFile(id: string, file: Express.Multer.File) {
+    try {
+      const url = await this.imageParseService.uploadFileAsWebp(
+        file,
+        `/thumbnails/sources/${id}`,
+      );
+
+      const updated = await this.prisma.blogSource.update({
+        data: {
+          icon: url.startsWith('/') ? url : `/${url}`,
+        },
+        where: { id },
+      });
+
+      this.logger.log(`Updated icon for source ${id}: ${url}`);
+      return updated;
+    } catch (e) {
+      this.logger.error(
+        `Failed to update icon for source ${id} : ${e.message}`,
+      );
+      return null;
+    }
+  }
 }
