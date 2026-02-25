@@ -21,7 +21,7 @@ export class PostsService {
   ) {}
 
   async findDisplayPosts(query: PostQueryDto) {
-    const { limit = 20, offset = 0, sourceId, tag, type } = query;
+    const { limit = 20, offset = 0, sourceId, tag } = query;
 
     this.logger.log('Finding display posts with query:', query);
 
@@ -31,10 +31,6 @@ export class PostsService {
 
     if (sourceId) {
       where.sourceId = sourceId;
-    }
-
-    if (type) {
-      where.source = { type: { in: Array.isArray(type) ? type : [type] } };
     }
 
     where.isDisplay = true;
