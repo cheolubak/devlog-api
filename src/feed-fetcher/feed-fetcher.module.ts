@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 
 import { BlogSourcesModule } from '../blog-sources/blog-sources.module';
 import { DatabaseModule } from '../database/database.module';
+import { ImageParseModule } from '../image-parse/image-parse.module';
 import { FeedFetcherController } from './feed-fetcher.controller';
 import { FeedFetcherService } from './feed-fetcher.service';
 import { FeedParserService } from './feed-parser.service';
@@ -14,7 +15,7 @@ import { YoutubeFetcherService } from './youtube-fetcher.service';
 @Module({
   controllers: [FeedFetcherController],
   exports: [FeedFetcherService, KeywordExtractorService],
-  imports: [DatabaseModule, BlogSourcesModule, HttpModule],
+  imports: [DatabaseModule, BlogSourcesModule, HttpModule, ImageParseModule],
   providers: [
     FeedFetcherService,
     FeedParserService,

@@ -7,6 +7,7 @@ import {
 
 import { PrismaService } from '../database/prisma.service';
 import { KeywordExtractorService } from '../feed-fetcher/keyword-extractor.service';
+import { ImageParseService } from '../image-parse/image-parse.service';
 import { PostQueryDto } from './dto/post-query.dto';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class PostsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly keywordExtractorService: KeywordExtractorService,
+    private readonly imageParseService: ImageParseService,
   ) {}
 
   async findDisplayPosts(query: PostQueryDto) {
@@ -120,6 +122,22 @@ export class PostsService {
     }
 
     return post;
+  }
+
+  async updateThumbnail(id: string, imageUrl: string) {
+    const url = await this.imageParseService.uploadImageAsWebp(
+      imageUrl,
+      `thumbnails/posts/${id}`,
+    );
+
+    const updated = await this.prisma.posts.update({
+      data: {
+        imageUrl: url.startsWith('/') ? url : `/${url}`,
+      },
+      where: { id },
+    });
+
+    return updated;
   }
 
   async updateDisplay(id: string, isDisplay: boolean) {

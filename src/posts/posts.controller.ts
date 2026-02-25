@@ -13,6 +13,7 @@ import { FeedType } from '../database/generated/prisma';
 import { PostQueryDto } from './dto/post-query.dto';
 import { UpdateDisplayDto } from './dto/update-display.dto';
 import { UpdateKeywordDto } from './dto/update-keyword.dto';
+import { UpdateThumbnailDto } from './dto/update-thumbnail.dto';
 import { PostsService } from './posts.service';
 
 @Controller('posts')
@@ -64,6 +65,14 @@ export class PostsController {
     @Body() updateDisplayDto: UpdateDisplayDto,
   ) {
     return this.postsService.updateDisplay(id, updateDisplayDto.isDisplay);
+  }
+
+  @Put(':id/thumbnail')
+  updateThumbnail(
+    @Param('id') id: string,
+    @Body() updateThumbnailDto: UpdateThumbnailDto,
+  ) {
+    return this.postsService.updateThumbnail(id, updateThumbnailDto.imageUrl);
   }
 
   @Delete(':id')

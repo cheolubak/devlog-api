@@ -7,6 +7,7 @@ import {
   FetchStatus,
 } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
+import { ImageParseService } from '../image-parse/image-parse.service';
 import { FeedParserService } from './feed-parser.service';
 import { FeedItem, ParsedFeed } from './interfaces/feed-item.interface';
 import { ScrapingConfig } from './interfaces/scraping-config.interface';
@@ -27,6 +28,7 @@ export class FeedFetcherService {
     private readonly keywordExtractorService: KeywordExtractorService,
     private readonly webScraperService: WebScraperService,
     private readonly youtubeFetcherService: YoutubeFetcherService,
+    private readonly imageParseService: ImageParseService,
   ) {}
 
   async fetchFromSource(sourceId: string) {
@@ -215,12 +217,15 @@ export class FeedFetcherService {
         item.link,
       );
 
+      const source = await this.prisma.blogSource.findUnique({
+        where: { id: sourceId },
+      });
+
       const post = await this.prisma.posts.create({
         data: {
           content: content,
           contentHash: contentHash,
           description: description,
-          imageUrl: imageUrl,
           isDisplay: isTechPost,
           originalAuthor: FeedNormalizerUtil.normalizeCreator(item.creator),
           originalPublishedAt: item.isoDate || item.pubDate || new Date(),
@@ -230,6 +235,20 @@ export class FeedFetcherService {
           title: title,
         },
       });
+
+      if (imageUrl) {
+        const parseImageUrl = await this.imageParseService.uploadImageAsWebp(
+          imageUrl.startsWith('https')
+            ? imageUrl
+            : `${source.url.split('/').at(0) ?? ''}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`,
+          `thumbnails/posts/${post.id}`,
+        );
+
+        await this.prisma.posts.update({
+          data: { imageUrl: parseImageUrl },
+          where: { id: post.id },
+        });
+      }
 
       if (item.categories && item.categories.length > 0) {
         await this.createTagsForPost(post.id, item.categories);

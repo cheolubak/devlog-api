@@ -9,6 +9,7 @@ import { DatabaseModule } from './database/database.module';
 import { FeedFetcherModule } from './feed-fetcher/feed-fetcher.module';
 import { PostsModule } from './posts/posts.module';
 import { SearchModule } from './search/search.module';
+import { ImageParseModule } from './image-parse/image-parse.module';
 
 @Module({
   controllers: [AppController],
@@ -20,6 +21,7 @@ import { SearchModule } from './search/search.module';
     FeedFetcherModule,
     PostsModule,
     SearchModule,
+    ImageParseModule,
   ],
   providers: [AppService],
 })
