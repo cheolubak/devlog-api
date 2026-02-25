@@ -310,7 +310,6 @@ export class YoutubeFetcherService {
     channelId: string,
     maxPages: number = 20,
   ): Promise<YouTubePlaylistItem[]> {
-    // Convert channel ID (UC...) to uploads playlist ID (UU...)
     const uploadsPlaylistId = 'UU' + channelId.substring(2);
     const playlistItemsUrl = `${this.baseUrl}/playlistItems`;
     const allItems: YouTubePlaylistItem[] = [];
@@ -321,9 +320,11 @@ export class YoutubeFetcherService {
       const params: Record<string, string> = {
         key: this.apiKey,
         maxResults: '50',
+        order: 'date',
         part: 'snippet',
         playlistId: uploadsPlaylistId,
       };
+
       if (pageToken) params.pageToken = pageToken;
 
       const response = await firstValueFrom(
