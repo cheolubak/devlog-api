@@ -125,19 +125,27 @@ export class PostsService {
   }
 
   async updateThumbnail(id: string, imageUrl: string) {
-    const url = await this.imageParseService.uploadImageAsWebp(
-      imageUrl,
-      `thumbnails/posts/${id}`,
-    );
+    try {
+      const url = await this.imageParseService.uploadImageAsWebp(
+        imageUrl,
+        `thumbnails/posts/${id}`,
+      );
 
-    const updated = await this.prisma.posts.update({
-      data: {
-        imageUrl: url.startsWith('/') ? url : `/${url}`,
-      },
-      where: { id },
-    });
+      const updated = await this.prisma.posts.update({
+        data: {
+          imageUrl: url.startsWith('/') ? url : `/${url}`,
+        },
+        where: { id },
+      });
 
-    return updated;
+      this.logger.log(`Updated thumbnail for post ${id}: ${url}`);
+      return updated;
+    } catch (e) {
+      this.logger.error(
+        `Failed to update thumbnail for post ${id} : ${e.message}`,
+      );
+      return null;
+    }
   }
 
   async updateDisplay(id: string, isDisplay: boolean) {
@@ -298,5 +306,61 @@ export class PostsService {
       update: { keywords },
       where: { postId: id },
     });
+  }
+
+  async updatePostsWithExternalImages() {
+    this.logger.log(
+      'Finding posts with external images (https and not /thumbnails/posts)',
+    );
+
+    const posts = await this.prisma.posts.findMany({
+      orderBy: { originalPublishedAt: 'desc' },
+      relationLoadStrategy: 'join',
+      select: {
+        id: true,
+        imageUrl: true,
+        originalPublishedAt: true,
+        source: {
+          select: {
+            blogUrl: true,
+          },
+        },
+        sourceUrl: true,
+        title: true,
+      },
+      where: {
+        imageUrl: {
+          not: {
+            startsWith: '/thumbnails/posts',
+          },
+          startsWith: 'https',
+        },
+        isDisplay: true,
+      },
+    });
+
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (const post of posts) {
+      const sourceUrl = post.source.blogUrl.split('/').at(0) ?? '';
+
+      const imageUrl = post.imageUrl.startsWith('https')
+        ? post.imageUrl
+        : `${sourceUrl}${post.imageUrl.startsWith('/') ? post.imageUrl : `/${post.imageUrl}`}`;
+      const updated = await this.updateThumbnail(post.id, imageUrl);
+
+      if (updated) {
+        successCount++;
+      } else {
+        failedCount++;
+      }
+    }
+
+    this.logger.log(
+      `Updated thumbnails for ${successCount.toLocaleString()} posts, failed for ${failedCount.toLocaleString()} posts (total: ${posts.length.toLocaleString()})`,
+    );
+
+    return { failed: failedCount, success: successCount };
   }
 }

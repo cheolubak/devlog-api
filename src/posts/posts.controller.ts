@@ -54,6 +54,11 @@ export class PostsController {
     return this.postsService.updateKeywords(id, keywords);
   }
 
+  @Patch('need-image-update')
+  updateNeedImageUpdate() {
+    return this.postsService.updatePostsWithExternalImages();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(id);

@@ -1,17 +1,24 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 
 import { FeedType, FetchStatus } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
+import { ImageParseService } from '../image-parse/image-parse.service';
 import { CreateBlogSourceDto } from './dto/create-blog-source.dto';
 import { UpdateBlogSourceDto } from './dto/update-blog-source.dto';
 
 @Injectable()
 export class BlogSourcesService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(BlogSourcesService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly imageParseService: ImageParseService,
+  ) {}
 
   async create(createBlogSourceDto: CreateBlogSourceDto) {
     // Normalize percent-encoded URLs to prevent duplicates (e.g. /@%ED%8F%AC vs /@포프티비)
@@ -178,5 +185,70 @@ export class BlogSourcesService {
       orderBy: { lastFetchedAt: 'asc' },
       where: { isActive: true },
     });
+  }
+
+  async updateThumbnail(id: string, imageUrl: string) {
+    try {
+      const url = await this.imageParseService.uploadImageAsWebp(
+        imageUrl,
+        `thumbnails/sources/${id}`,
+      );
+
+      const updated = await this.prisma.blogSource.update({
+        data: {
+          icon: url.startsWith('/') ? url : `/${url}`,
+        },
+        where: { id },
+      });
+
+      this.logger.log(`Updated icon for source ${id}: ${url}`);
+      return updated;
+    } catch (e) {
+      this.logger.error(
+        `Failed to update icon for source ${id} : ${e.message}`,
+      );
+      return null;
+    }
+  }
+
+  async updateSourcesWithExternalIcons() {
+    const sources = await this.prisma.blogSource.findMany({
+      where: {
+        icon: {
+          not: null,
+          startsWith: 'https',
+        },
+        isActive: true,
+        NOT: {
+          icon: {
+            startsWith: '/thumbnails/sources',
+          },
+        },
+      },
+    });
+
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (const source of sources) {
+      const sourceUrl = source.blogUrl.split('/').at(0) ?? '';
+
+      const imageUrl = source.icon.startsWith('https')
+        ? source.icon
+        : `${sourceUrl}${source.icon.startsWith('/') ? source.icon : `/${source.icon}`}`;
+      const updated = await this.updateThumbnail(source.id, imageUrl);
+
+      if (updated) {
+        successCount++;
+      } else {
+        failedCount++;
+      }
+    }
+
+    this.logger.log(
+      `Updated thumbnails for ${successCount.toLocaleString()} posts, failed for ${failedCount.toLocaleString()} posts (total: ${sources.length.toLocaleString()})`,
+    );
+
+    return { failed: failedCount, success: successCount };
   }
 }

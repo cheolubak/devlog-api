@@ -42,6 +42,11 @@ export class BlogSourcesController {
     return this.blogSourcesService.findOne(id);
   }
 
+  @Patch('need-image-update')
+  updateNeedImageUpdate() {
+    return this.blogSourcesService.updateSourcesWithExternalIcons();
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,
