@@ -36,9 +36,15 @@ export class BlogSourcesService {
       throw new ConflictException('Blog source with this URL already exists');
     }
 
-    return this.prisma.blogSource.create({
-      data: createBlogSourceDto,
+    const blogSource = await this.prisma.blogSource.create({
+      data: { ...createBlogSourceDto, icon: null },
     });
+
+    if (createBlogSourceDto.icon) {
+      await this.updateThumbnail(blogSource.id, createBlogSourceDto.icon);
+    }
+
+    return blogSource;
   }
 
   async findAll(includeInactive = false) {
@@ -187,21 +193,27 @@ export class BlogSourcesService {
     });
   }
 
+  async uploadThumbnail(id: string, imageUrl: string) {
+    const url = await this.imageParseService.uploadImageAsWebp(
+      imageUrl,
+      `thumbnails/sources/${id}`,
+    );
+
+    return url.startsWith('/') ? url : `/${url}`;
+  }
+
   async updateThumbnail(id: string, imageUrl: string) {
     try {
-      const url = await this.imageParseService.uploadImageAsWebp(
-        imageUrl,
-        `thumbnails/sources/${id}`,
-      );
+      const icon = await this.uploadThumbnail(id, imageUrl);
 
       const updated = await this.prisma.blogSource.update({
         data: {
-          icon: url.startsWith('/') ? url : `/${url}`,
+          icon,
         },
         where: { id },
       });
 
-      this.logger.log(`Updated icon for source ${id}: ${url}`);
+      this.logger.log(`Updated icon for source ${id}: ${icon}`);
       return updated;
     } catch (e) {
       this.logger.error(

@@ -258,7 +258,7 @@ export class FeedFetcherService {
         await this.createTagsForPost(post.id, item.categories);
       }
 
-      this.extractAndSaveKeywords(post.id, post.title, item.link).catch(
+      await this.extractAndSaveKeywords(post.id, post.title, item.link).catch(
         (error) => {
           this.logger.warn(
             `Keyword extraction failed for post ${post.id}: ${error.message}`,

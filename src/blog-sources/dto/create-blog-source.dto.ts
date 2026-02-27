@@ -3,6 +3,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsObject,
+  IsOptional,
   IsString,
   IsUrl,
   MaxLength,
@@ -37,4 +38,9 @@ export class CreateBlogSourceDto {
   @IsUrl()
   @MaxLength(500)
   blogUrl: string;
+
+  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
+  icon?: string;
 }
