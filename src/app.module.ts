@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { BlogSourcesModule } from './blog-sources/blog-sources.module';
 import { DatabaseModule } from './database/database.module';
 import { FeedFetcherModule } from './feed-fetcher/feed-fetcher.module';
+import { ImageParseModule } from './image-parse/image-parse.module';
 import { PostsModule } from './posts/posts.module';
 import { SearchModule } from './search/search.module';
-import { ImageParseModule } from './image-parse/image-parse.module';
 
 @Module({
   controllers: [AppController],
@@ -22,6 +24,17 @@ import { ImageParseModule } from './image-parse/image-parse.module';
     PostsModule,
     SearchModule,
     ImageParseModule,
+    AuthModule,
+    JwtModule.registerAsync({
+      global: true,
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        return {
+          secret: configService.get('JWT_SECRET'),
+          signOptions: { expiresIn: '1h' },
+        };
+      },
+    }),
   ],
   providers: [AppService],
 })

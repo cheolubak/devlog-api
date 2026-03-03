@@ -25,6 +25,31 @@ enum FetchStatus {
   PARTIAL
 }
 
+enum SocialType {
+  KAKAO
+  NAVER
+  GOOGLE
+  GITHUB
+
+  @@map("social_type")
+}
+
+model Users {
+  id         String     @db.Uuid @id @default(uuid())
+  nickname   String     @db.VarChar(50)
+  email      String?    @db.VarChar(150)
+  profile    String?    @db.VarChar(200)
+  socialType SocialType @map("social_type")
+  socialId   String     @db.VarChar(100) @map("social_id")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @default(now()) @map("updated_at")
+
+  postBookmarks PostBookmarks[]
+
+  @@unique([socialId, socialType])
+  @@map("users")
+}
+
 model BlogSource {
   id                String      @db.Uuid @id @default(uuid())
   name              String      @db.VarChar(100)
@@ -67,6 +92,8 @@ model Posts {
   searchKeywords      PostSearchKeywords?
   source              BlogSource?         @relation(fields: [sourceId], references: [id])
   deletionLog         PostDeletionLog?
+
+  postBookmarks PostBookmarks[]
 
   @@index([sourceId])
   @@index([isDisplay])
@@ -111,4 +138,15 @@ model PostTags {
 
   @@id([postId, tagId])
   @@index([tagId])
+}
+
+model PostBookmarks {
+  userId    String   @db.Uuid
+  postId    String   @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  user      Users    @relation(fields: [userId], references: [id])
+  post      Posts    @relation(fields: [postId], references: [id])
+
+  @@id([userId, postId])
+  @@map("post_bookmarks")
 }
