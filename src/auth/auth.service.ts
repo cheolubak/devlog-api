@@ -1,17 +1,17 @@
-import { HttpService } from "@nestjs/axios";
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { JwtService } from "@nestjs/jwt";
-import { v4 as uuidv4 } from "uuid";
+import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { v4 as uuidv4 } from 'uuid';
 
-import { PrismaService } from "../database/prisma.service";
-import { ImageParseService } from "../image-parse/image-parse.service";
-import { GithubUserDto } from "./dto/github-user.dto";
-import { KakaoUserDto } from "./dto/kakao-user.dto";
-import { SocialLoginDto } from "./dto/social-login.dto";
-import { GoogleUserDto } from "./dto/google-user.dto";
-import { NaverUserDto } from "./dto/naver-user.dto";
-import { RefreshTokenDto } from "./dto/refresh-token.dto";
+import { PrismaService } from '../database/prisma.service';
+import { ImageParseService } from '../image-parse/image-parse.service';
+import { GithubUserDto } from './dto/github-user.dto';
+import { GoogleUserDto } from './dto/google-user.dto';
+import { KakaoUserDto } from './dto/kakao-user.dto';
+import { NaverUserDto } from './dto/naver-user.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -63,7 +63,11 @@ export class AuthService {
 
     const user = await this.prismaService.users.create({
       data: {
-        email: kakaoUser.kakao_account.is_email_valid && kakaoUser.kakao_account.is_email_verified ? kakaoUser.kakao_account.email : null,
+        email:
+          kakaoUser.kakao_account.is_email_valid &&
+          kakaoUser.kakao_account.is_email_verified
+            ? kakaoUser.kakao_account.email
+            : null,
         nickname: kakaoUser.kakao_account.profile.nickname,
         profile,
         socialId: kakaoUser.id.toString(),
@@ -159,14 +163,13 @@ export class AuthService {
   }
 
   async loginWithNaver({ accessToken, sessionId }: SocialLoginDto) {
-    const naverUser = await this.httpService.axiosRef.get<NaverUserDto>(
-      'https://openapi.naver.com/v1/nid/me',
-      {
+    const naverUser = await this.httpService.axiosRef
+      .get<NaverUserDto>('https://openapi.naver.com/v1/nid/me', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      },
-    ).then(res => res.data.response);
+      })
+      .then((res) => res.data.response);
 
     const findUser = await this.prismaService.users.findUnique({
       where: {
@@ -174,29 +177,34 @@ export class AuthService {
           socialId: naverUser.id,
           socialType: 'NAVER',
         },
-      }
+      },
     });
 
-    if(findUser) {
+    if (findUser) {
       return await this.generateToken(findUser.id, sessionId);
     }
 
-    const profile = naverUser.profile_image ? await this.imageParseService.uploadImageAsWebp(naverUser.profile_image, `profile/${uuidv4()}`) : null;
+    const profile = naverUser.profile_image
+      ? await this.imageParseService.uploadImageAsWebp(
+          naverUser.profile_image,
+          `profile/${uuidv4()}`,
+        )
+      : null;
 
-    const  user = await this.prismaService.users.create({
+    const user = await this.prismaService.users.create({
       data: {
         email: naverUser.email,
         nickname: naverUser.nickname,
         profile,
         socialId: naverUser.id,
         socialType: 'NAVER',
-      }
-    })
+      },
+    });
 
     return await this.generateToken(user.id, sessionId);
   }
 
-  async refreshToken({refreshToken, sessionId}: RefreshTokenDto) {
+  async refreshToken({ refreshToken, sessionId }: RefreshTokenDto) {
     const user = await this.validateRefreshTokenUser(refreshToken, sessionId);
 
     return await this.generateToken(user.id, sessionId);

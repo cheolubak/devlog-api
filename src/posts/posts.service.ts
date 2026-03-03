@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { Users } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { KeywordExtractorService } from '../feed-fetcher/keyword-extractor.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
@@ -20,7 +21,13 @@ export class PostsService {
     private readonly imageParseService: ImageParseService,
   ) {}
 
-  async findDisplayPosts(query: PostQueryDto) {
+  async findDisplayPosts({
+    query,
+    user,
+  }: {
+    query: PostQueryDto;
+    user?: Users;
+  }) {
     const { limit = 20, offset = 0, sourceId, tag } = query;
 
     this.logger.log('Finding display posts with query:', query);
@@ -57,6 +64,7 @@ export class PostsService {
           source: {
             select: {
               blogUrl: true,
+              icon: true,
               id: true,
               name: true,
               type: true,
@@ -65,6 +73,7 @@ export class PostsService {
           },
           sourceUrl: true,
           title: true,
+          viewCount: true,
         },
         skip: offset * limit,
         take: limit,
@@ -73,8 +82,24 @@ export class PostsService {
       this.prisma.posts.count({ where }),
     ]);
 
+    let bookmarkedPostIds: Set<string> = new Set();
+
+    if (user) {
+      const bookmarks = await this.prisma.postBookmarks.findMany({
+        select: { postId: true },
+        where: {
+          postId: { in: posts.map((post) => post.id) },
+          userId: user.id,
+        },
+      });
+      bookmarkedPostIds = new Set(bookmarks.map((b) => b.postId));
+    }
+
     return {
-      data: posts,
+      data: posts.map((post) => ({
+        ...post,
+        isBookmark: bookmarkedPostIds.has(post.id),
+      })),
       pagination: {
         hasMore: offset * limit + limit < total,
         limit,
@@ -120,6 +145,82 @@ export class PostsService {
     return post;
   }
 
+  async viewPost({
+    id,
+    sessionId,
+    user,
+  }: {
+    id: string;
+    sessionId: string;
+    user?: Users;
+  }) {
+    const viewed = await this.prisma.postViewHistory.findFirst({
+      where: {
+        OR: [{ userId: user?.id }, { sessionId }],
+        postId: id,
+      },
+    });
+
+    const promises: Promise<any>[] = [
+      this.prisma.postViewHistory.create({
+        data: {
+          postId: id,
+          sessionId,
+          userId: user?.id,
+        },
+      }),
+      ,
+    ];
+
+    if (!viewed) {
+      promises.push(
+        this.prisma.posts.update({
+          data: {
+            viewCount: {
+              increment: 1,
+            },
+          },
+          where: { id },
+        }),
+      );
+    }
+
+    await Promise.all(promises);
+
+    return { message: 'success' };
+  }
+
+  async bookmarkPost({ id, user }: { id: string; user: Users }) {
+    const findBookmark = await this.prisma.postBookmarks.findUnique({
+      where: {
+        userId_postId: {
+          postId: id,
+          userId: user.id,
+        },
+      },
+    });
+
+    if (!findBookmark) {
+      await this.prisma.postBookmarks.create({
+        data: {
+          postId: id,
+          userId: user.id,
+        },
+      });
+    } else {
+      await this.prisma.postBookmarks.delete({
+        where: {
+          userId_postId: {
+            postId: id,
+            userId: user.id,
+          },
+        },
+      });
+    }
+
+    return { message: 'success' };
+  }
+
   async updateThumbnail(id: string, imageUrl: string) {
     try {
       const url = await this.imageParseService.uploadImageAsWebp(
@@ -160,32 +261,31 @@ export class PostsService {
       where: { id },
     });
 
-    // TODO : 활성화 시 검색 키워드 추가는 좀더 생각해볼 필요가 있음
-    // if (isDisplay) {
-    //   const existingKeywords = await this.prisma.postSearchKeywords.findUnique({
-    //     where: { postId: id },
-    //   });
-    //
-    //   if (!existingKeywords && post.sourceUrl) {
-    //     await this.keywordExtractorService
-    //       .extractKeywords(post.title, post.sourceUrl)
-    //       .then(async (keywords) => {
-    //         if (keywords) {
-    //           await this.prisma.postSearchKeywords.upsert({
-    //             create: { keywords, postId: id },
-    //             update: { keywords },
-    //             where: { postId: id },
-    //           });
-    //           this.logger.log(`Keywords saved for post ${id}`);
-    //         }
-    //       })
-    //       .catch((error) => {
-    //         this.logger.error(
-    //           `Keyword extraction failed for post ${id}: ${error.message}`,
-    //         );
-    //       });
-    //   }
-    // }
+    if (isDisplay) {
+      const existingKeywords = await this.prisma.postSearchKeywords.findUnique({
+        where: { postId: id },
+      });
+
+      if (!existingKeywords && post.sourceUrl) {
+        await this.keywordExtractorService
+          .extractKeywords(post.title, post.sourceUrl)
+          .then(async (keywords) => {
+            if (keywords) {
+              await this.prisma.postSearchKeywords.upsert({
+                create: { keywords, postId: id },
+                update: { keywords },
+                where: { postId: id },
+              });
+              this.logger.log(`Keywords saved for post ${id}`);
+            }
+          })
+          .catch((error) => {
+            this.logger.error(
+              `Keyword extraction failed for post ${id}: ${error.message}`,
+            );
+          });
+      }
+    }
 
     return updatedPost;
   }

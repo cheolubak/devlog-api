@@ -10,7 +10,7 @@ import { UsersGuard } from './users.guard';
 
 @Module({
   controllers: [AuthController],
-  exports: [AuthGuard, UsersGuard],
+  exports: [AuthService, AuthGuard, UsersGuard],
   imports: [DatabaseModule, HttpModule, ImageParseModule],
   providers: [AuthService, AuthGuard, UsersGuard],
 })

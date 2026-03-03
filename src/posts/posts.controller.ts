@@ -8,8 +8,12 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 
+import { AuthGuard } from '../auth/auth.guard';
+import { UsersGuard } from '../auth/users.guard';
 import { PostQueryDto } from './dto/post-query.dto';
 import { UpdateDisplayDto } from './dto/update-display.dto';
 import { UpdateKeywordDto } from './dto/update-keyword.dto';
@@ -21,8 +25,11 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get()
-  findDisplay(@Query() query: PostQueryDto) {
-    return this.postsService.findDisplayPosts(query);
+  @UseGuards(UsersGuard)
+  findDisplay(@Req() req, @Query() query: PostQueryDto) {
+    const user = req.user;
+
+    return this.postsService.findDisplayPosts({ query, user });
   }
 
   @Get('all')
@@ -46,6 +53,23 @@ export class PostsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(id);
+  }
+
+  @Put(':id/view')
+  @UseGuards(UsersGuard)
+  viewPosts(@Req() req, @Param('id') id: string) {
+    const user = req.user;
+    const sessionId = req.headers['sessionid'];
+
+    return this.postsService.viewPost({ id, sessionId, user });
+  }
+
+  @Post(':id/bookmarks')
+  @UseGuards(AuthGuard)
+  bookmarkPost(@Req() req, @Param('id') id: string) {
+    const user = req.user;
+
+    return this.postsService.bookmarkPost({ id, user });
   }
 
   @Patch(':id/display')
