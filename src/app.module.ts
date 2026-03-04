@@ -12,6 +12,7 @@ import { FeedFetcherModule } from './feed-fetcher/feed-fetcher.module';
 import { ImageParseModule } from './image-parse/image-parse.module';
 import { PostsModule } from './posts/posts.module';
 import { SearchModule } from './search/search.module';
+import { RequestModule } from './request/request.module';
 
 @Module({
   controllers: [AppController],
@@ -35,6 +36,7 @@ import { SearchModule } from './search/search.module';
         };
       },
     }),
+    RequestModule,
   ],
   providers: [AppService],
 })

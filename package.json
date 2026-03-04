@@ -42,6 +42,7 @@
     "@opentelemetry/sdk-trace-node": "^2.5.1",
     "@opentelemetry/semantic-conventions": "^1.39.0",
     "@prisma/client": "^6.19.1",
+    "@slack/web-api": "^7.14.1",
     "@supabase/supabase-js": "^2.97.0",
     "axios": "^1.13.5",
     "cheerio": "^1.2.0",
