@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 
 import { Users } from '../database/generated/prisma';
 import { AuthGuard } from './auth.guard';
@@ -33,6 +41,14 @@ export class AuthController {
   @Post('refresh')
   refreshToken(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshToken(dto);
+  }
+
+  @Delete('leave')
+  @UseGuards(AuthGuard)
+  leave(@Req() req) {
+    const user: Users = req.user;
+
+    return this.authService.leave(user);
   }
 
   @Get('me')

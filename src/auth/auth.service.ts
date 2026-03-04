@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 
+import { Users } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
 import { GithubUserDto } from './dto/github-user.dto';
@@ -246,5 +247,13 @@ export class AuthService {
     });
 
     return await this.findUserById(payload.sub);
+  }
+
+  async leave(user: Users) {
+    await this.prismaService.users.delete({
+      where: { id: user.id },
+    });
+
+    return { message: '완료' };
   }
 }
