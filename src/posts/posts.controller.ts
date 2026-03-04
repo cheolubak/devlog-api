@@ -32,6 +32,14 @@ export class PostsController {
     return this.postsService.findDisplayPosts({ query, user });
   }
 
+  @Get('bookmarks')
+  @UseGuards(AuthGuard)
+  findDisplayWithBookmark(@Req() req, @Query() query: PostQueryDto) {
+    const user = req.user;
+
+    return this.postsService.findDisplayBookmarks({ query, user });
+  }
+
   @Get('all')
   findAll(@Query() query: PostQueryDto) {
     return this.postsService.findAll(query);

@@ -109,6 +109,73 @@ export class PostsService {
     };
   }
 
+  async findDisplayBookmarks({
+    query,
+    user,
+  }: {
+    query: PostQueryDto;
+    user: Users;
+  }) {
+    const { limit = 20, offset = 0, sourceId } = query;
+
+    const where: any = {
+      deletionLog: null,
+      isDisplay: true,
+      postBookmarks: {
+        some: {
+          userId: user.id,
+        },
+      },
+    };
+
+    if (sourceId) {
+      where.sourceId = sourceId;
+    }
+
+    const [posts, total] = await Promise.all([
+      this.prisma.posts.findMany({
+        orderBy: { originalPublishedAt: 'desc' },
+        relationLoadStrategy: 'join',
+        select: {
+          description: true,
+          id: true,
+          imageUrl: true,
+          originalPublishedAt: true,
+          source: {
+            select: {
+              blogUrl: true,
+              icon: true,
+              id: true,
+              name: true,
+              type: true,
+              url: true,
+            },
+          },
+          sourceUrl: true,
+          title: true,
+          viewCount: true,
+        },
+        skip: offset * limit,
+        take: limit,
+        where,
+      }),
+      this.prisma.posts.count({ where }),
+    ]);
+
+    return {
+      data: posts.map((post) => ({
+        ...post,
+        isBookmark: true,
+      })),
+      pagination: {
+        hasMore: offset * limit + limit < total,
+        limit,
+        offset,
+        total,
+      },
+    };
+  }
+
   async findOne(id: string) {
     this.logger.log(`Finding post with id: ${id}`);
 
