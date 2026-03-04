@@ -14,7 +14,7 @@ export class RequestService {
   async requestBlogs({ dto, user }: { dto: RequestDto; user?: Users }) {
     await this.slack.chat.postMessage({
       channel: 'C0AJAMVQ135',
-      text: `@dev.cheolubak 블로그 포스 요청 : ${dto.url} | 요청 이메일 : ${dto.email} | 사용자 ID : ${user?.id ?? 'UNKNOWN'}`,
+      text: `블로그 포스 요청 : ${dto.url} | 요청 이메일 : ${dto.email} | 사용자 ID : ${user?.id ?? 'UNKNOWN'}`,
     });
 
     return true;
