@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,6 +16,8 @@ import { SocialLoginDto } from './dto/social-login.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prismaService: PrismaService,
     private readonly httpService: HttpService,
@@ -25,6 +27,7 @@ export class AuthService {
   ) {}
 
   async loginWithKakao({ accessToken, sessionId }: SocialLoginDto) {
+    this.logger.log(`loginWithKakao: ${accessToken} ${sessionId}`);
     const kakaoUser = await this.httpService.axiosRef
       .get<KakaoUserDto>(`https://kapi.kakao.com/v2/user/me`, {
         headers: {
@@ -80,6 +83,7 @@ export class AuthService {
   }
 
   async loginWithGoogle({ accessToken, sessionId }: SocialLoginDto) {
+    this.logger.log(`loginWithGoogle: ${accessToken} ${sessionId}`);
     const googleUser = await this.httpService.axiosRef
       .get<GoogleUserDto>('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: {
@@ -122,6 +126,7 @@ export class AuthService {
   }
 
   async loginWithGithub({ accessToken, sessionId }: SocialLoginDto) {
+    this.logger.log(`loginWithGithub: ${accessToken} ${sessionId}`);
     const githubUser = await this.httpService.axiosRef
       .get<GithubUserDto>('https://api.github.com/user', {
         headers: {
@@ -164,6 +169,7 @@ export class AuthService {
   }
 
   async loginWithNaver({ accessToken, sessionId }: SocialLoginDto) {
+    this.logger.log(`loginWithNaver: ${accessToken} ${sessionId}`);
     const naverUser = await this.httpService.axiosRef
       .get<NaverUserDto>('https://openapi.naver.com/v1/nid/me', {
         headers: {
