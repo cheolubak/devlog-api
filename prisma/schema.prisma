@@ -159,5 +159,8 @@ model PostViewHistory {
   sessionId String?  @db.Uuid @map("session_id")
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([postId])
+  @@index([userId])
+  @@index([sessionId])
   @@map("post_view_history")
 }

@@ -261,9 +261,21 @@ export class AuthService {
   }
 
   async leave(user: Users) {
-    await this.prismaService.users.delete({
-      where: { id: user.id },
-    });
+    await Promise.all([
+      this.prismaService.postViewHistory.deleteMany({
+        where: {
+          userId: user.id,
+        },
+      }),
+      this.prismaService.postBookmarks.deleteMany({
+        where: {
+          userId: user.id,
+        },
+      }),
+      this.prismaService.users.delete({
+        where: { id: user.id },
+      }),
+    ]);
 
     return { message: '완료' };
   }
