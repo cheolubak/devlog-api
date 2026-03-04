@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { Users } from '../database/generated/prisma';
+import { Posts, Users } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { KeywordExtractorService } from '../feed-fetcher/keyword-extractor.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
@@ -15,11 +15,72 @@ import { PostQueryDto } from './dto/post-query.dto';
 export class PostsService {
   private readonly logger = new Logger(PostsService.name);
 
+  private readonly displayPostSelect = {
+    description: true,
+    id: true,
+    imageUrl: true,
+    originalPublishedAt: true,
+    source: {
+      select: {
+        blogUrl: true,
+        icon: true,
+        id: true,
+        name: true,
+        type: true,
+        url: true,
+      },
+    },
+    sourceUrl: true,
+    title: true,
+    viewCount: true,
+  } as const;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly keywordExtractorService: KeywordExtractorService,
     private readonly imageParseService: ImageParseService,
   ) {}
+
+  private buildPagination({
+    limit,
+    offset,
+    total,
+  }: {
+    limit: number;
+    offset: number;
+    total: number;
+  }) {
+    return {
+      hasMore: offset * limit + limit < total,
+      limit,
+      offset,
+      total,
+    };
+  }
+
+  private async findPostsWithCount<T>({
+    limit,
+    offset,
+    select,
+    where,
+  }: {
+    limit: number;
+    offset: number;
+    select: T;
+    where: any;
+  }): Promise<[Posts[], number]> {
+    return Promise.all([
+      this.prisma.posts.findMany({
+        orderBy: { originalPublishedAt: 'desc' },
+        relationLoadStrategy: 'join',
+        select,
+        skip: offset * limit,
+        take: limit,
+        where,
+      }),
+      this.prisma.posts.count({ where }),
+    ]);
+  }
 
   async findDisplayPosts({
     query,
@@ -52,35 +113,12 @@ export class PostsService {
       };
     }
 
-    const [posts, total] = await Promise.all([
-      this.prisma.posts.findMany({
-        orderBy: { originalPublishedAt: 'desc' },
-        relationLoadStrategy: 'join',
-        select: {
-          description: true,
-          id: true,
-          imageUrl: true,
-          originalPublishedAt: true,
-          source: {
-            select: {
-              blogUrl: true,
-              icon: true,
-              id: true,
-              name: true,
-              type: true,
-              url: true,
-            },
-          },
-          sourceUrl: true,
-          title: true,
-          viewCount: true,
-        },
-        skip: offset * limit,
-        take: limit,
-        where,
-      }),
-      this.prisma.posts.count({ where }),
-    ]);
+    const [posts, total] = await this.findPostsWithCount({
+      limit,
+      offset,
+      select: this.displayPostSelect,
+      where,
+    });
 
     let bookmarkedPostIds: Set<string> = new Set();
 
@@ -100,12 +138,7 @@ export class PostsService {
         ...post,
         isBookmark: bookmarkedPostIds.has(post.id),
       })),
-      pagination: {
-        hasMore: offset * limit + limit < total,
-        limit,
-        offset,
-        total,
-      },
+      pagination: this.buildPagination({ limit, offset, total }),
     };
   }
 
@@ -132,47 +165,19 @@ export class PostsService {
       where.sourceId = sourceId;
     }
 
-    const [posts, total] = await Promise.all([
-      this.prisma.posts.findMany({
-        orderBy: { originalPublishedAt: 'desc' },
-        relationLoadStrategy: 'join',
-        select: {
-          description: true,
-          id: true,
-          imageUrl: true,
-          originalPublishedAt: true,
-          source: {
-            select: {
-              blogUrl: true,
-              icon: true,
-              id: true,
-              name: true,
-              type: true,
-              url: true,
-            },
-          },
-          sourceUrl: true,
-          title: true,
-          viewCount: true,
-        },
-        skip: offset * limit,
-        take: limit,
-        where,
-      }),
-      this.prisma.posts.count({ where }),
-    ]);
+    const [posts, total] = await this.findPostsWithCount({
+      limit,
+      offset,
+      select: this.displayPostSelect,
+      where,
+    });
 
     return {
       data: posts.map((post) => ({
         ...post,
         isBookmark: true,
       })),
-      pagination: {
-        hasMore: offset * limit + limit < total,
-        limit,
-        offset,
-        total,
-      },
+      pagination: this.buildPagination({ limit, offset, total }),
     };
   }
 
@@ -372,58 +377,48 @@ export class PostsService {
       where.source = { type: { in: Array.isArray(type) ? type : [type] } };
     }
 
-    const [posts, total] = await Promise.all([
-      this.prisma.posts.findMany({
-        orderBy: { originalPublishedAt: 'desc' },
-        relationLoadStrategy: 'join',
-        select: {
-          description: true,
-          id: true,
-          imageUrl: true,
-          isDisplay: true,
-          originalPublishedAt: true,
-          postTags: {
-            include: {
-              tag: {
-                select: {
-                  id: true,
-                  name: true,
-                },
+    const [posts, total] = await this.findPostsWithCount({
+      limit,
+      offset,
+      select: {
+        description: true,
+        id: true,
+        imageUrl: true,
+        isDisplay: true,
+        originalPublishedAt: true,
+        postTags: {
+          include: {
+            tag: {
+              select: {
+                id: true,
+                name: true,
               },
             },
           },
-          searchKeywords: {
-            select: {
-              keywords: true,
-            },
-          },
-          source: {
-            select: {
-              blogUrl: true,
-              icon: true,
-              id: true,
-              name: true,
-              url: true,
-            },
-          },
-          sourceUrl: true,
-          title: true,
         },
-        skip: offset * limit,
-        take: limit,
-        where,
-      }),
-      this.prisma.posts.count({ where }),
-    ]);
+        searchKeywords: {
+          select: {
+            keywords: true,
+          },
+        },
+        source: {
+          select: {
+            blogUrl: true,
+            icon: true,
+            id: true,
+            name: true,
+            url: true,
+          },
+        },
+        sourceUrl: true,
+        title: true,
+      },
+      where,
+    });
 
     return {
       data: posts,
-      pagination: {
-        hasMore: offset * limit + limit < total,
-        limit,
-        offset,
-        total,
-      },
+      pagination: this.buildPagination({ limit, offset, total }),
     };
   }
 
