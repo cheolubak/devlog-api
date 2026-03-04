@@ -23,12 +23,25 @@ export function setupTelemetry(): void {
     return;
   }
 
+  const headers = { Authorization: decodeURIComponent(authorization) };
+
   const resource = resourceFromAttributes({
     [ATTR_SERVICE_NAME]: 'devlog-api',
   });
 
+  const traceExporter = new OTLPTraceExporter({
+    headers,
+    url: `${endpoint}/v1/traces`,
+  });
+
+  const tracerProvider = new NodeTracerProvider({
+    resource,
+    spanProcessors: [new BatchSpanProcessor(traceExporter)],
+  });
+  tracerProvider.register();
+
   const logExporter = new OTLPLogExporter({
-    headers: { Authorization: authorization },
+    headers,
     url: `${endpoint}/v1/logs`,
   });
 
@@ -38,15 +51,4 @@ export function setupTelemetry(): void {
   });
 
   logs.setGlobalLoggerProvider(loggerProvider);
-
-  const traceExporter = new OTLPTraceExporter({
-    headers: { Authorization: authorization },
-    url: `${endpoint}/v1/traces`,
-  });
-
-  const tracerProvider = new NodeTracerProvider({
-    resource,
-    spanProcessors: [new BatchSpanProcessor(traceExporter)],
-  });
-  tracerProvider.register();
 }
