@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Users } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
+import { log } from '../utils/logger';
 import { GithubUserDto } from './dto/github-user.dto';
 import { GoogleUserDto } from './dto/google-user.dto';
 import { KakaoUserDto } from './dto/kakao-user.dto';
@@ -28,6 +29,7 @@ export class AuthService {
 
   async loginWithKakao({ accessToken, sessionId }: SocialLoginDto) {
     this.logger.log(`loginWithKakao: ${accessToken} ${sessionId}`);
+    log.info(`loginWithKakao: `, { accessToken, sessionId });
     const kakaoUser = await this.httpService.axiosRef
       .get<KakaoUserDto>(`https://kapi.kakao.com/v2/user/me`, {
         headers: {
@@ -84,6 +86,7 @@ export class AuthService {
 
   async loginWithGoogle({ accessToken, sessionId }: SocialLoginDto) {
     this.logger.log(`loginWithGoogle: ${accessToken} ${sessionId}`);
+    log.info(`loginWithGoogle: `, { accessToken, sessionId });
     const googleUser = await this.httpService.axiosRef
       .get<GoogleUserDto>('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: {
@@ -127,6 +130,7 @@ export class AuthService {
 
   async loginWithGithub({ accessToken, sessionId }: SocialLoginDto) {
     this.logger.log(`loginWithGithub: ${accessToken} ${sessionId}`);
+    log.info(`loginWithGithub: `, { accessToken, sessionId });
     const githubUser = await this.httpService.axiosRef
       .get<GithubUserDto>('https://api.github.com/user', {
         headers: {
@@ -170,6 +174,7 @@ export class AuthService {
 
   async loginWithNaver({ accessToken, sessionId }: SocialLoginDto) {
     this.logger.log(`loginWithNaver: ${accessToken} ${sessionId}`);
+    log.info(`loginWithNaver: `, { accessToken, sessionId });
     const naverUser = await this.httpService.axiosRef
       .get<NaverUserDto>('https://openapi.naver.com/v1/nid/me', {
         headers: {
