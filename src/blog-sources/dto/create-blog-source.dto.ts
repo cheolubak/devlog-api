@@ -39,7 +39,6 @@ export class CreateBlogSourceDto {
   @MaxLength(500)
   blogUrl: string;
 
-  @IsNotEmpty()
   @IsOptional()
   @IsString()
   icon?: string;

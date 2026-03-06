@@ -5,9 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { FeedType, FetchStatus } from '../database/generated/prisma';
+import { FeedType, FetchStatus, Prisma } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
+import { processInChunks } from '../utils/chunk-parallel';
 import { CreateBlogSourceDto } from './dto/create-blog-source.dto';
 import { UpdateBlogSourceDto } from './dto/update-blog-source.dto';
 
@@ -168,7 +169,7 @@ export class BlogSourcesService {
     error?: string,
     newPostsCount?: number,
   ) {
-    const updateData: any = {
+    const updateData: Prisma.BlogSourceUncheckedUpdateInput = {
       lastFetchedAt: new Date(),
       lastFetchError: error || null,
       lastFetchStatus: status,
@@ -239,23 +240,20 @@ export class BlogSourcesService {
       },
     });
 
-    let successCount = 0;
-    let failedCount = 0;
+    const results = await processInChunks(
+      sources,
+      async (source) => {
+        const sourceUrl = source.blogUrl.split('/').at(0) ?? '';
+        const imageUrl = source.icon.startsWith('https')
+          ? source.icon
+          : `${sourceUrl}${source.icon.startsWith('/') ? source.icon : `/${source.icon}`}`;
+        return this.updateThumbnail(source.id, imageUrl);
+      },
+      5,
+    );
 
-    for (const source of sources) {
-      const sourceUrl = source.blogUrl.split('/').at(0) ?? '';
-
-      const imageUrl = source.icon.startsWith('https')
-        ? source.icon
-        : `${sourceUrl}${source.icon.startsWith('/') ? source.icon : `/${source.icon}`}`;
-      const updated = await this.updateThumbnail(source.id, imageUrl);
-
-      if (updated) {
-        successCount++;
-      } else {
-        failedCount++;
-      }
-    }
+    const successCount = results.filter(Boolean).length;
+    const failedCount = results.length - successCount;
 
     this.logger.log(
       `Updated thumbnails for ${successCount.toLocaleString()} posts, failed for ${failedCount.toLocaleString()} posts (total: ${sources.length.toLocaleString()})`,

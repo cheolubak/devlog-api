@@ -5,10 +5,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { Posts, Users } from '../database/generated/prisma';
+import { Posts, Prisma, Users } from '../database/generated/prisma';
 import { PrismaService } from '../database/prisma.service';
 import { KeywordExtractorService } from '../feed-fetcher/keyword-extractor.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
+import { processInChunks } from '../utils/chunk-parallel';
 import { PostQueryDto } from './dto/post-query.dto';
 
 @Injectable()
@@ -67,7 +68,7 @@ export class PostsService {
     limit: number;
     offset: number;
     select: T;
-    where: any;
+    where: Prisma.PostsWhereInput;
   }): Promise<[Posts[], number]> {
     return Promise.all([
       this.prisma.posts.findMany({
@@ -93,7 +94,7 @@ export class PostsService {
 
     this.logger.log('Finding display posts with query:', query);
 
-    const where: any = {
+    const where: Prisma.PostsWhereInput = {
       deletionLog: null,
     };
 
@@ -151,7 +152,7 @@ export class PostsService {
   }) {
     const { limit = 20, offset = 0, sourceId } = query;
 
-    const where: any = {
+    const where: Prisma.PostsWhereInput = {
       deletionLog: null,
       isDisplay: true,
       postBookmarks: {
@@ -241,7 +242,6 @@ export class PostsService {
           userId: user?.id,
         },
       }),
-      ,
     ];
 
     if (!viewed) {
@@ -367,7 +367,7 @@ export class PostsService {
 
     const { isDisplay, limit = 20, offset = 0, type } = query;
 
-    const where: any = {
+    const where: Prisma.PostsWhereInput = {
       deletionLog: null,
     };
 
@@ -497,23 +497,20 @@ export class PostsService {
       },
     });
 
-    let successCount = 0;
-    let failedCount = 0;
+    const results = await processInChunks(
+      posts,
+      async (post) => {
+        const sourceUrl = post.source.blogUrl.split('/').at(0) ?? '';
+        const imageUrl = post.imageUrl.startsWith('https')
+          ? post.imageUrl
+          : `${sourceUrl}${post.imageUrl.startsWith('/') ? post.imageUrl : `/${post.imageUrl}`}`;
+        return this.updateThumbnail(post.id, imageUrl);
+      },
+      5,
+    );
 
-    for (const post of posts) {
-      const sourceUrl = post.source.blogUrl.split('/').at(0) ?? '';
-
-      const imageUrl = post.imageUrl.startsWith('https')
-        ? post.imageUrl
-        : `${sourceUrl}${post.imageUrl.startsWith('/') ? post.imageUrl : `/${post.imageUrl}`}`;
-      const updated = await this.updateThumbnail(post.id, imageUrl);
-
-      if (updated) {
-        successCount++;
-      } else {
-        failedCount++;
-      }
-    }
+    const successCount = results.filter(Boolean).length;
+    const failedCount = results.length - successCount;
 
     this.logger.log(
       `Updated thumbnails for ${successCount.toLocaleString()} posts, failed for ${failedCount.toLocaleString()} posts (total: ${posts.length.toLocaleString()})`,

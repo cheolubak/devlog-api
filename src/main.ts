@@ -12,6 +12,13 @@ async function bootstrap() {
     logger: new OtelLogger(),
   });
 
+  app.enableCors({
+    credentials: true,
+    origin: process.env.CORS_ORIGIN?.split(',') || '*',
+  });
+
+  app.enableShutdownHooks();
+
   app.useGlobalPipes(
     new ValidationPipe({
       forbidNonWhitelisted: true,

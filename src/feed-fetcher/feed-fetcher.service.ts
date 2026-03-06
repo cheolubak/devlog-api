@@ -269,7 +269,7 @@ export class FeedFetcherService {
       this.logger.debug(`Created new post: ${post.title}`);
       return { created: true, post };
     } catch (e) {
-      console.error(e);
+      this.logger.error(`Failed to process feed item: ${e.message}`, e.stack);
       throw e;
     }
   }

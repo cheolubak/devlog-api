@@ -11,8 +11,8 @@ import { DatabaseModule } from './database/database.module';
 import { FeedFetcherModule } from './feed-fetcher/feed-fetcher.module';
 import { ImageParseModule } from './image-parse/image-parse.module';
 import { PostsModule } from './posts/posts.module';
-import { SearchModule } from './search/search.module';
 import { RequestModule } from './request/request.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   controllers: [AppController],

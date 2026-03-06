@@ -29,7 +29,9 @@ export class ImageParseService {
    * @returns 저장된 이미지의 public URL
    */
   async uploadImageAsWebp(imageUrl: string, path: string): Promise<string> {
-    const response = await fetch(imageUrl);
+    const response = await fetch(imageUrl, {
+      signal: AbortSignal.timeout(10_000),
+    });
 
     if (!response.ok) {
       throw new Error(
