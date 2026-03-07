@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsInt, IsString, Min, MinLength } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min, MinLength } from 'class-validator';
 
 export class SearchQueryDto {
   @IsString()
@@ -15,4 +15,8 @@ export class SearchQueryDto {
   @Min(0)
   @Transform(({ value }) => parseInt(value, 10))
   offset: number = 0;
+
+  @IsOptional()
+  @IsString()
+  sourceId?: string;
 }

@@ -11,14 +11,22 @@ export class SearchService {
   constructor(private readonly prisma: PrismaService) {}
 
   async search(query: SearchQueryDto) {
-    const { limit = 20, offset = 0, q } = query;
+    const { limit = 20, offset = 0, q, sourceId } = query;
     const skip = offset * limit;
 
-    this.logger.log(`Searching for: "${q}" (limit=${limit}, offset=${offset})`);
+    this.logger.log(
+      `Searching for: "${q}" (limit=${limit}, offset=${offset}), sourceId=${sourceId}`,
+    );
 
     const pattern = `%${q.trim().split(/\s+/).join('%')}%`;
 
-    return await this.searchPostsInternal({ limit, offset, pattern, skip });
+    return await this.searchPostsInternal({
+      limit,
+      offset,
+      pattern,
+      skip,
+      sourceId,
+    });
   }
 
   async searchBookmarks({
@@ -51,16 +59,22 @@ export class SearchService {
     offset,
     pattern,
     skip,
+    sourceId,
     userId,
   }: {
     limit: number;
     offset: number;
     pattern: string;
     skip: number;
+    sourceId?: string;
     userId?: string;
   }) {
     const bookmarkJoin = userId
       ? Prisma.sql`INNER JOIN "post_bookmarks" pb ON pb."post_id" = p2.id AND pb."user_id" = ${userId}::uuid`
+      : Prisma.empty;
+
+    const sourceWhere = sourceId
+      ? Prisma.sql`AND p2."sourceId" = ${sourceId}::uuid`
       : Prisma.empty;
 
     const [matchedIds, totalResult] = await Promise.all([
@@ -73,6 +87,7 @@ export class SearchService {
                LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
           AND p2."isDisplay" = true
+          ${sourceWhere}
           AND (
           coalesce (p.keywords, '') || ' ' ||
           coalesce (p2.title, '') || ' ' ||
