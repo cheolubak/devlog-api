@@ -131,7 +131,7 @@ export class YoutubeFetcherService {
 
     const allItems = await this.listUploadedVideos(
       channelId,
-      options?.maxPages ?? 20,
+      options?.maxPages ?? 3,
       options?.existingVideoUrls,
     );
 

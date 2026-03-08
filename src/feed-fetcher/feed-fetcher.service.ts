@@ -59,7 +59,7 @@ export class FeedFetcherService {
 
       for (const item of feed.items) {
         try {
-          const result = await this.processAndSaveItem(item, sourceId);
+          const result = await this.processAndSaveItem(item, source);
           if (result.created) {
             successCount++;
           }
@@ -188,13 +188,16 @@ export class FeedFetcherService {
     }
   }
 
-  private async processAndSaveItem(item: FeedItem, sourceId: string) {
+  private async processAndSaveItem(item: FeedItem, source: BlogSource) {
     try {
       if (!item.link) {
         throw new Error('Item has no link');
       }
 
       const existing = await this.prisma.posts.findUnique({
+        select: {
+          id: true,
+        },
         where: { sourceUrl: item.link },
       });
 
@@ -217,14 +220,6 @@ export class FeedFetcherService {
         item.link,
       );
 
-      const source = await this.prisma.blogSource.findUnique({
-        select: {
-          blogUrl: true,
-          id: true,
-        },
-        where: { id: sourceId },
-      });
-
       const post = await this.prisma.posts.create({
         data: {
           content: content,
@@ -234,7 +229,7 @@ export class FeedFetcherService {
           originalAuthor: FeedNormalizerUtil.normalizeCreator(item.creator),
           originalPublishedAt: item.isoDate || item.pubDate || new Date(),
           rawFeedData: item as any,
-          sourceId: sourceId,
+          sourceId: source.id,
           sourceUrl: item.link,
           title: title,
         },
