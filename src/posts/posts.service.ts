@@ -150,7 +150,7 @@ export class PostsService {
     query: PostQueryDto;
     user: Users;
   }) {
-    const { limit = 20, offset = 0, sourceId } = query;
+    const { ids, limit = 20, offset = 0, sourceId } = query;
 
     const where: Prisma.PostsWhereInput = {
       deletionLog: null,
@@ -164,6 +164,10 @@ export class PostsService {
 
     if (sourceId) {
       where.sourceId = sourceId;
+    }
+
+    if (ids && ids.length > 0) {
+      where.id = { in: ids };
     }
 
     const [posts, total] = await this.findPostsWithCount({
