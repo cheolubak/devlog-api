@@ -90,7 +90,7 @@ export class PostsService {
     query: PostQueryDto;
     user?: Users;
   }) {
-    const { limit = 20, offset = 0, sourceId, tag } = query;
+    const { limit = 20, offset = 0, region, sourceId, tag, type } = query;
 
     this.logger.log('Finding display posts with query:', query);
 
@@ -100,6 +100,13 @@ export class PostsService {
 
     if (sourceId) {
       where.sourceId = sourceId;
+    }
+
+    if (region || type) {
+      where.source = {
+        ...(region && { region }),
+        ...(type && { type: { in: Array.isArray(type) ? type : [type] } }),
+      };
     }
 
     where.isDisplay = true;

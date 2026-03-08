@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 
-import { FeedType } from '../../database/generated/prisma';
+import { FeedType, RegionType } from '../../database/generated/prisma';
 
 export class PostQueryDto {
   @IsOptional()
@@ -47,4 +47,8 @@ export class PostQueryDto {
   @IsOptional()
   @Transform(({ value }) => (Array.isArray(value) ? value : value.split(',')))
   ids?: string[];
+
+  @IsEnum(RegionType)
+  @IsOptional()
+  region?: RegionType;
 }

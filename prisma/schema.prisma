@@ -25,6 +25,13 @@ enum FetchStatus {
   PARTIAL
 }
 
+enum RegionType {
+  KOREA
+  FOREIGN
+
+  @@map("region_type")
+}
+
 enum SocialType {
   KAKAO
   NAVER
@@ -63,6 +70,7 @@ model BlogSource {
   lastFetchStatus   FetchStatus @default(PENDING)
   lastFetchError    String?     @db.Text
   totalPostsFetched Int         @default(0)
+  region            RegionType
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt @default(now())
   posts             Posts[]

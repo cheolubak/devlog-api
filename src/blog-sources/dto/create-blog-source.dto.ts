@@ -11,7 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { FeedType } from '../../database/generated/prisma';
+import { FeedType, RegionType } from '../../database/generated/prisma';
 import { ScrapingConfigDto } from './scraping-config.dto';
 
 export class CreateBlogSourceDto {
@@ -38,6 +38,10 @@ export class CreateBlogSourceDto {
   @IsUrl()
   @MaxLength(500)
   blogUrl: string;
+
+  @IsEnum(RegionType)
+  @IsNotEmpty()
+  region: RegionType;
 
   @IsOptional()
   @IsString()
