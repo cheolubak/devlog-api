@@ -77,9 +77,32 @@ export class SearchService {
       ? Prisma.sql`AND p2."sourceId" = ${sourceId}::uuid`
       : Prisma.empty;
 
-    const [matchedIds, totalResult] = await Promise.all([
-      this.prisma.$queryRaw<{ id: string }[]>`
-        SELECT p2.id
+    const [data, totalResult] = await Promise.all([
+      this.prisma.$queryRaw<
+        {
+          description: null | string;
+          id: string;
+          imageUrl: null | string;
+          originalPublishedAt: Date | null;
+          sourceBlogUrl: string;
+          sourceId: string;
+          sourceName: string;
+          sourceType: string;
+          sourceUrl: string;
+          title: string;
+        }[]
+      >`
+        SELECT p2.id,
+               p2.title,
+               p2.description,
+               p2."imageUrl",
+               p2."originalPublishedAt",
+               p2."sourceUrl",
+               s.id AS "sourceId",
+               s.name AS "sourceName",
+               s.url AS "sourceUrl",
+               s."blogUrl" AS "sourceBlogUrl",
+               s.type AS "sourceType"
         FROM "Posts" p2
                ${bookmarkJoin}
                LEFT JOIN "PostSearchKeywords" p ON p2.id = p."postId"
@@ -109,6 +132,7 @@ export class SearchService {
           LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
           AND p2."isDisplay" = true
+          ${sourceWhere}
           AND (
           coalesce (p.keywords, '') || ' ' ||
           coalesce (p2.title, '') || ' ' ||
@@ -120,36 +144,25 @@ export class SearchService {
     ]);
 
     const total = Number(totalResult[0]?.count ?? 0);
-    const ids = matchedIds.map((r) => r.id);
 
-    const data =
-      ids.length > 0
-        ? await this.prisma.posts.findMany({
-            orderBy: { originalPublishedAt: 'desc' },
-            relationLoadStrategy: 'join',
-            select: {
-              description: true,
-              id: true,
-              imageUrl: true,
-              originalPublishedAt: true,
-              source: {
-                select: {
-                  blogUrl: true,
-                  id: true,
-                  name: true,
-                  type: true,
-                  url: true,
-                },
-              },
-              sourceUrl: true,
-              title: true,
-            },
-            where: { id: { in: ids } },
-          })
-        : [];
+    const formattedData = data.map((row) => ({
+      description: row.description,
+      id: row.id,
+      imageUrl: row.imageUrl,
+      originalPublishedAt: row.originalPublishedAt,
+      source: {
+        blogUrl: row.sourceBlogUrl,
+        id: row.sourceId,
+        name: row.sourceName,
+        type: row.sourceType,
+        url: row.sourceUrl,
+      },
+      sourceUrl: row.sourceUrl,
+      title: row.title,
+    }));
 
     return {
-      data,
+      data: formattedData,
       pagination: {
         hasMore: skip + limit < total,
         limit,

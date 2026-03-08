@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -17,6 +18,11 @@ import { SearchModule } from './search/search.module';
 @Module({
   controllers: [AppController],
   imports: [
+    CacheModule.register({
+      isGlobal: true,
+      max: 100,
+      ttl: 60 * 1000,
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     DatabaseModule,

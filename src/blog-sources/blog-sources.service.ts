@@ -52,12 +52,22 @@ export class BlogSourcesService {
     const where = includeInactive ? {} : { isActive: true };
 
     return this.prisma.blogSource.findMany({
-      include: {
+      orderBy: { createdAt: 'desc' },
+      select: {
         _count: {
           select: { posts: true },
         },
+        blogUrl: true,
+        createdAt: true,
+        icon: true,
+        id: true,
+        isActive: true,
+        lastFetchedAt: true,
+        lastFetchStatus: true,
+        name: true,
+        type: true,
+        url: true,
       },
-      orderBy: { createdAt: 'desc' },
       where,
     });
   }

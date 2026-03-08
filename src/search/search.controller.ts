@@ -1,4 +1,12 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import {
+  Controller,
+  Get,
+  Query,
+  Req,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 
 import { AuthGuard } from '../auth/auth.guard';
 import { SearchQueryDto } from './dto/search-query.dto';
@@ -8,7 +16,9 @@ import { SearchService } from './search.service';
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
+  @CacheTTL(30 * 1000)
   @Get()
+  @UseInterceptors(CacheInterceptor)
   searchPosts(@Query() query: SearchQueryDto) {
     return this.searchService.search(query);
   }

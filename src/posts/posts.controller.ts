@@ -1,3 +1,4 @@
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -10,6 +11,7 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import { AuthGuard } from '../auth/auth.guard';
@@ -40,7 +42,9 @@ export class PostsController {
     return this.postsService.findDisplayBookmarks({ query, user });
   }
 
+  @CacheTTL(60 * 1000)
   @Get('all')
+  @UseInterceptors(CacheInterceptor)
   findAll(@Query() query: PostQueryDto) {
     return this.postsService.findAll(query);
   }
@@ -58,7 +62,9 @@ export class PostsController {
     return this.postsService.updatePostsWithExternalImages();
   }
 
+  @CacheTTL(60 * 1000)
   @Get(':id')
+  @UseInterceptors(CacheInterceptor)
   findOne(@Param('id') id: string) {
     return this.postsService.findOne(id);
   }

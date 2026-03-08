@@ -1,3 +1,4 @@
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -25,7 +26,9 @@ export class BlogSourcesController {
     return this.blogSourcesService.create(createBlogSourceDto);
   }
 
+  @CacheTTL(5 * 60 * 1000)
   @Get()
+  @UseInterceptors(CacheInterceptor)
   findAll(@Query('includeInactive') includeInactive?: string) {
     return this.blogSourcesService.findAll(includeInactive === 'true');
   }
