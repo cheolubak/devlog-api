@@ -152,21 +152,21 @@ export class FeedFetcherService {
       select: {
         sourceId: true,
       },
-      take: 5,
+      take: 10,
     });
 
     if (sources.length === 0) {
       return true;
     }
 
+    await this.prisma.blogSourceFetchQueue.deleteMany({
+      where: {
+        sourceId: { in: sources.map((source) => source.sourceId) },
+      },
+    });
+
     for (const source of sources) {
       try {
-        await this.prisma.blogSourceFetchQueue.delete({
-          where: {
-            sourceId: source.sourceId,
-          },
-        });
-
         await this.fetchFromSource(source.sourceId, true);
       } catch (error) {
         this.logger.error(
