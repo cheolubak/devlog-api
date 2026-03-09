@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 
+import { AlertModule } from './alert/alert.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -14,7 +15,6 @@ import { ImageParseModule } from './image-parse/image-parse.module';
 import { PostsModule } from './posts/posts.module';
 import { RequestModule } from './request/request.module';
 import { SearchModule } from './search/search.module';
-import { AlertModule } from './alert/alert.module';
 
 @Module({
   controllers: [AppController],

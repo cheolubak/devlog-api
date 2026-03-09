@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { OtelLogger } from './telemetry/otel-logger';
 import { setupTelemetry } from './telemetry/setup';
 
@@ -18,6 +19,8 @@ async function bootstrap() {
   });
 
   app.enableShutdownHooks();
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({
