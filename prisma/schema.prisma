@@ -75,6 +75,7 @@ model BlogSource {
   updatedAt         DateTime    @updatedAt @default(now())
   posts             Posts[]
   blogUrl           String
+  corpUrl           String?     @db.VarChar(100) @map("corp_url")
 
   @@index([isActive])
   @@index([lastFetchedAt])

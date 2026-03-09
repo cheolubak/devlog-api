@@ -109,16 +109,6 @@ export class BlogSourcesService {
         _count: {
           select: { posts: true },
         },
-        posts: {
-          orderBy: { originalPublishedAt: 'desc' },
-          select: {
-            id: true,
-            isDisplay: true,
-            originalPublishedAt: true,
-            title: true,
-          },
-          take: 10,
-        },
       },
       where: { id },
     });
