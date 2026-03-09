@@ -62,17 +62,21 @@ export class PostsService {
   private async findPostsWithCount<T>({
     limit,
     offset,
+    orderBy,
     select,
     where,
   }: {
     limit: number;
     offset: number;
+    orderBy:
+      | Prisma.PostsOrderByWithRelationInput
+      | Prisma.PostsOrderByWithRelationInput[];
     select: T;
     where: Prisma.PostsWhereInput;
   }): Promise<[Posts[], number]> {
     return Promise.all([
       this.prisma.posts.findMany({
-        orderBy: { originalPublishedAt: 'desc' },
+        orderBy: orderBy,
         relationLoadStrategy: 'join',
         select,
         skip: offset * limit,
@@ -124,6 +128,7 @@ export class PostsService {
     const [posts, total] = await this.findPostsWithCount({
       limit,
       offset,
+      orderBy: { originalPublishedAt: 'desc' },
       select: this.displayPostSelect,
       where,
     });
@@ -159,34 +164,32 @@ export class PostsService {
   }) {
     const { ids, limit = 20, offset = 0, sourceId } = query;
 
-    const where: Prisma.PostsWhereInput = {
-      deletionLog: null,
-      isDisplay: true,
-      postBookmarks: {
-        some: {
-          userId: user.id,
-        },
+    const where: Prisma.PostBookmarksWhereInput = {
+      post: {
+        deletionLog: null,
+        isDisplay: true,
+        ...(sourceId && { sourceId }),
+        ...(ids && ids.length > 0 && { id: { in: ids } }),
       },
+      userId: user.id,
     };
 
-    if (sourceId) {
-      where.sourceId = sourceId;
-    }
-
-    if (ids && ids.length > 0) {
-      where.id = { in: ids };
-    }
-
-    const [posts, total] = await this.findPostsWithCount({
-      limit,
-      offset,
-      select: this.displayPostSelect,
-      where,
-    });
+    const [bookmarks, total] = await Promise.all([
+      this.prisma.postBookmarks.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          post: { select: this.displayPostSelect },
+        },
+        skip: offset * limit,
+        take: limit,
+        where,
+      }),
+      this.prisma.postBookmarks.count({ where }),
+    ]);
 
     return {
-      data: posts.map((post) => ({
-        ...post,
+      data: bookmarks.map((b) => ({
+        ...b.post,
         isBookmark: true,
       })),
       pagination: this.buildPagination({ limit, offset, total }),
@@ -391,6 +394,7 @@ export class PostsService {
     const [posts, total] = await this.findPostsWithCount({
       limit,
       offset,
+      orderBy: { originalPublishedAt: 'desc' },
       select: {
         description: true,
         id: true,
