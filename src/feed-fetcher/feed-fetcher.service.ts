@@ -31,7 +31,7 @@ export class FeedFetcherService {
     private readonly imageParseService: ImageParseService,
   ) {}
 
-  async fetchFromSource(sourceId: string) {
+  async fetchFromSource(sourceId: string, useAi = false) {
     const source = await this.blogSourcesService.findOne(sourceId);
 
     if (!source.isActive) {
@@ -59,7 +59,7 @@ export class FeedFetcherService {
 
       for (const item of feed.items) {
         try {
-          const result = await this.processAndSaveItem(item, source);
+          const result = await this.processAndSaveItem(item, source, useAi);
           if (result.created) {
             successCount++;
           }
@@ -117,7 +117,7 @@ export class FeedFetcherService {
 
     for (const source of sources) {
       try {
-        const result = await this.fetchFromSource(source.id);
+        const result = await this.fetchFromSource(source.id, true);
         if (result.success) {
           successCount++;
         }
@@ -188,7 +188,11 @@ export class FeedFetcherService {
     }
   }
 
-  private async processAndSaveItem(item: FeedItem, source: BlogSource) {
+  private async processAndSaveItem(
+    item: FeedItem,
+    source: BlogSource,
+    useAi = false,
+  ) {
     try {
       if (!item.link) {
         throw new Error('Item has no link');
@@ -253,13 +257,15 @@ export class FeedFetcherService {
         await this.createTagsForPost(post.id, item.categories);
       }
 
-      await this.extractAndSaveKeywords(post.id, post.title, item.link).catch(
-        (error) => {
-          this.logger.warn(
-            `Keyword extraction failed for post ${post.id}: ${error.message}`,
-          );
-        },
-      );
+      if (useAi) {
+        await this.extractAndSaveKeywords(post.id, post.title, item.link).catch(
+          (error) => {
+            this.logger.warn(
+              `Keyword extraction failed for post ${post.id}: ${error.message}`,
+            );
+          },
+        );
+      }
 
       this.logger.debug(`Created new post: ${post.title}`);
       return { created: true, post };
