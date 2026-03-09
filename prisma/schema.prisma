@@ -81,6 +81,13 @@ model BlogSource {
   @@index([lastFetchedAt])
 }
 
+model BlogSourceFetchQueue {
+  sourceId  String   @db.Uuid @id @map("source_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("blog_source_fetch_queue")
+}
+
 model Posts {
   id                  String              @db.Uuid @id @default(uuid())
   title               String              @db.VarChar(500)

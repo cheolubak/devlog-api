@@ -14,6 +14,7 @@ import { ImageParseModule } from './image-parse/image-parse.module';
 import { PostsModule } from './posts/posts.module';
 import { RequestModule } from './request/request.module';
 import { SearchModule } from './search/search.module';
+import { AlertModule } from './alert/alert.module';
 
 @Module({
   controllers: [AppController],
@@ -43,6 +44,7 @@ import { SearchModule } from './search/search.module';
       },
     }),
     RequestModule,
+    AlertModule,
   ],
   providers: [AppService],
 })

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { AlertService } from '../alert/alert.service';
 import { BlogSourcesService } from '../blog-sources/blog-sources.service';
 import {
   BlogSource,
@@ -29,6 +30,7 @@ export class FeedFetcherService {
     private readonly webScraperService: WebScraperService,
     private readonly youtubeFetcherService: YoutubeFetcherService,
     private readonly imageParseService: ImageParseService,
+    private readonly alertService: AlertService,
   ) {}
 
   async fetchFromSource(sourceId: string, useAi = false) {
@@ -107,6 +109,73 @@ export class FeedFetcherService {
     }
   }
 
+  async setFetchActiveSources() {
+    const notExistsInQueueSources = await this.prisma.$queryRaw<
+      {
+        id: string;
+      }[]
+    >`
+          SELECT id
+          FROM "BlogSource" b
+                 LEFT JOIN blog_source_fetch_queue q ON b.id = q.source_id
+          WHERE q.source_id IS NULL
+            AND b."isActive" = true
+        `;
+
+    if (notExistsInQueueSources.length > 0) {
+      await this.prisma.blogSourceFetchQueue.createMany({
+        data: notExistsInQueueSources.map((source) => ({
+          sourceId: source.id,
+        })),
+        skipDuplicates: true,
+      });
+
+      this.logger.log(
+        `Add BlogSource into Queue : ${notExistsInQueueSources.length} sources`,
+      );
+
+      this.alertService.sendAlert(
+        `Add BlogSource into Queue : ${notExistsInQueueSources.length} sources`,
+      );
+
+      return {
+        saveCount: notExistsInQueueSources.length,
+      };
+    }
+  }
+
+  async fetchSourcesFromQueue() {
+    const sources = await this.prisma.blogSourceFetchQueue.findMany({
+      orderBy: {
+        createdAt: 'asc',
+      },
+      select: {
+        sourceId: true,
+      },
+      take: 5,
+    });
+
+    if (sources.length === 0) {
+      return true;
+    }
+
+    for (const source of sources) {
+      try {
+        await this.prisma.blogSourceFetchQueue.delete({
+          where: {
+            sourceId: source.sourceId,
+          },
+        });
+
+        await this.fetchFromSource(source.sourceId, true);
+      } catch (error) {
+        this.logger.error(
+          `Failed to fetch source ${source.sourceId}: ${error.message}`,
+        );
+      }
+    }
+  }
+
   async fetchAllActiveSources() {
     const sources = await this.blogSourcesService.findAllActive();
     this.logger.log(
@@ -130,6 +199,10 @@ export class FeedFetcherService {
 
     this.logger.log(
       `Batch fetch completed: ${successCount}/${sources.length} sources successful`,
+    );
+
+    this.alertService.sendAlert(
+      `Feed Fetch Request : ${successCount}/${sources.length} sources successful`,
     );
 
     return {
@@ -257,7 +330,7 @@ export class FeedFetcherService {
         await this.createTagsForPost(post.id, item.categories);
       }
 
-      if (useAi) {
+      if (useAi && isTechPost) {
         await this.extractAndSaveKeywords(post.id, post.title, item.link).catch(
           (error) => {
             this.logger.warn(

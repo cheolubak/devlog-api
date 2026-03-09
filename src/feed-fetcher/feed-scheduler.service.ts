@@ -10,14 +10,22 @@ export class FeedSchedulerService {
   constructor(private readonly feedFetcherService: FeedFetcherService) {}
 
   @Cron(CronExpression.EVERY_HOUR)
-  async handleHourlyFetch() {
+  async handleHourlySetQueue() {
+    this.logger.log('Starting scheduled feed queue update');
+
+    try {
+      await this.feedFetcherService.setFetchActiveSources();
+    } catch (error) {
+      this.logger.error(`Scheduled feed queue update failed: ${error.message}`);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handleMinuteCheckQueue() {
     this.logger.log('Starting scheduled feed fetch');
 
     try {
-      const result = await this.feedFetcherService.fetchAllActiveSources();
-      this.logger.log(
-        `Scheduled fetch completed: ${result.successful}/${result.total} sources successful`,
-      );
+      await this.feedFetcherService.fetchSourcesFromQueue();
     } catch (error) {
       this.logger.error(`Scheduled fetch failed: ${error.message}`);
     }
