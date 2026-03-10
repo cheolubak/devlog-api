@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { Posts, Prisma, Users } from '../database/generated/prisma';
+import { Posts, Prisma, Users } from '../database/generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { KeywordExtractorService } from '../feed-fetcher/keyword-extractor.service';
 import { ImageParseService } from '../image-parse/image-parse.service';

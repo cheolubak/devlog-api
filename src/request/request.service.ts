@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { AlertService } from '../alert/alert.service';
-import { Users } from '../database/generated/prisma';
+import { Users } from '../database/generated/prisma/client';
 import { RequestDto } from './dto/request.dto';
 
 @Injectable()

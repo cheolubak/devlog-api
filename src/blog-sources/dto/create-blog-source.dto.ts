@@ -11,7 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { FeedType, RegionType } from '../../database/generated/prisma';
+import { FeedType, RegionType } from '../../database/generated/prisma/client';
 import { ScrapingConfigDto } from './scraping-config.dto';
 
 export class CreateBlogSourceDto {

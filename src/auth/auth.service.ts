@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 
-import { SocialType, Users } from '../database/generated/prisma';
+import { SocialType, Users } from '../database/generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
 import { GithubUserDto } from './dto/github-user.dto';

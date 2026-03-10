@@ -5,7 +5,6 @@ import { defineConfig } from 'prisma/config';
 
 export default defineConfig({
   datasource: {
-    directUrl: process.env['DIRECT_URL'],
     url: process.env['DATABASE_URL'],
   },
   migrations: {

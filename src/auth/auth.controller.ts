@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { Users } from '../database/generated/prisma';
+import { Users } from '../database/generated/prisma/client';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { RefreshTokenDto } from './dto/refresh-token.dto';

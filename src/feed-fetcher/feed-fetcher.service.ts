@@ -6,7 +6,7 @@ import {
   BlogSource,
   FeedType,
   FetchStatus,
-} from '../database/generated/prisma';
+} from '../database/generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
 import { FeedParserService } from './feed-parser.service';

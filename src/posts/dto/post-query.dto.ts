@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 
-import { FeedType, RegionType } from '../../database/generated/prisma';
+import { FeedType, RegionType } from '../../database/generated/prisma/client';
 
 export class PostQueryDto {
   @IsOptional()

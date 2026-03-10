@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { FeedType, Prisma, Users } from '../database/generated/prisma';
+import { FeedType, Prisma, Users } from '../database/generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { SearchQueryDto } from './dto/search-query.dto';
 

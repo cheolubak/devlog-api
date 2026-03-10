@@ -7,7 +7,7 @@ import {
   MaxLength,
 } from 'class-validator';
 
-import { FeedType } from '../../database/generated/prisma';
+import { FeedType } from '../../database/generated/prisma/client';
 
 export class UpdateBlogSourceDto {
   @IsOptional()
