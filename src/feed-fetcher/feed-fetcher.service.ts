@@ -15,7 +15,6 @@ import { FeedParserService } from './feed-parser.service';
 import { FeedItem, ParsedFeed } from './interfaces/feed-item.interface';
 import { ScrapingConfig } from './interfaces/scraping-config.interface';
 import { KeywordExtractorService } from './keyword-extractor.service';
-import { generateContentHash } from './utils/content-hash.util';
 import { FeedNormalizerUtil } from './utils/feed-normalizer.util';
 import { WebScraperService } from './web-scraper.service';
 import { YoutubeFetcherService } from './youtube-fetcher.service';
@@ -211,9 +210,10 @@ export class FeedFetcherService {
     for (const post of untranslatedPosts) {
       try {
         const translatedTitle =
-          (await this.translateService.translate(post.title)) ?? post.title;
+          (await this.translateService.translate(post.title, 'ko')) ??
+          post.title;
         const translatedDescription = post.description
-          ? ((await this.translateService.translate(post.description)) ??
+          ? ((await this.translateService.translate(post.description, 'ko')) ??
             post.description)
           : post.description;
 
@@ -226,7 +226,9 @@ export class FeedFetcherService {
         });
 
         successCount++;
-        this.logger.debug(`Translated post: ${post.title} -> ${translatedTitle}`);
+        this.logger.debug(
+          `Translated post: ${post.title} -> ${translatedTitle}`,
+        );
       } catch (error) {
         failCount++;
         this.logger.warn(
@@ -353,21 +355,38 @@ export class FeedFetcherService {
         return { created: false, post: existing };
       }
 
-      const content = item.content || item.contentSnippet || '';
+      let title = FeedNormalizerUtil.truncateText(item.title, 500);
+      let titleEn = FeedNormalizerUtil.truncateText(item.title, 500);
+
       let description = FeedNormalizerUtil.extractDescription(
         item.content || '',
         item.contentSnippet || '',
       );
-      const imageUrl = FeedNormalizerUtil.extractFirstImage(item.content || '');
-      const contentHash = generateContentHash(content);
+      let descriptionEn = FeedNormalizerUtil.extractDescription(
+        item.content || '',
+        item.contentSnippet || '',
+      );
 
-      let title = FeedNormalizerUtil.truncateText(item.title, 500);
+      const imageUrl = FeedNormalizerUtil.extractFirstImage(item.content || '');
 
       if (source.region === RegionType.FOREIGN) {
         try {
-          title = (await this.translateService.translate(title)) ?? title;
+          title = (await this.translateService.translate(title, 'ko')) ?? title;
           description =
-            (await this.translateService.translate(description)) ?? description;
+            (await this.translateService.translate(description, 'ko')) ??
+            description;
+        } catch (error) {
+          this.logger.warn(
+            `Translation failed for "${title}": ${error.message}`,
+          );
+        }
+      } else {
+        try {
+          titleEn = await this.translateService.translate(title, 'en');
+          descriptionEn = await this.translateService.translate(
+            description,
+            'en',
+          );
         } catch (error) {
           this.logger.warn(
             `Translation failed for "${title}": ${error.message}`,
@@ -382,16 +401,16 @@ export class FeedFetcherService {
 
       const post = await this.prisma.posts.create({
         data: {
-          content: content,
-          contentHash: contentHash,
-          description: description,
+          description,
+          descriptionEn,
           isDisplay: isTechPost,
           originalAuthor: FeedNormalizerUtil.normalizeCreator(item.creator),
           originalPublishedAt: item.isoDate || item.pubDate || new Date(),
           rawFeedData: item as any,
           sourceId: source.id,
           sourceUrl: item.link,
-          title: title,
+          title,
+          titleEn,
         },
       });
 

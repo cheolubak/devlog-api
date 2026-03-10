@@ -18,6 +18,7 @@ export class PostsService {
 
   private readonly displayPostSelect = {
     description: true,
+    descriptionEn: true,
     id: true,
     imageUrl: true,
     originalPublishedAt: true,
@@ -33,6 +34,7 @@ export class PostsService {
     },
     sourceUrl: true,
     title: true,
+    titleEn: true,
     viewCount: true,
   } as const;
 

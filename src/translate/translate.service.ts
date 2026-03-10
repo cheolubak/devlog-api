@@ -44,7 +44,10 @@ export class TranslateService implements OnModuleInit {
     this.logger.log('Google Translation client initialized');
   }
 
-  async translate(text: string): Promise<null | string> {
+  async translate(
+    text: string,
+    targetLanguageCode: string,
+  ): Promise<null | string> {
     if (!this.translationClient) {
       this.logger.warn(
         'Translation client is not initialized. Skipping translation.',
@@ -56,7 +59,7 @@ export class TranslateService implements OnModuleInit {
       contents: [text],
       mimeType: 'text/plain',
       parent: this.parent,
-      targetLanguageCode: 'ko',
+      targetLanguageCode,
     });
 
     return response.translations?.[0]?.translatedText ?? null;

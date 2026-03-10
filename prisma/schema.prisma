@@ -87,18 +87,18 @@ model BlogSourceFetchQueue {
 
 model Posts {
   id                  String              @db.Uuid @id @default(uuid())
-  title               String              @db.VarChar(500)
-  content             String              @db.Text
+  title               String              @db.VarChar(200)
+  titleEn             String?             @db.VarChar(300) @map("title_en")
+  description         String?             @db.Text
+  descriptionEn       String?             @db.Text @map("description_en")
   isDisplay           Boolean             @default(false)
   tags                String?             @db.VarChar(100)
   sourceId            String?             @db.Uuid
-  sourceUrl           String?             @unique @db.VarChar(1000)
+  sourceUrl           String?             @unique @db.VarChar(200)
   originalPublishedAt DateTime?
-  originalAuthor      String?             @db.VarChar(200)
-  description         String?             @db.Text
-  imageUrl            String?             @db.VarChar(1000)
+  originalAuthor      String?             @db.VarChar(100)
+  imageUrl            String?             @db.VarChar(150)
   rawFeedData         Json?
-  contentHash         String?             @db.VarChar(64)
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @default(now())
   viewCount           Int                 @default(0) @map("view_count")

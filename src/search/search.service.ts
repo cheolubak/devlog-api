@@ -81,42 +81,55 @@ export class SearchService {
       this.prisma.$queryRaw<
         {
           description: null | string;
+          description_en: null | string;
           id: string;
           imageUrl: null | string;
           originalPublishedAt: Date | null;
           sourceBlogUrl: string;
+          sourceFeedUrl: string;
           sourceId: string;
           sourceName: string;
           sourceType: string;
           sourceUrl: string;
           title: string;
+          title_en: null | string;
         }[]
       >`
         SELECT p2.id,
                p2.title,
+               p2.title_en,
                p2.description,
+               p2.description_en,
                p2."imageUrl",
                p2."originalPublishedAt",
                p2."sourceUrl",
-               s.id AS "sourceId",
-               s.name AS "sourceName",
-               s.url AS "sourceUrl",
+               s.id        AS "sourceId",
+               s.name      AS "sourceName",
+               s.url       AS "sourceFeedUrl",
                s."blogUrl" AS "sourceBlogUrl",
-               s.type AS "sourceType"
-        FROM "Posts" p2
-               ${bookmarkJoin}
-               LEFT JOIN "PostSearchKeywords" p ON p2.id = p."postId"
-               LEFT JOIN "BlogSource" s ON s.id = p2."sourceId"
-               LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
+               s.type      AS "sourceType"
+        FROM "Posts" p2 ${bookmarkJoin}
+               LEFT JOIN "PostSearchKeywords" p
+        ON p2.id = p."postId"
+          LEFT JOIN "BlogSource" s ON s.id = p2."sourceId"
+          LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
-          AND p2."isDisplay" = true
-          ${sourceWhere}
+          AND p2."isDisplay" = true ${sourceWhere}
           AND (
-          coalesce (p.keywords, '') || ' ' ||
-          coalesce (p2.title, '') || ' ' ||
-          coalesce (p2.description, '') || ' ' ||
-          coalesce (p2.tags, '') || ' ' ||
-          coalesce (s.name, '')
+          coalesce (p.keywords
+            , '') || ' ' ||
+          coalesce (p2.title
+            , '') || ' ' ||
+          coalesce (p2.description
+            , '') || ' ' ||
+          coalesce (p2.tags
+            , '') || ' ' ||
+          coalesce (s.name
+            , '') || ' ' ||
+          coalesce (p2.title_en
+            , '') || ' ' ||
+          coalesce (p2.description_en
+            , '') || ' '
           )
           ILIKE ${pattern}
         ORDER BY p2."originalPublishedAt" DESC
@@ -138,7 +151,9 @@ export class SearchService {
           coalesce (p2.title, '') || ' ' ||
           coalesce (p2.description, '') || ' ' ||
           coalesce (p2.tags, '') || ' ' ||
-          coalesce (s.name, '')
+          coalesce (s.name, '') || ' ' ||
+          coalesce (p2.title_en, '') || ' ' ||
+          coalesce (p2.description_en, '') || ' '
           ) ILIKE ${pattern}
       `,
     ]);
@@ -147,6 +162,7 @@ export class SearchService {
 
     const formattedData = data.map((row) => ({
       description: row.description,
+      descriptionEn: row.description_en,
       id: row.id,
       imageUrl: row.imageUrl,
       originalPublishedAt: row.originalPublishedAt,
@@ -155,10 +171,11 @@ export class SearchService {
         id: row.sourceId,
         name: row.sourceName,
         type: row.sourceType,
-        url: row.sourceUrl,
+        url: row.sourceFeedUrl,
       },
       sourceUrl: row.sourceUrl,
       title: row.title,
+      titleEn: row.title_en,
     }));
 
     return {
