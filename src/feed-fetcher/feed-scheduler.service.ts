@@ -38,8 +38,15 @@ export class FeedSchedulerService {
   }
 
   private async tryReconnect(error: Error) {
-    if (error.message?.includes("Can't reach database server")) {
-      this.logger.warn('DB connection lost, attempting reconnect...');
+    const isDbConnectionError =
+      error.message?.includes("Can't reach database server") ||
+      error.message?.includes(
+        'Timed out fetching a new connection from the connection pool',
+      ) ||
+      error.message?.includes('Server has closed the connection');
+
+    if (isDbConnectionError) {
+      this.logger.warn('DB connection issue, attempting reconnect...');
       try {
         await this.prisma.reconnect();
         this.logger.log('DB reconnect successful');

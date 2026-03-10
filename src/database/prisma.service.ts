@@ -11,6 +11,9 @@ export class PrismaService
   constructor() {
     const adapter = new PrismaPg({
       connectionString: process.env.DATABASE_URL!,
+      idleTimeoutMillis: 30000,
+      keepAlive: true,
+      max: 30,
     });
     super({ adapter });
   }

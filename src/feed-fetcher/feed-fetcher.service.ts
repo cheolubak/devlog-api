@@ -374,6 +374,9 @@ export class FeedFetcherService {
       .filter((tag) => tag.length > 0)
       .slice(0, 10);
 
+    if (normalizedTags.length === 0) return;
+
+    const tagIds: number[] = [];
     for (const tagName of normalizedTags) {
       try {
         const tag = await this.prisma.tags.upsert({
@@ -381,20 +384,21 @@ export class FeedFetcherService {
           update: { count: { increment: 1 } },
           where: { name: tagName },
         });
-
-        await this.prisma.postTags
-          .create({
-            data: {
-              postId: postId,
-              tagId: tag.id,
-            },
-          })
-          .catch(() => {
-            // Ignore duplicate postTag errors
-          });
+        tagIds.push(tag.id);
       } catch (error) {
         this.logger.warn(`Failed to create tag ${tagName}: ${error.message}`);
       }
+    }
+
+    if (tagIds.length > 0) {
+      await this.prisma.postTags
+        .createMany({
+          data: tagIds.map((tagId) => ({ postId, tagId })),
+          skipDuplicates: true,
+        })
+        .catch((error) => {
+          this.logger.warn(`Failed to create postTags: ${error.message}`);
+        });
     }
   }
 }
