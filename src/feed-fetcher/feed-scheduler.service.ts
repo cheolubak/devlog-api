@@ -1,13 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+import { PrismaService } from '../database/prisma.service';
 import { FeedFetcherService } from './feed-fetcher.service';
 
 @Injectable()
 export class FeedSchedulerService {
   private readonly logger = new Logger(FeedSchedulerService.name);
 
-  constructor(private readonly feedFetcherService: FeedFetcherService) {}
+  constructor(
+    private readonly feedFetcherService: FeedFetcherService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Cron(CronExpression.EVERY_HOUR)
   async handleHourlySetQueue() {
@@ -17,6 +21,7 @@ export class FeedSchedulerService {
       await this.feedFetcherService.setFetchActiveSources();
     } catch (error) {
       this.logger.error(`Scheduled feed queue update failed: ${error.message}`);
+      await this.tryReconnect(error);
     }
   }
 
@@ -28,6 +33,19 @@ export class FeedSchedulerService {
       await this.feedFetcherService.fetchSourcesFromQueue();
     } catch (error) {
       this.logger.error(`Scheduled fetch failed: ${error.message}`);
+      await this.tryReconnect(error);
+    }
+  }
+
+  private async tryReconnect(error: Error) {
+    if (error.message?.includes("Can't reach database server")) {
+      this.logger.warn('DB connection lost, attempting reconnect...');
+      try {
+        await this.prisma.reconnect();
+        this.logger.log('DB reconnect successful');
+      } catch (reconnectError) {
+        this.logger.error(`DB reconnect failed: ${reconnectError.message}`);
+      }
     }
   }
 }
