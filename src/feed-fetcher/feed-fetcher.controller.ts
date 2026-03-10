@@ -15,4 +15,9 @@ export class FeedFetcherController {
   async fetchAll() {
     return this.feedFetcherService.fetchAllActiveSources();
   }
+
+  @Post('translate-untranslated')
+  async translateUntranslated() {
+    return this.feedFetcherService.translateUntranslatedPosts();
+  }
 }

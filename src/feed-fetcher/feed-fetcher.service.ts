@@ -179,6 +179,73 @@ export class FeedFetcherService {
     }
   }
 
+  async translateUntranslatedPosts() {
+    const KOREAN_REGEX = /[가-힣]/;
+
+    const posts = await this.prisma.posts.findMany({
+      select: {
+        description: true,
+        id: true,
+        title: true,
+      },
+      where: {
+        deletionLog: null,
+        isDisplay: true,
+        source: {
+          region: RegionType.FOREIGN,
+        },
+      },
+    });
+
+    const untranslatedPosts = posts.filter(
+      (post) => !KOREAN_REGEX.test(post.title),
+    );
+
+    this.logger.log(
+      `Found ${untranslatedPosts.length} untranslated posts out of ${posts.length} total`,
+    );
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const post of untranslatedPosts) {
+      try {
+        const translatedTitle =
+          (await this.translateService.translate(post.title)) ?? post.title;
+        const translatedDescription = post.description
+          ? ((await this.translateService.translate(post.description)) ??
+            post.description)
+          : post.description;
+
+        await this.prisma.posts.update({
+          data: {
+            description: translatedDescription,
+            title: translatedTitle,
+          },
+          where: { id: post.id },
+        });
+
+        successCount++;
+        this.logger.debug(`Translated post: ${post.title} -> ${translatedTitle}`);
+      } catch (error) {
+        failCount++;
+        this.logger.warn(
+          `Failed to translate post ${post.id}: ${error.message}`,
+        );
+      }
+    }
+
+    this.logger.log(
+      `Translation completed: ${successCount} success, ${failCount} failed`,
+    );
+
+    return {
+      failed: failCount,
+      successful: successCount,
+      total: untranslatedPosts.length,
+    };
+  }
+
   async fetchAllActiveSources() {
     const sources = await this.blogSourcesService.findAllActive();
     this.logger.log(
