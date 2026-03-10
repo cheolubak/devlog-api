@@ -1,4 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import * as crypto from 'crypto';
+import * as https from 'https';
 import * as RssParser from 'rss-parser';
 
 import { ParsedFeed } from './interfaces/feed-item.interface';
@@ -10,6 +12,10 @@ export class FeedParserService {
   private readonly parser: RssParser;
 
   constructor() {
+    const httpsAgent = new https.Agent({
+      secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+    });
+
     this.parser = new RssParser({
       headers: {
         Accept:
@@ -18,6 +24,7 @@ export class FeedParserService {
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       },
+      requestOptions: { agent: httpsAgent },
       timeout: 15000,
     });
   }
