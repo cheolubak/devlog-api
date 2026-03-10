@@ -98,7 +98,6 @@ model Posts {
   originalPublishedAt DateTime?
   originalAuthor      String?             @db.VarChar(100)
   imageUrl            String?             @db.VarChar(150)
-  rawFeedData         Json?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @default(now())
   viewCount           Int                 @default(0) @map("view_count")

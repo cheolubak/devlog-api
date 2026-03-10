@@ -9,6 +9,7 @@ import { Posts, Prisma, Users } from '../database/generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { KeywordExtractorService } from '../feed-fetcher/keyword-extractor.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
+import { TranslateService } from '../translate/translate.service';
 import { processInChunks } from '../utils/chunk-parallel';
 import { PostQueryDto } from './dto/post-query.dto';
 
@@ -42,6 +43,7 @@ export class PostsService {
     private readonly prisma: PrismaService,
     private readonly keywordExtractorService: KeywordExtractorService,
     private readonly imageParseService: ImageParseService,
+    private readonly translateService: TranslateService,
   ) {}
 
   private buildPagination({
@@ -346,33 +348,69 @@ export class PostsService {
 
     const updatedPost = await this.prisma.posts.update({
       data: { isDisplay },
+      select: {
+        description: true,
+        descriptionEn: true,
+        id: true,
+        searchKeywords: {
+          select: {
+            keywords: true,
+          },
+        },
+        source: {
+          select: {
+            region: true,
+          },
+        },
+        title: true,
+        titleEn: true,
+      },
       where: { id },
     });
 
-    if (isDisplay) {
-      const existingKeywords = await this.prisma.postSearchKeywords.findUnique({
-        where: { postId: id },
-      });
+    if (!updatedPost.searchKeywords?.keywords && post.sourceUrl) {
+      await this.keywordExtractorService
+        .extractKeywords(post.title, post.sourceUrl)
+        .then(async (keywords) => {
+          if (keywords) {
+            await this.prisma.postSearchKeywords.upsert({
+              create: { keywords, postId: id },
+              update: { keywords },
+              where: { postId: id },
+            });
+            this.logger.log(`Keywords saved for post ${id}`);
+          }
+        })
+        .catch((error) => {
+          this.logger.error(
+            `Keyword extraction failed for post ${id}: ${error.message}`,
+          );
+        });
+    }
 
-      if (!existingKeywords && post.sourceUrl) {
-        await this.keywordExtractorService
-          .extractKeywords(post.title, post.sourceUrl)
-          .then(async (keywords) => {
-            if (keywords) {
-              await this.prisma.postSearchKeywords.upsert({
-                create: { keywords, postId: id },
-                update: { keywords },
-                where: { postId: id },
-              });
-              this.logger.log(`Keywords saved for post ${id}`);
-            }
-          })
-          .catch((error) => {
-            this.logger.error(
-              `Keyword extraction failed for post ${id}: ${error.message}`,
-            );
-          });
+    if (!updatedPost.titleEn) {
+      const titleEn = await this.translateService.translate(
+        updatedPost.title,
+        'en',
+      );
+
+      let descriptionEn = updatedPost.description;
+      if (updatedPost.description) {
+        descriptionEn = await this.translateService.translate(
+          updatedPost.title,
+          'en',
+        );
       }
+
+      await this.prisma.posts.update({
+        data: {
+          descriptionEn,
+          titleEn,
+        },
+        where: {
+          id: updatedPost.id,
+        },
+      });
     }
 
     return updatedPost;
@@ -403,16 +441,6 @@ export class PostsService {
         imageUrl: true,
         isDisplay: true,
         originalPublishedAt: true,
-        postTags: {
-          include: {
-            tag: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
         searchKeywords: {
           select: {
             keywords: true,
@@ -429,6 +457,7 @@ export class PostsService {
         },
         sourceUrl: true,
         title: true,
+        titleEn: true,
       },
       where,
     });

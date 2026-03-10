@@ -406,7 +406,6 @@ export class FeedFetcherService {
           isDisplay: isTechPost,
           originalAuthor: FeedNormalizerUtil.normalizeCreator(item.creator),
           originalPublishedAt: item.isoDate || item.pubDate || new Date(),
-          rawFeedData: item as any,
           sourceId: source.id,
           sourceUrl: item.link,
           title,
