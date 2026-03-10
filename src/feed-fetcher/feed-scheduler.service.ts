@@ -25,7 +25,7 @@ export class FeedSchedulerService {
     }
   }
 
-  @Cron('*/3 * * * *')
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async handleMinuteCheckQueue() {
     this.logger.log('Starting scheduled feed fetch');
 

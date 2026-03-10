@@ -152,7 +152,7 @@ export class FeedFetcherService {
       select: {
         sourceId: true,
       },
-      take: 10,
+      take: 5,
     });
 
     if (sources.length === 0) {
