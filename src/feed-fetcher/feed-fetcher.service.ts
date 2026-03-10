@@ -6,9 +6,11 @@ import {
   BlogSource,
   FeedType,
   FetchStatus,
+  RegionType,
 } from '../database/generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
+import { TranslateService } from '../translate/translate.service';
 import { FeedParserService } from './feed-parser.service';
 import { FeedItem, ParsedFeed } from './interfaces/feed-item.interface';
 import { ScrapingConfig } from './interfaces/scraping-config.interface';
@@ -31,6 +33,7 @@ export class FeedFetcherService {
     private readonly youtubeFetcherService: YoutubeFetcherService,
     private readonly imageParseService: ImageParseService,
     private readonly alertService: AlertService,
+    private readonly translateService: TranslateService,
   ) {}
 
   async fetchFromSource(sourceId: string, useAi = false) {
@@ -284,14 +287,27 @@ export class FeedFetcherService {
       }
 
       const content = item.content || item.contentSnippet || '';
-      const description = FeedNormalizerUtil.extractDescription(
+      let description = FeedNormalizerUtil.extractDescription(
         item.content || '',
         item.contentSnippet || '',
       );
       const imageUrl = FeedNormalizerUtil.extractFirstImage(item.content || '');
       const contentHash = generateContentHash(content);
 
-      const title = FeedNormalizerUtil.truncateText(item.title, 500);
+      let title = FeedNormalizerUtil.truncateText(item.title, 500);
+
+      if (source.region === RegionType.FOREIGN) {
+        try {
+          title = (await this.translateService.translate(title)) ?? title;
+          description =
+            (await this.translateService.translate(description)) ?? description;
+        } catch (error) {
+          this.logger.warn(
+            `Translation failed for "${title}": ${error.message}`,
+          );
+        }
+      }
+
       const isTechPost = await this.keywordExtractorService.isTechBlogPost(
         title,
         item.link,

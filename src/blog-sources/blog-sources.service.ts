@@ -5,7 +5,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { FeedType, FetchStatus, Prisma } from '../database/generated/prisma/client';
+import {
+  FeedType,
+  FetchStatus,
+  Prisma,
+} from '../database/generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
 import { processInChunks } from '../utils/chunk-parallel';

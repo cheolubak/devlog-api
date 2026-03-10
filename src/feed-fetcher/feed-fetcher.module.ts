@@ -5,6 +5,7 @@ import { AlertModule } from '../alert/alert.module';
 import { BlogSourcesModule } from '../blog-sources/blog-sources.module';
 import { DatabaseModule } from '../database/database.module';
 import { ImageParseModule } from '../image-parse/image-parse.module';
+import { TranslateModule } from '../translate/translate.module';
 import { FeedFetcherController } from './feed-fetcher.controller';
 import { FeedFetcherService } from './feed-fetcher.service';
 import { FeedParserService } from './feed-parser.service';
@@ -22,6 +23,7 @@ import { YoutubeFetcherService } from './youtube-fetcher.service';
     HttpModule,
     ImageParseModule,
     AlertModule,
+    TranslateModule,
   ],
   providers: [
     FeedFetcherService,
