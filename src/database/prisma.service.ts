@@ -13,7 +13,7 @@ export class PrismaService
       connectionString: process.env.DATABASE_URL!,
       idleTimeoutMillis: 30000,
       keepAlive: true,
-      max: 30,
+      max: 15,
     });
     super({ adapter });
   }
