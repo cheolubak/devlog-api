@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as RssParser from 'rss-parser';
 
 import { ParsedFeed } from './interfaces/feed-item.interface';
+import { withRetry } from './utils/retry.util';
 
 @Injectable()
 export class FeedParserService {
@@ -25,7 +26,10 @@ export class FeedParserService {
     try {
       const encodedUrl = encodeURI(url);
       this.logger.log(`Parsing feed: ${encodedUrl}`);
-      const feed = await this.parser.parseURL(encodedUrl);
+      const feed = await withRetry(() => this.parser.parseURL(encodedUrl), {
+        baseDelayMs: 2000,
+        maxRetries: 3,
+      });
 
       this.logger.log(
         `Successfully parsed feed: ${feed.title}, ${feed.items?.length || 0} items`,
