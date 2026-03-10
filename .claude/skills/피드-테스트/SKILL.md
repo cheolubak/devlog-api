@@ -91,6 +91,7 @@ curl -X POST http://localhost:3000/feed-fetcher/fetch-all
 | 에러 | 원인 | 해결 |
 |------|------|------|
 | `FAILED` / fetch error | 피드 URL 접근 불가 | URL 유효성 확인, CORS/차단 여부 확인 |
+| `FAILED` / socket hang up (ECONNRESET) | 원격 서버가 TCP 연결 갑자기 종료 | `withRetry` 적용됨 — 로그에서 재시도 메시지 확인 후 최종 결과 확인 |
 | `PARTIAL` | 일부 포스트 파싱 실패 | 로그에서 실패한 항목 확인 |
 | 중복 포스트 무시 | `sourceUrl` unique 제약 | 정상 동작 (contentHash 기반 중복 체크) |
 | 타입 불일치 | RSS/ATOM 타입 잘못 설정 | 소스 type 수정 |

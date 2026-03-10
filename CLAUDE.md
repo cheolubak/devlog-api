@@ -92,3 +92,4 @@ DIRECT_URL=       # PostgreSQL 직접 연결 URL
 - 서비스 계층에서 비즈니스 로직 처리
 - Prisma 클라이언트는 `src/database/generated/prisma`에 생성됨
 - ESLint + Prettier로 코드 스타일 관리 (eslint-plugin-perfectionist 사용)
+- 외부 HTTP 호출(피드 파싱, 웹 스크래핑 등)에는 `withRetry` 유틸 적용 (`src/feed-fetcher/utils/retry.util.ts`)

@@ -147,6 +147,24 @@ limit?: number = 20;
 | 중복 데이터 | `ConflictException` |
 | 잘못된 요청 | `BadRequestException` |
 
+## 재시도 패턴 (withRetry)
+
+외부 HTTP 호출(피드 파싱, 웹 스크래핑 등)에는 `withRetry` 유틸을 적용합니다.
+
+```typescript
+import { withRetry } from './utils/retry.util';
+
+// 기본값: maxRetries=3, baseDelayMs=1000 (지수 백오프: 1s → 2s → 4s)
+const result = await withRetry(() => externalCall(), {
+  baseDelayMs: 2000,  // 피드 파싱: 2s → 4s → 8s
+  maxRetries: 3,
+});
+```
+
+- `FeedParserService.parseFeed()`: `baseDelayMs: 2000` (ECONNRESET 등 네트워크 오류 대응)
+- `WebScraperService`: 이미 `withRetry` 적용됨
+- 에러 로그는 최종 실패 시에만 출력 (catch 블록 유지)
+
 ## 페이지네이션
 
 ```typescript
