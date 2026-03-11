@@ -93,7 +93,7 @@ export class SearchService {
           sourceUrl: string;
           title: string;
           title_en: null | string;
-          view_count: number;
+          view_count: bigint;
         }[]
       >`
         SELECT p2.id,
@@ -178,7 +178,7 @@ export class SearchService {
       sourceUrl: row.sourceUrl,
       title: row.title,
       titleEn: row.title_en,
-      viewCount: row.view_count,
+      viewCount: Number(row.view_count),
     }));
 
     return {
