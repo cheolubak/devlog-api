@@ -1,5 +1,14 @@
 import { Transform } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+  MinLength,
+} from 'class-validator';
+
+import { FeedType, RegionType } from '../../database/generated/prisma/enums';
 
 export class SearchQueryDto {
   @IsString()
@@ -19,4 +28,13 @@ export class SearchQueryDto {
   @IsOptional()
   @IsString()
   sourceId?: string;
+
+  @IsEnum(FeedType, { each: true })
+  @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+  type?: FeedType[];
+
+  @IsEnum(RegionType)
+  @IsOptional()
+  region?: RegionType;
 }

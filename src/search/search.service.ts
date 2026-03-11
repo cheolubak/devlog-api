@@ -1,6 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { FeedType, Prisma, Users } from '../database/generated/prisma/client';
+import {
+  FeedType,
+  Prisma,
+  RegionType,
+  Users,
+} from '../database/generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { SearchQueryDto } from './dto/search-query.dto';
 
@@ -11,7 +16,7 @@ export class SearchService {
   constructor(private readonly prisma: PrismaService) {}
 
   async search(query: SearchQueryDto) {
-    const { limit = 20, offset = 0, q, sourceId } = query;
+    const { limit = 20, offset = 0, q, region, sourceId, type } = query;
     const skip = offset * limit;
 
     this.logger.log(
@@ -24,8 +29,10 @@ export class SearchService {
       limit,
       offset,
       pattern,
+      region,
       skip,
       sourceId,
+      type,
     });
   }
 
@@ -58,15 +65,19 @@ export class SearchService {
     limit,
     offset,
     pattern,
+    region,
     skip,
     sourceId,
+    type,
     userId,
   }: {
     limit: number;
     offset: number;
     pattern: string;
+    region?: RegionType;
     skip: number;
     sourceId?: string;
+    type?: FeedType[];
     userId?: string;
   }) {
     const bookmarkJoin = userId
@@ -75,6 +86,14 @@ export class SearchService {
 
     const sourceWhere = sourceId
       ? Prisma.sql`AND p2."sourceId" = ${sourceId}::uuid`
+      : Prisma.empty;
+
+    const typeWhere = type?.length
+      ? Prisma.sql`AND s.type::text = ANY(${type})`
+      : Prisma.empty;
+
+    const regionWhere = region
+      ? Prisma.sql`AND s.region::text = ${region}`
       : Prisma.empty;
 
     const [data, totalResult] = await Promise.all([
@@ -116,7 +135,7 @@ export class SearchService {
           LEFT JOIN "BlogSource" s ON s.id = p2."sourceId"
           LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
-          AND p2."isDisplay" = true ${sourceWhere}
+          AND p2."isDisplay" = true ${sourceWhere} ${typeWhere} ${regionWhere}
           AND (
           coalesce (p.keywords
             , '') || ' ' ||
@@ -147,7 +166,7 @@ export class SearchService {
           LEFT JOIN "PostDeletionLog" pdl ON pdl."postId" = p2.id
         WHERE pdl."postId" IS NULL
           AND p2."isDisplay" = true
-          ${sourceWhere}
+          ${sourceWhere} ${typeWhere} ${regionWhere}
           AND (
           coalesce (p.keywords, '') || ' ' ||
           coalesce (p2.title, '') || ' ' ||
