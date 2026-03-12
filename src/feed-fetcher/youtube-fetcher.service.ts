@@ -123,12 +123,6 @@ export class YoutubeFetcherService {
     const channelId =
       options?.cachedChannelId || (await this.extractChannelId(channelUrl));
 
-    if (options?.cachedChannelId) {
-      this.logger.log(`Using cached channel ID: ${channelId}`);
-    }
-
-    this.logger.log(`Fetching videos for channel: ${channelId}`);
-
     const allItems = await this.listUploadedVideos(
       channelId,
       options?.maxPages ?? 3,
@@ -143,9 +137,6 @@ export class YoutubeFetcherService {
           !options.existingVideoUrls.has(
             `https://www.youtube.com/watch?v=${item.snippet.resourceId.videoId}`,
           ),
-      );
-      this.logger.log(
-        `${allItems.length - newItems.length} videos already in DB, ${newItems.length} new videos to check`,
       );
     }
 
@@ -208,8 +199,6 @@ export class YoutubeFetcherService {
   }
 
   private async resolveHandleToChannelId(handle: string): Promise<string> {
-    this.logger.debug(`Resolving handle @${handle} to channel ID`);
-
     const channelsUrl = `${this.baseUrl}/channels`;
     const params = {
       forHandle: `@${handle}`,
@@ -225,16 +214,12 @@ export class YoutubeFetcherService {
       throw new Error(`Channel not found for handle: @${handle}`);
     }
 
-    const channelId = response.data.items[0].id;
-    this.logger.debug(`Resolved @${handle} to channel ID: ${channelId}`);
-    return channelId;
+    return response.data.items[0].id;
   }
 
   private async resolveCustomUrlToChannelId(
     customUrl: string,
   ): Promise<string> {
-    this.logger.debug(`Resolving custom URL ${customUrl} to channel ID`);
-
     // Try channels API with forHandle first (1 unit)
     try {
       const channelsUrl = `${this.baseUrl}/channels`;
@@ -249,14 +234,10 @@ export class YoutubeFetcherService {
       );
 
       if (response.data.items.length > 0) {
-        const channelId = response.data.items[0].id;
-        this.logger.debug(`Resolved ${customUrl} to channel ID: ${channelId}`);
-        return channelId;
+        return response.data.items[0].id;
       }
     } catch {
-      this.logger.debug(
-        `channels API failed for ${customUrl}, falling back to search`,
-      );
+      // Fall back to search API
     }
 
     // Fallback to search API (100 units)
@@ -279,14 +260,10 @@ export class YoutubeFetcherService {
       throw new Error(`Channel not found for custom URL: ${customUrl}`);
     }
 
-    const channelId = response.data.items[0].snippet.channelId;
-    this.logger.debug(`Resolved ${customUrl} to channel ID: ${channelId}`);
-    return channelId;
+    return response.data.items[0].snippet.channelId;
   }
 
   private async resolveUsernameToChannelId(username: string): Promise<string> {
-    this.logger.debug(`Resolving username ${username} to channel ID`);
-
     const channelsUrl = `${this.baseUrl}/channels`;
     const params = {
       forUsername: username,
@@ -302,9 +279,7 @@ export class YoutubeFetcherService {
       throw new Error(`Channel not found for username: ${username}`);
     }
 
-    const channelId = response.data.items[0].id;
-    this.logger.debug(`Resolved ${username} to channel ID: ${channelId}`);
-    return channelId;
+    return response.data.items[0].id;
   }
 
   private async listUploadedVideos(
@@ -339,9 +314,6 @@ export class YoutubeFetcherService {
       for (const item of response.data.items) {
         const videoUrl = `https://www.youtube.com/watch?v=${item.snippet.resourceId.videoId}`;
         if (existingVideoUrls?.has(videoUrl)) {
-          this.logger.log(
-            `Found existing video (${videoUrl}), stopping pagination early`,
-          );
           foundExisting = true;
           break;
         }
@@ -350,10 +322,6 @@ export class YoutubeFetcherService {
 
       pageToken = response.data.nextPageToken;
       currentPage++;
-
-      this.logger.log(
-        `Fetched page ${currentPage}: ${response.data.items.length} videos (total: ${allItems.length})`,
-      );
     } while (pageToken && currentPage < maxPages && !foundExisting);
 
     return allItems;

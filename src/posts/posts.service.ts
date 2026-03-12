@@ -100,8 +100,6 @@ export class PostsService {
   }) {
     const { limit = 20, offset = 0, region, sourceId, tag, type } = query;
 
-    this.logger.log('Finding display posts with query:', query);
-
     const where: Prisma.PostsWhereInput = {
       deletionLog: null,
     };
@@ -201,8 +199,6 @@ export class PostsService {
   }
 
   async findOne(id: string) {
-    this.logger.log(`Finding post with id: ${id}`);
-
     const post = await this.prisma.posts.findUnique({
       include: {
         postTags: {
@@ -325,7 +321,6 @@ export class PostsService {
         where: { id },
       });
 
-      this.logger.log(`Updated thumbnail for post ${id}: ${url}`);
       return updated;
     } catch (e) {
       this.logger.error(
@@ -336,8 +331,6 @@ export class PostsService {
   }
 
   async updateDisplay(id: string, isDisplay: boolean) {
-    this.logger.log(`Updating display status for post ${id}: ${isDisplay}`);
-
     const post = await this.prisma.posts.findUnique({
       where: { id },
     });
@@ -378,7 +371,6 @@ export class PostsService {
               update: { keywords },
               where: { postId: id },
             });
-            this.logger.log(`Keywords saved for post ${id}`);
           }
         })
         .catch((error) => {
@@ -417,8 +409,6 @@ export class PostsService {
   }
 
   async findAll(query: PostQueryDto) {
-    this.logger.log('Finding all posts with query:', query);
-
     const { isDisplay, limit = 20, offset = 0, type } = query;
 
     const where: Prisma.PostsWhereInput = {
@@ -469,8 +459,6 @@ export class PostsService {
   }
 
   async deletePost(id: string) {
-    this.logger.log(`Deleting post with id: ${id}`);
-
     const post = await this.prisma.posts.findUnique({
       where: { id },
     });
@@ -495,8 +483,6 @@ export class PostsService {
   }
 
   async updateKeywords(id: string, keywords: string) {
-    this.logger.log(`Updating keywords for post ${id}: ${keywords}`);
-
     const post = await this.prisma.posts.findUnique({
       where: { id },
     });

@@ -44,11 +44,9 @@ export class FeedFetcherService {
     }
 
     try {
-      this.logger.log(`Fetching from source: ${source.name}`);
       const feed = await this.getFeedByType(source);
 
       if (!feed.items || feed.items.length === 0) {
-        this.logger.log(`No items found in feed: ${source.name}`);
         await this.blogSourcesService.updateFetchStatus(
           sourceId,
           FetchStatus.SUCCESS,
@@ -226,9 +224,6 @@ export class FeedFetcherService {
         });
 
         successCount++;
-        this.logger.debug(
-          `Translated post: ${post.title} -> ${translatedTitle}`,
-        );
       } catch (error) {
         failCount++;
         this.logger.warn(
@@ -351,7 +346,6 @@ export class FeedFetcherService {
       });
 
       if (existing) {
-        this.logger.debug(`Post already exists: ${item.link}`);
         return { created: false, post: existing };
       }
 
@@ -441,7 +435,6 @@ export class FeedFetcherService {
         );
       }
 
-      this.logger.debug(`Created new post: ${post.title}`);
       return { created: true, post };
     } catch (e) {
       this.logger.error(`Failed to process feed item: ${e.message}`, e.stack);
@@ -465,7 +458,6 @@ export class FeedFetcherService {
         update: { keywords },
         where: { postId },
       });
-      this.logger.debug(`Keywords saved for post ${postId}: ${keywords}`);
     }
   }
 

@@ -60,12 +60,6 @@ export class ImageParseService {
       throw new Error(`Failed to upload image: ${error.message}`);
     }
 
-    const { data } = this.supabase.storage
-      .from(this.bucket)
-      .getPublicUrl(filePath);
-
-    this.logger.log(`Image uploaded successfully: ${data.publicUrl}`);
-
     return filePath;
   }
 
@@ -97,12 +91,6 @@ export class ImageParseService {
       this.logger.error(`Failed to upload image to Supabase: ${error.message}`);
       throw new Error(`Failed to upload image: ${error.message}`);
     }
-
-    const { data } = this.supabase.storage
-      .from(this.bucket)
-      .getPublicUrl(filePath);
-
-    this.logger.log(`Image uploaded successfully: ${data.publicUrl}`);
 
     return filePath;
   }

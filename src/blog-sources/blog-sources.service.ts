@@ -218,7 +218,6 @@ export class BlogSourcesService {
         where: { id },
       });
 
-      this.logger.log(`Updated icon for source ${id}: ${icon}`);
       return updated;
     } catch (e) {
       this.logger.error(
@@ -280,7 +279,6 @@ export class BlogSourcesService {
         where: { id },
       });
 
-      this.logger.log(`Updated icon for source ${id}: ${url}`);
       return updated;
     } catch (e) {
       this.logger.error(

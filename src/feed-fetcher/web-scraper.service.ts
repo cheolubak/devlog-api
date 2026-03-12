@@ -115,15 +115,12 @@ export class WebScraperService implements OnModuleDestroy {
 
           await page.setViewport({ height: 1080, width: 1920 });
 
-          this.logger.log(`Navigating to ${url} with Puppeteer...`);
-
           await page.goto(url, {
             timeout: 60000,
             waitUntil: 'networkidle2',
           });
 
           if (waitFor && waitFor > 0) {
-            this.logger.log(`Waiting ${waitFor}ms for dynamic content...`);
             await new Promise((resolve) => setTimeout(resolve, waitFor));
           }
 

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import {
   FeedType,
@@ -11,17 +11,11 @@ import { SearchQueryDto } from './dto/search-query.dto';
 
 @Injectable()
 export class SearchService {
-  private readonly logger = new Logger(SearchService.name);
-
   constructor(private readonly prisma: PrismaService) {}
 
   async search(query: SearchQueryDto) {
     const { limit = 20, offset = 0, q, region, sourceId, type } = query;
     const skip = offset * limit;
-
-    this.logger.log(
-      `Searching for: "${q}" (limit=${limit}, offset=${offset}), sourceId=${sourceId}`,
-    );
 
     const pattern = `%${q.trim().split(/\s+/).join('%')}%`;
 
@@ -45,10 +39,6 @@ export class SearchService {
   }) {
     const { limit = 20, offset = 0, q } = query;
     const skip = offset * limit;
-
-    this.logger.log(
-      `Searching Bookmarks for: "${q}" (limit=${limit}, offset=${offset})`,
-    );
 
     const pattern = `%${q.trim().split(/\s+/).join('%')}%`;
 

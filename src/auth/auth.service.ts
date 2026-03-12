@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,8 +24,6 @@ interface SocialUserData {
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
-
   constructor(
     private readonly prismaService: PrismaService,
     private readonly httpService: HttpService,
@@ -35,25 +33,21 @@ export class AuthService {
   ) {}
 
   async loginWithKakao({ accessToken, sessionId }: SocialLoginDto) {
-    this.logger.log(`loginWithKakao: sessionId=${sessionId}`);
     const userData = await this.fetchKakaoUser(accessToken);
     return this.socialLogin(userData, sessionId);
   }
 
   async loginWithGoogle({ accessToken, sessionId }: SocialLoginDto) {
-    this.logger.log(`loginWithGoogle: sessionId=${sessionId}`);
     const userData = await this.fetchGoogleUser(accessToken);
     return this.socialLogin(userData, sessionId);
   }
 
   async loginWithGithub({ accessToken, sessionId }: SocialLoginDto) {
-    this.logger.log(`loginWithGithub: sessionId=${sessionId}`);
     const userData = await this.fetchGithubUser(accessToken);
     return this.socialLogin(userData, sessionId);
   }
 
   async loginWithNaver({ accessToken, sessionId }: SocialLoginDto) {
-    this.logger.log(`loginWithNaver: sessionId=${sessionId}`);
     const userData = await this.fetchNaverUser(accessToken);
     return this.socialLogin(userData, sessionId);
   }

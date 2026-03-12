@@ -32,15 +32,10 @@ export class FeedParserService {
   async parseFeed(url: string): Promise<ParsedFeed> {
     try {
       const encodedUrl = encodeURI(url);
-      this.logger.log(`Parsing feed: ${encodedUrl}`);
       const feed = await withRetry(() => this.parser.parseURL(encodedUrl), {
         baseDelayMs: 2000,
         maxRetries: 3,
       });
-
-      this.logger.log(
-        `Successfully parsed feed: ${feed.title}, ${feed.items?.length || 0} items`,
-      );
 
       return {
         description: feed.description,
