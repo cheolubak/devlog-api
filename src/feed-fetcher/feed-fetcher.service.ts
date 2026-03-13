@@ -159,20 +159,25 @@ export class FeedFetcherService {
       return true;
     }
 
-    await this.prisma.blogSourceFetchQueue.deleteMany({
-      where: {
-        sourceId: { in: sources.map((source) => source.sourceId) },
-      },
-    });
+    const processedSourceIds: string[] = [];
 
     for (const source of sources) {
       try {
         await this.fetchFromSource(source.sourceId, true);
+        processedSourceIds.push(source.sourceId);
       } catch (error) {
         this.logger.error(
           `Failed to fetch source ${source.sourceId}: ${error.message}`,
         );
       }
+    }
+
+    if (processedSourceIds.length > 0) {
+      await this.prisma.blogSourceFetchQueue.deleteMany({
+        where: {
+          sourceId: { in: processedSourceIds },
+        },
+      });
     }
   }
 
@@ -349,8 +354,8 @@ export class FeedFetcherService {
         return { created: false, post: existing };
       }
 
-      let title = FeedNormalizerUtil.truncateText(item.title, 500);
-      let titleEn = FeedNormalizerUtil.truncateText(item.title, 500);
+      let title = FeedNormalizerUtil.truncateText(item.title, 200);
+      let titleEn = FeedNormalizerUtil.truncateText(item.title, 200);
 
       let description = FeedNormalizerUtil.extractDescription(
         item.content || '',
@@ -411,7 +416,7 @@ export class FeedFetcherService {
         const parseImageUrl = await this.imageParseService.uploadImageAsWebp(
           imageUrl.startsWith('https')
             ? imageUrl
-            : `${source.blogUrl.split('/').at(0) ?? ''}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`,
+            : `${new URL(source.blogUrl).origin}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`,
           `thumbnails/posts/${post.id}`,
         );
 

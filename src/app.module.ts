@@ -1,8 +1,10 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AlertModule } from './alert/alert.module';
 import { AppController } from './app.controller';
@@ -27,6 +29,13 @@ import { TranslateModule } from './translate/translate.module';
     }),
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot([
+      {
+        limit: 60,
+        name: 'default',
+        ttl: 60000,
+      },
+    ]),
     DatabaseModule,
     BlogSourcesModule,
     FeedFetcherModule,
@@ -48,6 +57,12 @@ import { TranslateModule } from './translate/translate.module';
     AlertModule,
     TranslateModule,
   ],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

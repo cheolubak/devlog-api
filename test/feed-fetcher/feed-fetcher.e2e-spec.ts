@@ -275,7 +275,7 @@ describe('FeedFetcher (e2e)', () => {
 
   describe('POST /feed-fetcher/fetch-all', () => {
     it('should fetch all active sources', async () => {
-      const source1 = await prisma.blogSource.create({
+      await prisma.blogSource.create({
         data: {
           blogUrl: 'https://blog1.com',
           name: 'Blog 1',
@@ -284,7 +284,7 @@ describe('FeedFetcher (e2e)', () => {
         },
       });
 
-      const source2 = await prisma.blogSource.create({
+      await prisma.blogSource.create({
         data: {
           blogUrl: 'https://blog2.com',
           name: 'Blog 2',

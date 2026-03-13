@@ -14,6 +14,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 
+import { AdminGuard } from '../auth/admin.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { UsersGuard } from '../auth/users.guard';
 import { PostQueryDto } from './dto/post-query.dto';
@@ -44,12 +45,14 @@ export class PostsController {
 
   @CacheTTL(60 * 1000)
   @Get('all')
+  @UseGuards(AdminGuard)
   @UseInterceptors(CacheInterceptor)
   findAll(@Query() query: PostQueryDto) {
     return this.postsService.findAll(query);
   }
 
   @Put(':id/keywords')
+  @UseGuards(AdminGuard)
   updateKeywords(
     @Param('id') id: string,
     @Body() { keywords }: UpdateKeywordDto,
@@ -58,6 +61,7 @@ export class PostsController {
   }
 
   @Patch('need-image-update')
+  @UseGuards(AdminGuard)
   updateNeedImageUpdate() {
     return this.postsService.updatePostsWithExternalImages();
   }
@@ -87,6 +91,7 @@ export class PostsController {
   }
 
   @Patch(':id/display')
+  @UseGuards(AdminGuard)
   updateDisplay(
     @Param('id') id: string,
     @Body() updateDisplayDto: UpdateDisplayDto,
@@ -95,6 +100,7 @@ export class PostsController {
   }
 
   @Put(':id/thumbnail')
+  @UseGuards(AdminGuard)
   updateThumbnail(
     @Param('id') id: string,
     @Body() updateThumbnailDto: UpdateThumbnailDto,
@@ -103,6 +109,7 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @UseGuards(AdminGuard)
   deletePost(@Param('id') id: string) {
     return this.postsService.deletePost(id);
   }

@@ -9,10 +9,12 @@ import {
   Post,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
+import { AdminGuard } from '../auth/admin.guard';
 import { BlogSourcesService } from './blog-sources.service';
 import { CreateBlogSourceDto } from './dto/create-blog-source.dto';
 import { UpdateBlogSourceDto } from './dto/update-blog-source.dto';
@@ -22,6 +24,7 @@ export class BlogSourcesController {
   constructor(private readonly blogSourcesService: BlogSourcesService) {}
 
   @Post()
+  @UseGuards(AdminGuard)
   create(@Body() createBlogSourceDto: CreateBlogSourceDto) {
     return this.blogSourcesService.create(createBlogSourceDto);
   }
@@ -49,11 +52,13 @@ export class BlogSourcesController {
   }
 
   @Patch('need-image-update')
+  @UseGuards(AdminGuard)
   updateNeedImageUpdate() {
     return this.blogSourcesService.updateSourcesWithExternalIcons();
   }
 
   @Patch(':id/image-update')
+  @UseGuards(AdminGuard)
   @UseInterceptors(FileInterceptor('image'))
   updateImage(
     @Param('id') id: string,
@@ -63,6 +68,7 @@ export class BlogSourcesController {
   }
 
   @Patch(':id')
+  @UseGuards(AdminGuard)
   update(
     @Param('id') id: string,
     @Body() updateBlogSourceDto: UpdateBlogSourceDto,
@@ -71,6 +77,7 @@ export class BlogSourcesController {
   }
 
   @Delete(':id')
+  @UseGuards(AdminGuard)
   remove(@Param('id') id: string) {
     return this.blogSourcesService.remove(id);
   }

@@ -4,7 +4,6 @@ import * as request from 'supertest';
 import { FeedType } from '../../src/database/generated/prisma';
 import { PrismaService } from '../../src/database/prisma.service';
 import {
-  createAtomBlogSourceDto,
   createRssBlogSourceDto,
   createScrapingBlogSourceDto,
   createYoutubeBlogSourceDto,

@@ -181,9 +181,6 @@ export class WebScraperService implements OnModuleDestroy {
     const author = selectors.author
       ? this.extractText($el, selectors.author)
       : undefined;
-    const image = selectors.image
-      ? this.extractImage($el, selectors.image, baseUrl)
-      : undefined;
     const tags = selectors.tags
       ? this.extractTags($, $el, selectors.tags)
       : undefined;
@@ -198,7 +195,7 @@ export class WebScraperService implements OnModuleDestroy {
     };
 
     if (dateStr) {
-      const parsedDate = this.parseDate(dateStr, config.dateFormat);
+      const parsedDate = this.parseDate(dateStr);
       if (parsedDate) {
         item.isoDate = parsedDate.toISOString();
       }
@@ -270,7 +267,7 @@ export class WebScraperService implements OnModuleDestroy {
     return `${baseUrl.origin}/${url}`;
   }
 
-  private parseDate(dateStr: string, _format?: string): Date | null {
+  private parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
 
     // Try ISO format first

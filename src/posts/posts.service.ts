@@ -222,7 +222,7 @@ export class PostsService {
         },
       },
       relationLoadStrategy: 'join',
-      where: { id },
+      where: { deletionLog: null, id },
     });
 
     if (!post) {
@@ -241,6 +241,15 @@ export class PostsService {
     sessionId: string;
     user?: Users;
   }) {
+    const post = await this.prisma.posts.findUnique({
+      select: { id: true },
+      where: { id },
+    });
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
     const viewed = await this.prisma.postViewHistory.findFirst({
       where: {
         OR: [{ userId: user?.id }, { sessionId }],
@@ -293,6 +302,7 @@ export class PostsService {
           userId: user.id,
         },
       });
+      return { isBookmarked: true };
     } else {
       await this.prisma.postBookmarks.delete({
         where: {
@@ -302,9 +312,8 @@ export class PostsService {
           },
         },
       });
+      return { isBookmarked: false };
     }
-
-    return { message: 'success' };
   }
 
   async updateThumbnail(id: string, imageUrl: string) {
@@ -389,7 +398,7 @@ export class PostsService {
       let descriptionEn = updatedPost.description;
       if (updatedPost.description) {
         descriptionEn = await this.translateService.translate(
-          updatedPost.title,
+          updatedPost.description,
           'en',
         );
       }
@@ -460,6 +469,11 @@ export class PostsService {
 
   async deletePost(id: string) {
     const post = await this.prisma.posts.findUnique({
+      include: {
+        postTags: {
+          select: { tagId: true },
+        },
+      },
       where: { id },
     });
 
@@ -475,6 +489,17 @@ export class PostsService {
 
     if (isDelete) {
       throw new BadRequestException();
+    }
+
+    if (post.postTags.length > 0) {
+      await Promise.all(
+        post.postTags.map((postTag) =>
+          this.prisma.tags.update({
+            data: { count: { decrement: 1 } },
+            where: { id: postTag.tagId },
+          }),
+        ),
+      );
     }
 
     return this.prisma.postDeletionLog.create({
@@ -532,10 +557,10 @@ export class PostsService {
     const results = await processInChunks(
       posts,
       async (post) => {
-        const sourceUrl = post.source.blogUrl.split('/').at(0) ?? '';
+        const baseUrl = new URL(post.source.blogUrl).origin;
         const imageUrl = post.imageUrl.startsWith('https')
           ? post.imageUrl
-          : `${sourceUrl}${post.imageUrl.startsWith('/') ? post.imageUrl : `/${post.imageUrl}`}`;
+          : `${baseUrl}${post.imageUrl.startsWith('/') ? post.imageUrl : `/${post.imageUrl}`}`;
         return this.updateThumbnail(post.id, imageUrl);
       },
       5,

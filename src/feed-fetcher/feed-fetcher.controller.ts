@@ -1,8 +1,12 @@
-import { Controller, Param, Post } from '@nestjs/common';
+import { Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 
+import { AdminGuard } from '../auth/admin.guard';
 import { FeedFetcherService } from './feed-fetcher.service';
 
 @Controller('feed-fetcher')
+@Throttle({ default: { limit: 5, ttl: 60000 } })
+@UseGuards(AdminGuard)
 export class FeedFetcherController {
   constructor(private readonly feedFetcherService: FeedFetcherService) {}
 

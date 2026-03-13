@@ -2,6 +2,7 @@ import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 
 import { AlertModule } from '../alert/alert.module';
+import { AuthModule } from '../auth/auth.module';
 import { BlogSourcesModule } from '../blog-sources/blog-sources.module';
 import { DatabaseModule } from '../database/database.module';
 import { ImageParseModule } from '../image-parse/image-parse.module';
@@ -18,6 +19,7 @@ import { YoutubeFetcherService } from './youtube-fetcher.service';
   controllers: [FeedFetcherController],
   exports: [FeedFetcherService, KeywordExtractorService],
   imports: [
+    AuthModule,
     DatabaseModule,
     BlogSourcesModule,
     HttpModule,
