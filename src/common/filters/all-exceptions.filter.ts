@@ -34,7 +34,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
         status: exception.getStatus(),
       });
     } else if (exception instanceof Prisma.PrismaClientKnownRequestError) {
-      this.logger.error(`Unhandled Prisma exception: ${exception.message}`);
+      this.logger.error(
+        `Unhandled Prisma exception [${exception.code}]: ${exception.message}`,
+        exception.stack,
+      );
     } else if (exception instanceof Error) {
       this.logger.error(
         `Unhandled exception: ${exception.message}`,

@@ -223,21 +223,6 @@ export class WebScraperService implements OnModuleDestroy {
     return linkEl.attr('href') || linkEl.find('a').first().attr('href') || '';
   }
 
-  private extractImage(
-    $el: cheerio.Cheerio<CheerioElement>,
-    selector: string,
-    baseUrl: URL,
-  ): string | undefined {
-    const imgEl = $el.find(selector).first();
-    const src =
-      imgEl.attr('src') ||
-      imgEl.attr('data-src') ||
-      imgEl.find('img').first().attr('src') ||
-      imgEl.find('img').first().attr('data-src');
-
-    return src ? this.resolveUrl(src, baseUrl) : undefined;
-  }
-
   private extractTags(
     $: CheerioRoot,
     $el: cheerio.Cheerio<CheerioElement>,

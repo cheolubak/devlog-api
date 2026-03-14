@@ -474,7 +474,7 @@ export class PostsService {
           select: { tagId: true },
         },
       },
-      where: { id },
+      where: { deletionLog: null, id },
     });
 
     if (!post) {
@@ -559,7 +559,17 @@ export class PostsService {
     const results = await processInChunks(
       posts,
       async (post) => {
-        const baseUrl = new URL(post.source.blogUrl).origin;
+        if (!post.source.blogUrl) {
+          this.logger.warn(`Post ${post.id} has no blogUrl, skipping thumbnail update`);
+          return null;
+        }
+        let baseUrl: string;
+        try {
+          baseUrl = new URL(post.source.blogUrl).origin;
+        } catch {
+          this.logger.warn(`Post ${post.id} has invalid blogUrl: ${post.source.blogUrl}`);
+          return null;
+        }
         const imageUrl = post.imageUrl.startsWith('https')
           ? post.imageUrl
           : `${baseUrl}${post.imageUrl.startsWith('/') ? post.imageUrl : `/${post.imageUrl}`}`;
