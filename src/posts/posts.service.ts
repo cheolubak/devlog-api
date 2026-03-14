@@ -243,7 +243,7 @@ export class PostsService {
   }) {
     const post = await this.prisma.posts.findUnique({
       select: { id: true },
-      where: { id },
+      where: { deletionLog: null, id },
     });
 
     if (!post) {
@@ -491,19 +491,21 @@ export class PostsService {
       throw new BadRequestException();
     }
 
-    if (post.postTags.length > 0) {
-      await Promise.all(
-        post.postTags.map((postTag) =>
-          this.prisma.tags.update({
-            data: { count: { decrement: 1 } },
-            where: { id: postTag.tagId },
-          }),
-        ),
-      );
-    }
+    return this.prisma.$transaction(async (tx) => {
+      if (post.postTags.length > 0) {
+        await Promise.all(
+          post.postTags.map((postTag) =>
+            tx.tags.update({
+              data: { count: { decrement: 1 } },
+              where: { id: postTag.tagId },
+            }),
+          ),
+        );
+      }
 
-    return this.prisma.postDeletionLog.create({
-      data: { postId: id },
+      return tx.postDeletionLog.create({
+        data: { postId: id },
+      });
     });
   }
 

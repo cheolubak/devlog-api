@@ -2,9 +2,11 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { timingSafeEqual } from 'crypto';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -17,11 +19,16 @@ export class AdminGuard implements CanActivate {
     const adminApiKey = this.configService.get<string>('ADMIN_API_KEY');
 
     if (!adminApiKey) {
-      throw new UnauthorizedException('Admin API key is not configured');
+      throw new InternalServerErrorException();
     }
 
-    if (!apiKey || apiKey !== adminApiKey) {
-      throw new UnauthorizedException('Invalid admin API key');
+    const apiKeyBuf = Buffer.from(apiKey ?? '');
+    const adminKeyBuf = Buffer.from(adminApiKey);
+    if (
+      apiKeyBuf.length !== adminKeyBuf.length ||
+      !timingSafeEqual(apiKeyBuf, adminKeyBuf)
+    ) {
+      throw new UnauthorizedException();
     }
 
     return true;
