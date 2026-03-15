@@ -252,8 +252,10 @@ export class PostsService {
 
     const viewed = await this.prisma.postViewHistory.findFirst({
       where: {
-        OR: [{ userId: user?.id }, { sessionId }],
         postId: id,
+        ...(user?.id
+          ? { OR: [{ userId: user.id }, { sessionId }] }
+          : { sessionId }),
       },
     });
 
@@ -557,28 +559,7 @@ export class PostsService {
 
     const results = await processInChunks(
       posts,
-      async (post) => {
-        if (post.imageUrl.startsWith('https')) {
-          return this.updateThumbnail(post.id, post.imageUrl);
-        }
-        if (!post.source.blogUrl) {
-          this.logger.warn(
-            `Post ${post.id} has no blogUrl, skipping thumbnail update`,
-          );
-          return null;
-        }
-        let baseUrl: string;
-        try {
-          baseUrl = new URL(post.source.blogUrl).origin;
-        } catch {
-          this.logger.warn(
-            `Post ${post.id} has invalid blogUrl: ${post.source.blogUrl}`,
-          );
-          return null;
-        }
-        const imageUrl = `${baseUrl}${post.imageUrl.startsWith('/') ? post.imageUrl : `/${post.imageUrl}`}`;
-        return this.updateThumbnail(post.id, imageUrl);
-      },
+      async (post) => this.updateThumbnail(post.id, post.imageUrl),
       5,
     );
 

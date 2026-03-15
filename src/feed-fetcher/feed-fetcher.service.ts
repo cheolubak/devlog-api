@@ -355,16 +355,13 @@ export class FeedFetcherService {
       }
 
       let title = FeedNormalizerUtil.truncateText(item.title, 200);
-      let titleEn = FeedNormalizerUtil.truncateText(item.title, 200);
+      let titleEn: null | string = null;
 
       let description = FeedNormalizerUtil.extractDescription(
         item.content || '',
         item.contentSnippet || '',
       );
-      let descriptionEn = FeedNormalizerUtil.extractDescription(
-        item.content || '',
-        item.contentSnippet || '',
-      );
+      let descriptionEn: null | string = null;
 
       const imageUrl = FeedNormalizerUtil.extractFirstImage(item.content || '');
 
@@ -381,7 +378,10 @@ export class FeedFetcherService {
         }
       } else {
         try {
-          titleEn = await this.translateService.translate(title, 'en');
+          const rawTitleEn = await this.translateService.translate(title, 'en');
+          titleEn = rawTitleEn
+            ? FeedNormalizerUtil.truncateText(rawTitleEn, 300)
+            : null;
           descriptionEn = await this.translateService.translate(
             description,
             'en',
@@ -415,7 +415,7 @@ export class FeedFetcherService {
       if (imageUrl) {
         try {
           const parseImageUrl = await this.imageParseService.uploadImageAsWebp(
-            imageUrl.startsWith('https')
+            imageUrl.startsWith('http://') || imageUrl.startsWith('https://')
               ? imageUrl
               : `${new URL(source.blogUrl).origin}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`,
             `thumbnails/posts/${post.id}`,

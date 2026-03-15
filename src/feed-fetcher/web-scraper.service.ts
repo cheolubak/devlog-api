@@ -255,7 +255,26 @@ export class WebScraperService implements OnModuleDestroy {
   private parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
 
-    // Try ISO format first
+    // Try YYYY-MM-DD ISO format with overflow validation
+    const isoPattern = /^(\d{4})-(\d{2})-(\d{2})/;
+    const isoMatch = dateStr.match(isoPattern);
+    if (isoMatch) {
+      const y = Number(isoMatch[1]);
+      const m = Number(isoMatch[2]);
+      const d = Number(isoMatch[3]);
+      const parsed = new Date(dateStr);
+      if (
+        isNaN(parsed.getTime()) ||
+        parsed.getUTCFullYear() !== y ||
+        parsed.getUTCMonth() !== m - 1 ||
+        parsed.getUTCDate() !== d
+      ) {
+        return null;
+      }
+      return parsed;
+    }
+
+    // Try other date formats
     const isoDate = new Date(dateStr);
     if (!isNaN(isoDate.getTime())) {
       return isoDate;
