@@ -560,14 +560,18 @@ export class PostsService {
       posts,
       async (post) => {
         if (!post.source.blogUrl) {
-          this.logger.warn(`Post ${post.id} has no blogUrl, skipping thumbnail update`);
+          this.logger.warn(
+            `Post ${post.id} has no blogUrl, skipping thumbnail update`,
+          );
           return null;
         }
         let baseUrl: string;
         try {
           baseUrl = new URL(post.source.blogUrl).origin;
         } catch {
-          this.logger.warn(`Post ${post.id} has invalid blogUrl: ${post.source.blogUrl}`);
+          this.logger.warn(
+            `Post ${post.id} has invalid blogUrl: ${post.source.blogUrl}`,
+          );
           return null;
         }
         const imageUrl = post.imageUrl.startsWith('https')
