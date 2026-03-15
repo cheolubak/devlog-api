@@ -413,17 +413,23 @@ export class FeedFetcherService {
       });
 
       if (imageUrl) {
-        const parseImageUrl = await this.imageParseService.uploadImageAsWebp(
-          imageUrl.startsWith('https')
-            ? imageUrl
-            : `${new URL(source.blogUrl).origin}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`,
-          `thumbnails/posts/${post.id}`,
-        );
+        try {
+          const parseImageUrl = await this.imageParseService.uploadImageAsWebp(
+            imageUrl.startsWith('https')
+              ? imageUrl
+              : `${new URL(source.blogUrl).origin}${imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`}`,
+            `thumbnails/posts/${post.id}`,
+          );
 
-        await this.prisma.posts.update({
-          data: { imageUrl: parseImageUrl },
-          where: { id: post.id },
-        });
+          await this.prisma.posts.update({
+            data: { imageUrl: parseImageUrl },
+            where: { id: post.id },
+          });
+        } catch (error) {
+          this.logger.warn(
+            `Failed to parse image URL for post ${post.id}: ${error.message}`,
+          );
+        }
       }
 
       if (item.categories && item.categories.length > 0) {

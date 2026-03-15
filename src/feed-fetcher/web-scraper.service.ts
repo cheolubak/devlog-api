@@ -273,7 +273,18 @@ export class WebScraperService implements OnModuleDestroy {
       const match = dateStr.match(pattern);
       if (match) {
         const [, year, month, day] = match;
-        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        const y = Number(year);
+        const m = Number(month);
+        const d = Number(day);
+        const parsed = new Date(y, m - 1, d);
+        if (
+          parsed.getFullYear() !== y ||
+          parsed.getMonth() !== m - 1 ||
+          parsed.getDate() !== d
+        ) {
+          return null;
+        }
+        return parsed;
       }
     }
 

@@ -495,10 +495,9 @@ export class PostsService {
       if (post.postTags.length > 0) {
         await Promise.all(
           post.postTags.map((postTag) =>
-            tx.tags.update({
-              data: { count: { decrement: 1 } },
-              where: { id: postTag.tagId },
-            }),
+            tx.$executeRaw(
+              Prisma.sql`UPDATE "Tags" SET count = GREATEST(count - 1, 0) WHERE id = ${postTag.tagId}`,
+            ),
           ),
         );
       }
@@ -559,6 +558,9 @@ export class PostsService {
     const results = await processInChunks(
       posts,
       async (post) => {
+        if (post.imageUrl.startsWith('https')) {
+          return this.updateThumbnail(post.id, post.imageUrl);
+        }
         if (!post.source.blogUrl) {
           this.logger.warn(
             `Post ${post.id} has no blogUrl, skipping thumbnail update`,
@@ -574,9 +576,7 @@ export class PostsService {
           );
           return null;
         }
-        const imageUrl = post.imageUrl.startsWith('https')
-          ? post.imageUrl
-          : `${baseUrl}${post.imageUrl.startsWith('/') ? post.imageUrl : `/${post.imageUrl}`}`;
+        const imageUrl = `${baseUrl}${post.imageUrl.startsWith('/') ? post.imageUrl : `/${post.imageUrl}`}`;
         return this.updateThumbnail(post.id, imageUrl);
       },
       5,
