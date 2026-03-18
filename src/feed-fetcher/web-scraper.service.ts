@@ -15,6 +15,8 @@ type CheerioRoot = ReturnType<typeof cheerio.load>;
 export class WebScraperService implements OnModuleDestroy {
   private readonly logger = new Logger(WebScraperService.name);
   private browser: Browser | null = null;
+  private pageCount = 0;
+  private readonly MAX_PAGES_BEFORE_RESTART = 10;
 
   constructor(private readonly httpService: HttpService) {}
 
@@ -115,6 +117,16 @@ export class WebScraperService implements OnModuleDestroy {
 
           await page.setViewport({ height: 1080, width: 1920 });
 
+          await page.setRequestInterception(true);
+          page.on('request', (req) => {
+            const blockedTypes = ['image', 'stylesheet', 'font', 'media'];
+            if (blockedTypes.includes(req.resourceType())) {
+              req.abort();
+            } else {
+              req.continue();
+            }
+          });
+
           await page.goto(url, {
             timeout: 60000,
             waitUntil: 'networkidle2',
@@ -128,6 +140,15 @@ export class WebScraperService implements OnModuleDestroy {
           return html;
         } finally {
           await page.close();
+          this.pageCount++;
+
+          if (this.pageCount >= this.MAX_PAGES_BEFORE_RESTART) {
+            this.logger.log(
+              `Page count reached ${this.MAX_PAGES_BEFORE_RESTART}, restarting browser to free memory`,
+            );
+            await this.closeBrowser();
+            this.pageCount = 0;
+          }
         }
       },
       { baseDelayMs: 2000, maxRetries: 2 },
