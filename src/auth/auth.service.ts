@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { createHmac } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 
 import { SocialType, Users } from '../database/generated/prisma/client';
@@ -67,7 +68,7 @@ export class AuthService {
   async generateToken(userId: string, sessionId: string) {
     const payload = { sub: userId };
 
-    const refreshTokenSecret = this.configService.get('JWT_SECRET') + sessionId;
+    const refreshTokenSecret = this.deriveRefreshSecret(sessionId);
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
@@ -87,7 +88,7 @@ export class AuthService {
   }
 
   async validateRefreshTokenUser(token: string, sessionId: string) {
-    const refreshTokenSecret = this.configService.get('JWT_SECRET') + sessionId;
+    const refreshTokenSecret = this.deriveRefreshSecret(sessionId);
 
     const payload: { sub: string } = await this.jwtService.verifyAsync(token, {
       secret: refreshTokenSecret,
@@ -112,6 +113,11 @@ export class AuthService {
     });
 
     return { message: '완료' };
+  }
+
+  private deriveRefreshSecret(sessionId: string): string {
+    const jwtSecret = this.configService.get<string>('JWT_SECRET');
+    return createHmac('sha256', jwtSecret).update(sessionId).digest('hex');
   }
 
   private async socialLogin(userData: SocialUserData, sessionId: string) {
