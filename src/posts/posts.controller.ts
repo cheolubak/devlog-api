@@ -1,5 +1,6 @@
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -107,9 +108,14 @@ export class PostsController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     const user = req.user;
-    const sessionId = req.headers['sessionid'] as string;
+    const rawSessionId = req.headers['sessionid'];
+    if (!rawSessionId || typeof rawSessionId !== 'string') {
+      throw new BadRequestException(
+        'sessionid header must be a single string value',
+      );
+    }
 
-    return this.postsService.viewPost({ id, sessionId, user });
+    return this.postsService.viewPost({ id, sessionId: rawSessionId, user });
   }
 
   @ApiBearerAuth()

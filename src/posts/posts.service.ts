@@ -372,7 +372,10 @@ export class PostsService {
       where: { id },
     });
 
-    if (!updatedPost.searchKeywords?.keywords || !updatedPost.titleEn) {
+    if (
+      isDisplay &&
+      (!updatedPost.searchKeywords?.keywords || !updatedPost.titleEn)
+    ) {
       this.eventEmitter.emit(
         POST_DISPLAY_UPDATED,
         new PostDisplayUpdatedEvent(

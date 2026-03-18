@@ -48,7 +48,11 @@ export class PostQueryDto {
   @IsArray()
   @IsOptional()
   @Transform(({ value }) =>
-    Array.isArray(value) ? value : value ? value.split(',') : [],
+    Array.isArray(value)
+      ? value
+      : value === undefined || value === null || value === ''
+        ? undefined
+        : value.split(','),
   )
   ids?: string[];
 

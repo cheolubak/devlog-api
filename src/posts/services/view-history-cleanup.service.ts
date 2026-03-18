@@ -17,7 +17,7 @@ export class ViewHistoryCleanupService {
       this.configService.get<number>('VIEW_HISTORY_RETENTION_DAYS') ?? 90;
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  @Cron(CronExpression.EVERY_DAY_AT_3AM, { timeZone: 'Asia/Seoul' })
   async cleanup() {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - this.retentionDays);
