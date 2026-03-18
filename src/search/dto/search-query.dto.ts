@@ -4,6 +4,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
   Min,
   MinLength,
 } from 'class-validator';
@@ -16,6 +17,7 @@ export class SearchQueryDto {
   q: string;
 
   @IsInt()
+  @Max(100)
   @Min(1)
   @Transform(({ value }) => parseInt(value, 10))
   limit: number = 20;

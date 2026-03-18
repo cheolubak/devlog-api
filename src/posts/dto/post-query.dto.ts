@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   Min,
 } from 'class-validator';
 
@@ -28,6 +29,7 @@ export class PostQueryDto {
 
   @IsInt()
   @IsOptional()
+  @Max(100)
   @Min(1)
   @Transform(({ value }) => parseInt(value, 10))
   limit?: number = 20;
@@ -45,7 +47,9 @@ export class PostQueryDto {
 
   @IsArray()
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : value.split(',')))
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : value ? value.split(',') : [],
+  )
   ids?: string[];
 
   @IsEnum(RegionType)
