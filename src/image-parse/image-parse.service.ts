@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import * as sharp from 'sharp';
 
+import { validateExternalUrl } from '../common/utils/url-validator.util';
+
 @Injectable()
 export class ImageParseService {
   private readonly logger = new Logger(ImageParseService.name);
@@ -29,7 +31,10 @@ export class ImageParseService {
    * @returns 저장된 이미지의 public URL
    */
   async uploadImageAsWebp(imageUrl: string, path: string): Promise<string> {
+    validateExternalUrl(imageUrl);
+
     const response = await fetch(imageUrl, {
+      redirect: 'follow',
       signal: AbortSignal.timeout(10_000),
     });
 
