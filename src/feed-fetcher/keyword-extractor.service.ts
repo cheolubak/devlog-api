@@ -4,6 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
+import {
+  ApiProvider,
+  ApiUsageService,
+} from '../common/services/api-usage.service';
 import { FeedNormalizerUtil } from './utils/feed-normalizer.util';
 
 @Injectable()
@@ -11,11 +15,22 @@ export class KeywordExtractorService {
   private readonly anthropic: Anthropic;
   private readonly logger = new Logger(KeywordExtractorService.name);
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly apiUsageService: ApiUsageService,
+    private readonly configService: ConfigService,
+  ) {
     this.anthropic = new Anthropic();
   }
 
   async isTechBlogPost(title: string, link: string): Promise<boolean> {
+    if (!this.apiUsageService.canUse(ApiProvider.ANTHROPIC)) {
+      const usage = this.apiUsageService.getUsage(ApiProvider.ANTHROPIC);
+      this.logger.warn(
+        `Anthropic API daily limit reached (${usage.count}/${usage.limit}), skipping tech check for "${title}"`,
+      );
+      return false;
+    }
+
     try {
       const bodyText = await this.fetchPageText(link);
 
@@ -46,6 +61,8 @@ export class KeywordExtractorService {
         },
       );
 
+      this.apiUsageService.record(ApiProvider.ANTHROPIC);
+
       const textBlock = message.content.find((block) => block.type === 'text');
 
       if (!textBlock || textBlock.type !== 'text') {
@@ -65,6 +82,14 @@ export class KeywordExtractorService {
     title: string,
     sourceUrl: string,
   ): Promise<null | string> {
+    if (!this.apiUsageService.canUse(ApiProvider.ANTHROPIC)) {
+      const usage = this.apiUsageService.getUsage(ApiProvider.ANTHROPIC);
+      this.logger.warn(
+        `Anthropic API daily limit reached (${usage.count}/${usage.limit}), skipping keyword extraction for "${title}"`,
+      );
+      return null;
+    }
+
     try {
       const keywordTool = {
         input_schema: {
@@ -103,6 +128,8 @@ export class KeywordExtractorService {
           },
         },
       );
+
+      this.apiUsageService.record(ApiProvider.ANTHROPIC);
 
       const keywordContent = message.content.find(
         (block) =>

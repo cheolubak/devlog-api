@@ -3,6 +3,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 
+import {
+  ApiProvider,
+  ApiUsageService,
+} from '../common/services/api-usage.service';
 import { ParsedFeed } from './interfaces/feed-item.interface';
 
 export interface FetchVideosOptions {
@@ -106,6 +110,7 @@ export class YoutubeFetcherService {
   private readonly logger = new Logger(YoutubeFetcherService.name);
 
   constructor(
+    private readonly apiUsageService: ApiUsageService,
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {
@@ -118,6 +123,22 @@ export class YoutubeFetcherService {
   ): Promise<FetchVideosResult> {
     if (!this.apiKey) {
       throw new Error('YOUTUBE_API_KEY is not configured');
+    }
+
+    if (!this.apiUsageService.canUse(ApiProvider.YOUTUBE)) {
+      const usage = this.apiUsageService.getUsage(ApiProvider.YOUTUBE);
+      this.logger.warn(
+        `YouTube API daily limit reached (${usage.count}/${usage.limit}), skipping fetch for ${channelUrl}`,
+      );
+      return {
+        channelId: options?.cachedChannelId || '',
+        feed: {
+          description: 'YouTube channel videos',
+          items: [],
+          link: channelUrl,
+          title: 'YouTube Channel',
+        },
+      };
     }
 
     const channelId =
@@ -209,6 +230,7 @@ export class YoutubeFetcherService {
     const response = await firstValueFrom(
       this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
     );
+    this.apiUsageService.record(ApiProvider.YOUTUBE);
 
     if (response.data.items.length === 0) {
       throw new Error(`Channel not found for handle: @${handle}`);
@@ -232,6 +254,7 @@ export class YoutubeFetcherService {
       const response = await firstValueFrom(
         this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
       );
+      this.apiUsageService.record(ApiProvider.YOUTUBE);
 
       if (response.data.items.length > 0) {
         return response.data.items[0].id;
@@ -255,6 +278,7 @@ export class YoutubeFetcherService {
         params: searchParams,
       }),
     );
+    this.apiUsageService.record(ApiProvider.YOUTUBE);
 
     if (response.data.items.length === 0) {
       throw new Error(`Channel not found for custom URL: ${customUrl}`);
@@ -274,6 +298,7 @@ export class YoutubeFetcherService {
     const response = await firstValueFrom(
       this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
     );
+    this.apiUsageService.record(ApiProvider.YOUTUBE);
 
     if (response.data.items.length === 0) {
       throw new Error(`Channel not found for username: ${username}`);
@@ -310,6 +335,7 @@ export class YoutubeFetcherService {
           params,
         }),
       );
+      this.apiUsageService.record(ApiProvider.YOUTUBE);
 
       for (const item of response.data.items) {
         const videoUrl = `https://www.youtube.com/watch?v=${item.snippet.resourceId.videoId}`;
@@ -350,6 +376,7 @@ export class YoutubeFetcherService {
       const response = await firstValueFrom(
         this.httpService.get<YouTubeVideoListResponse>(videosUrl, { params }),
       );
+      this.apiUsageService.record(ApiProvider.YOUTUBE);
 
       for (const video of response.data.items) {
         if (this.parseDuration(video.contentDetails.duration) <= 60) {

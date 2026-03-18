@@ -2,13 +2,21 @@ import { TranslationServiceClient } from '@google-cloud/translate';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import {
+  ApiProvider,
+  ApiUsageService,
+} from '../common/services/api-usage.service';
+
 @Injectable()
 export class TranslateService implements OnModuleInit {
   private readonly logger = new Logger(TranslateService.name);
   private translationClient: null | TranslationServiceClient = null;
   private parent!: string;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly apiUsageService: ApiUsageService,
+    private readonly configService: ConfigService,
+  ) {}
 
   onModuleInit() {
     const projectId = this.configService.get<string>('GOOGLE_CLOUD_PROJECT_ID');
@@ -55,12 +63,22 @@ export class TranslateService implements OnModuleInit {
       return null;
     }
 
+    if (!this.apiUsageService.canUse(ApiProvider.GOOGLE_TRANSLATE)) {
+      const usage = this.apiUsageService.getUsage(ApiProvider.GOOGLE_TRANSLATE);
+      this.logger.warn(
+        `Google Translate API daily limit reached (${usage.count}/${usage.limit}), skipping translation`,
+      );
+      return null;
+    }
+
     const [response] = await this.translationClient.translateText({
       contents: [text],
       mimeType: 'text/plain',
       parent: this.parent,
       targetLanguageCode,
     });
+
+    this.apiUsageService.record(ApiProvider.GOOGLE_TRANSLATE);
 
     return response.translations?.[0]?.translatedText ?? null;
   }
