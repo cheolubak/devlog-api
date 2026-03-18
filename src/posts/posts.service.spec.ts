@@ -6,7 +6,11 @@ import { PrismaService } from '../database/prisma.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
 import { PostsService } from './posts.service';
 
-const mockPrisma = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockPrisma: any = {
+  $transaction: jest.fn((fn: (tx: typeof mockPrisma) => Promise<unknown>) =>
+    fn(mockPrisma),
+  ),
   postBookmarks: {
     create: jest.fn(),
     delete: jest.fn(),
@@ -24,6 +28,9 @@ const mockPrisma = {
   },
   postSearchKeywords: {
     upsert: jest.fn(),
+  },
+  postTags: {
+    deleteMany: jest.fn(),
   },
   tags: {
     update: jest.fn(),

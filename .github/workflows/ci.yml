@@ -34,4 +34,4 @@ jobs:
           DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
 
       - name: Unit tests
-        run: npx jest --passWithNoTests --ci
+        run: pnpm test -- --passWithNoTests --ci

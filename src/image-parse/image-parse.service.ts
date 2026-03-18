@@ -34,9 +34,13 @@ export class ImageParseService {
     validateExternalUrl(imageUrl);
 
     const response = await fetch(imageUrl, {
-      redirect: 'follow',
+      redirect: 'manual',
       signal: AbortSignal.timeout(10_000),
     });
+
+    if (response.status >= 300 && response.status < 400) {
+      throw new Error('Redirect is not allowed for external image fetch');
+    }
 
     if (!response.ok) {
       throw new Error(

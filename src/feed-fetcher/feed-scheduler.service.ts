@@ -21,7 +21,7 @@ export class FeedSchedulerService {
       await this.feedFetcherService.setFetchActiveSources();
     } catch (error: unknown) {
       this.logger.error(
-        `Scheduled feed queue update failed: ${(error as Error).message}`,
+        `Scheduled feed queue update failed: ${this.getErrorMessage(error)}`,
       );
       await this.tryReconnect(error);
     }
@@ -34,19 +34,27 @@ export class FeedSchedulerService {
     try {
       await this.feedFetcherService.fetchSourcesFromQueue();
     } catch (error: unknown) {
-      this.logger.error(`Scheduled fetch failed: ${(error as Error).message}`);
+      this.logger.error(
+        `Scheduled fetch failed: ${this.getErrorMessage(error)}`,
+      );
       await this.tryReconnect(error);
     }
   }
 
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    if (typeof error === 'string') return error;
+    return String(error);
+  }
+
   private async tryReconnect(error: unknown) {
-    const errorMessage = (error as Error).message;
+    const errorMessage = this.getErrorMessage(error);
     const isDbConnectionError =
-      errorMessage?.includes("Can't reach database server") ||
-      errorMessage?.includes(
+      errorMessage.includes("Can't reach database server") ||
+      errorMessage.includes(
         'Timed out fetching a new connection from the connection pool',
       ) ||
-      errorMessage?.includes('Server has closed the connection');
+      errorMessage.includes('Server has closed the connection');
 
     if (isDbConnectionError) {
       this.logger.warn('DB connection issue, attempting reconnect...');
@@ -55,7 +63,7 @@ export class FeedSchedulerService {
         this.logger.log('DB reconnect successful');
       } catch (reconnectError: unknown) {
         this.logger.error(
-          `DB reconnect failed: ${(reconnectError as Error).message}`,
+          `DB reconnect failed: ${this.getErrorMessage(reconnectError)}`,
         );
       }
     }

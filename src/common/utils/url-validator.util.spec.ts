@@ -1,3 +1,5 @@
+import { BadRequestException } from '@nestjs/common';
+
 import { validateExternalUrl } from './url-validator.util';
 
 describe('validateExternalUrl', () => {
@@ -95,6 +97,32 @@ describe('validateExternalUrl', () => {
     });
   });
 
+  describe('blocked IPv6 private addresses', () => {
+    it('should block IPv6 unique local address (fc00::/7)', () => {
+      expect(() => validateExternalUrl('http://[fc00::1]')).toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should block IPv6 link-local address (fe80::/10)', () => {
+      expect(() => validateExternalUrl('http://[fe80::1]')).toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should block IPv4-mapped IPv6 loopback (::ffff:127.0.0.1)', () => {
+      expect(() => validateExternalUrl('http://[::ffff:127.0.0.1]')).toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should block IPv4-mapped IPv6 private (::ffff:10.0.0.1)', () => {
+      expect(() => validateExternalUrl('http://[::ffff:10.0.0.1]')).toThrow(
+        BadRequestException,
+      );
+    });
+  });
+
   describe('invalid protocols', () => {
     it('should block ftp:// protocol', () => {
       expect(() => validateExternalUrl('ftp://example.com')).toThrow(
@@ -111,11 +139,27 @@ describe('validateExternalUrl', () => {
 
   describe('invalid URLs', () => {
     it('should reject completely invalid URLs', () => {
-      expect(() => validateExternalUrl('not-a-url')).toThrow('Invalid URL');
+      expect(() => validateExternalUrl('not-a-url')).toThrow(
+        BadRequestException,
+      );
     });
 
     it('should reject empty strings', () => {
-      expect(() => validateExternalUrl('')).toThrow('Invalid URL');
+      expect(() => validateExternalUrl('')).toThrow(BadRequestException);
+    });
+  });
+
+  describe('exception types', () => {
+    it('should throw BadRequestException for all blocked URLs', () => {
+      expect(() => validateExternalUrl('http://localhost')).toThrow(
+        BadRequestException,
+      );
+      expect(() => validateExternalUrl('http://10.0.0.1')).toThrow(
+        BadRequestException,
+      );
+      expect(() => validateExternalUrl('ftp://example.com')).toThrow(
+        BadRequestException,
+      );
     });
   });
 });

@@ -8,6 +8,7 @@ import {
   ApiUsageService,
 } from '../common/services/api-usage.service';
 import { ParsedFeed } from './interfaces/feed-item.interface';
+import { withRetry } from './utils/retry.util';
 
 export interface FetchVideosOptions {
   cachedChannelId?: string;
@@ -125,7 +126,7 @@ export class YoutubeFetcherService {
       throw new Error('YOUTUBE_API_KEY is not configured');
     }
 
-    if (!this.apiUsageService.canUse(ApiProvider.YOUTUBE)) {
+    if (!this.apiUsageService.tryConsume(ApiProvider.YOUTUBE)) {
       const usage = this.apiUsageService.getUsage(ApiProvider.YOUTUBE);
       this.logger.warn(
         `YouTube API daily limit reached (${usage.count}/${usage.limit}), skipping fetch for ${channelUrl}`,
@@ -227,10 +228,14 @@ export class YoutubeFetcherService {
       part: 'id',
     };
 
-    const response = await firstValueFrom(
-      this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
+    const response = await withRetry(
+      () =>
+        firstValueFrom(
+          this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
+        ),
+      { baseDelayMs: 1000, maxRetries: 2 },
     );
-    this.apiUsageService.record(ApiProvider.YOUTUBE);
+    this.apiUsageService.tryConsume(ApiProvider.YOUTUBE);
 
     if (response.data.items.length === 0) {
       throw new Error(`Channel not found for handle: @${handle}`);
@@ -251,10 +256,16 @@ export class YoutubeFetcherService {
         part: 'id',
       };
 
-      const response = await firstValueFrom(
-        this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
+      const response = await withRetry(
+        () =>
+          firstValueFrom(
+            this.httpService.get<YouTubeChannelResponse>(channelsUrl, {
+              params,
+            }),
+          ),
+        { baseDelayMs: 1000, maxRetries: 2 },
       );
-      this.apiUsageService.record(ApiProvider.YOUTUBE);
+      this.apiUsageService.tryConsume(ApiProvider.YOUTUBE);
 
       if (response.data.items.length > 0) {
         return response.data.items[0].id;
@@ -273,12 +284,16 @@ export class YoutubeFetcherService {
       type: 'channel',
     };
 
-    const response = await firstValueFrom(
-      this.httpService.get<YouTubeSearchResponse>(searchUrl, {
-        params: searchParams,
-      }),
+    const response = await withRetry(
+      () =>
+        firstValueFrom(
+          this.httpService.get<YouTubeSearchResponse>(searchUrl, {
+            params: searchParams,
+          }),
+        ),
+      { baseDelayMs: 1000, maxRetries: 2 },
     );
-    this.apiUsageService.record(ApiProvider.YOUTUBE);
+    this.apiUsageService.tryConsume(ApiProvider.YOUTUBE);
 
     if (response.data.items.length === 0) {
       throw new Error(`Channel not found for custom URL: ${customUrl}`);
@@ -295,10 +310,14 @@ export class YoutubeFetcherService {
       part: 'id',
     };
 
-    const response = await firstValueFrom(
-      this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
+    const response = await withRetry(
+      () =>
+        firstValueFrom(
+          this.httpService.get<YouTubeChannelResponse>(channelsUrl, { params }),
+        ),
+      { baseDelayMs: 1000, maxRetries: 2 },
     );
-    this.apiUsageService.record(ApiProvider.YOUTUBE);
+    this.apiUsageService.tryConsume(ApiProvider.YOUTUBE);
 
     if (response.data.items.length === 0) {
       throw new Error(`Channel not found for username: ${username}`);
@@ -330,12 +349,17 @@ export class YoutubeFetcherService {
 
       if (pageToken) params.pageToken = pageToken;
 
-      const response = await firstValueFrom(
-        this.httpService.get<YouTubePlaylistItemsResponse>(playlistItemsUrl, {
-          params,
-        }),
+      const response = await withRetry(
+        () =>
+          firstValueFrom(
+            this.httpService.get<YouTubePlaylistItemsResponse>(
+              playlistItemsUrl,
+              { params },
+            ),
+          ),
+        { baseDelayMs: 1000, maxRetries: 2 },
       );
-      this.apiUsageService.record(ApiProvider.YOUTUBE);
+      this.apiUsageService.tryConsume(ApiProvider.YOUTUBE);
 
       for (const item of response.data.items) {
         const videoUrl = `https://www.youtube.com/watch?v=${item.snippet.resourceId.videoId}`;
@@ -373,10 +397,16 @@ export class YoutubeFetcherService {
         part: 'contentDetails',
       };
 
-      const response = await firstValueFrom(
-        this.httpService.get<YouTubeVideoListResponse>(videosUrl, { params }),
+      const response = await withRetry(
+        () =>
+          firstValueFrom(
+            this.httpService.get<YouTubeVideoListResponse>(videosUrl, {
+              params,
+            }),
+          ),
+        { baseDelayMs: 1000, maxRetries: 2 },
       );
-      this.apiUsageService.record(ApiProvider.YOUTUBE);
+      this.apiUsageService.tryConsume(ApiProvider.YOUTUBE);
 
       for (const video of response.data.items) {
         if (this.parseDuration(video.contentDetails.duration) <= 60) {

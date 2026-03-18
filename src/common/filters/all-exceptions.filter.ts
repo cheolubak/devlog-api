@@ -42,11 +42,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     let statusCode: number;
-    let message: string;
+    let message: string | string[];
 
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
-      message = exception.message;
+      const responseBody = exception.getResponse();
+      if (typeof responseBody === 'string') {
+        message = responseBody;
+      } else {
+        message =
+          (responseBody as { message?: string | string[] }).message ??
+          exception.message;
+      }
       this.logger.error(`Unhandled Http exception: ${exception.message}`, {
         response: exception.getResponse(),
         status: exception.getStatus(),

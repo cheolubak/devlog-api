@@ -2,11 +2,10 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { timingSafeEqual } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -19,15 +18,21 @@ export class AdminGuard implements CanActivate {
     const adminApiKey = this.configService.get<string>('ADMIN_API_KEY');
 
     if (!adminApiKey) {
-      throw new InternalServerErrorException();
+      throw new UnauthorizedException('Admin API key is not configured');
     }
 
-    if (
-      !apiKey ||
-      typeof apiKey !== 'string' ||
-      apiKey.length !== adminApiKey.length ||
-      !timingSafeEqual(Buffer.from(apiKey), Buffer.from(adminApiKey))
-    ) {
+    if (!apiKey || typeof apiKey !== 'string') {
+      throw new UnauthorizedException('Invalid admin API key');
+    }
+
+    const inputDigest = createHmac('sha256', 'admin-guard')
+      .update(apiKey)
+      .digest();
+    const expectedDigest = createHmac('sha256', 'admin-guard')
+      .update(adminApiKey)
+      .digest();
+
+    if (!timingSafeEqual(inputDigest, expectedDigest)) {
       throw new UnauthorizedException('Invalid admin API key');
     }
 

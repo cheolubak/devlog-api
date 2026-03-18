@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsDefined,
   IsIn,
   IsInt,
   IsNotEmpty,
@@ -53,6 +54,7 @@ export class ScrapingConfigDto {
   @IsIn(['static', 'dynamic'])
   renderMode!: 'dynamic' | 'static';
 
+  @IsDefined()
   @Type(() => ScrapingSelectorsDto)
   @ValidateNested()
   selectors!: ScrapingSelectorsDto;

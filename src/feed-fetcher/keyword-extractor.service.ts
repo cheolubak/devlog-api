@@ -23,7 +23,7 @@ export class KeywordExtractorService {
   }
 
   async isTechBlogPost(title: string, link: string): Promise<boolean> {
-    if (!this.apiUsageService.canUse(ApiProvider.ANTHROPIC)) {
+    if (!this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC)) {
       const usage = this.apiUsageService.getUsage(ApiProvider.ANTHROPIC);
       this.logger.warn(
         `Anthropic API daily limit reached (${usage.count}/${usage.limit}), skipping tech check for "${title}"`,
@@ -61,7 +61,7 @@ export class KeywordExtractorService {
         },
       );
 
-      this.apiUsageService.record(ApiProvider.ANTHROPIC);
+      this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC);
 
       const textBlock = message.content.find((block) => block.type === 'text');
 
@@ -82,7 +82,7 @@ export class KeywordExtractorService {
     title: string,
     sourceUrl: string,
   ): Promise<null | string> {
-    if (!this.apiUsageService.canUse(ApiProvider.ANTHROPIC)) {
+    if (!this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC)) {
       const usage = this.apiUsageService.getUsage(ApiProvider.ANTHROPIC);
       this.logger.warn(
         `Anthropic API daily limit reached (${usage.count}/${usage.limit}), skipping keyword extraction for "${title}"`,
@@ -129,7 +129,7 @@ export class KeywordExtractorService {
         },
       );
 
-      this.apiUsageService.record(ApiProvider.ANTHROPIC);
+      this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC);
 
       const keywordContent = message.content.find(
         (block) =>

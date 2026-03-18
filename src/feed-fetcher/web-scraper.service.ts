@@ -14,8 +14,10 @@ type CheerioRoot = ReturnType<typeof cheerio.load>;
 @Injectable()
 export class WebScraperService implements OnModuleDestroy {
   private readonly logger = new Logger(WebScraperService.name);
+  private activePages = 0;
   private browser: Browser | null = null;
   private pageCount = 0;
+  private pendingRestart = false;
   private readonly MAX_PAGES_BEFORE_RESTART = 10;
 
   constructor(private readonly httpService: HttpService) {}
@@ -110,6 +112,7 @@ export class WebScraperService implements OnModuleDestroy {
         const browser = await this.getBrowser();
         const page = await browser.newPage();
 
+        this.activePages++;
         try {
           await page.setUserAgent(
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -140,14 +143,20 @@ export class WebScraperService implements OnModuleDestroy {
           return html;
         } finally {
           await page.close();
+          this.activePages--;
           this.pageCount++;
 
           if (this.pageCount >= this.MAX_PAGES_BEFORE_RESTART) {
+            this.pendingRestart = true;
+          }
+
+          if (this.pendingRestart && this.activePages === 0) {
             this.logger.log(
               `Page count reached ${this.MAX_PAGES_BEFORE_RESTART}, restarting browser to free memory`,
             );
             await this.closeBrowser();
             this.pageCount = 0;
+            this.pendingRestart = false;
           }
         }
       },

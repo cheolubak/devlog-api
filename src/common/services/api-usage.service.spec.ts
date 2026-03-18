@@ -29,47 +29,38 @@ describe('ApiUsageService', () => {
     service = module.get<ApiUsageService>(ApiUsageService);
   });
 
-  describe('canUse', () => {
-    it('should return true when under limit', () => {
-      expect(service.canUse(ApiProvider.ANTHROPIC)).toBe(true);
+  describe('tryConsume', () => {
+    it('should return true and increment when under limit', () => {
+      expect(service.tryConsume(ApiProvider.ANTHROPIC)).toBe(true);
+      expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(1);
     });
 
     it('should return false when at limit', () => {
       for (let i = 0; i < 200; i++) {
-        service.record(ApiProvider.ANTHROPIC);
+        service.tryConsume(ApiProvider.ANTHROPIC);
       }
 
-      expect(service.canUse(ApiProvider.ANTHROPIC)).toBe(false);
+      expect(service.tryConsume(ApiProvider.ANTHROPIC)).toBe(false);
+      expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(200);
     });
 
-    it('should return false when over limit', () => {
-      for (let i = 0; i < 201; i++) {
-        service.record(ApiProvider.ANTHROPIC);
+    it('should return false when amount would exceed limit', () => {
+      for (let i = 0; i < 199; i++) {
+        service.tryConsume(ApiProvider.ANTHROPIC);
       }
 
-      expect(service.canUse(ApiProvider.ANTHROPIC)).toBe(false);
+      expect(service.tryConsume(ApiProvider.ANTHROPIC, 2)).toBe(false);
+      expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(199);
     });
 
     it('should track each provider independently', () => {
       for (let i = 0; i < 200; i++) {
-        service.record(ApiProvider.ANTHROPIC);
+        service.tryConsume(ApiProvider.ANTHROPIC);
       }
 
-      expect(service.canUse(ApiProvider.ANTHROPIC)).toBe(false);
-      expect(service.canUse(ApiProvider.GOOGLE_TRANSLATE)).toBe(true);
-      expect(service.canUse(ApiProvider.YOUTUBE)).toBe(true);
-    });
-  });
-
-  describe('record', () => {
-    it('should increment the counter', () => {
-      expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(0);
-
-      service.record(ApiProvider.ANTHROPIC);
-      expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(1);
-
-      service.record(ApiProvider.ANTHROPIC);
-      expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(2);
+      expect(service.tryConsume(ApiProvider.ANTHROPIC)).toBe(false);
+      expect(service.tryConsume(ApiProvider.GOOGLE_TRANSLATE)).toBe(true);
+      expect(service.tryConsume(ApiProvider.YOUTUBE)).toBe(true);
     });
   });
 
@@ -83,10 +74,10 @@ describe('ApiUsageService', () => {
       });
     });
 
-    it('should return updated count after recording', () => {
-      service.record(ApiProvider.GOOGLE_TRANSLATE);
-      service.record(ApiProvider.GOOGLE_TRANSLATE);
-      service.record(ApiProvider.GOOGLE_TRANSLATE);
+    it('should return updated count after consuming', () => {
+      service.tryConsume(ApiProvider.GOOGLE_TRANSLATE);
+      service.tryConsume(ApiProvider.GOOGLE_TRANSLATE);
+      service.tryConsume(ApiProvider.GOOGLE_TRANSLATE);
 
       const usage = service.getUsage(ApiProvider.GOOGLE_TRANSLATE);
 
@@ -105,9 +96,9 @@ describe('ApiUsageService', () => {
 
   describe('resetDailyCounters', () => {
     it('should clear all counters', () => {
-      service.record(ApiProvider.ANTHROPIC);
-      service.record(ApiProvider.GOOGLE_TRANSLATE);
-      service.record(ApiProvider.YOUTUBE);
+      service.tryConsume(ApiProvider.ANTHROPIC);
+      service.tryConsume(ApiProvider.GOOGLE_TRANSLATE);
+      service.tryConsume(ApiProvider.YOUTUBE);
 
       expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(1);
       expect(service.getUsage(ApiProvider.GOOGLE_TRANSLATE).count).toBe(1);
@@ -122,15 +113,15 @@ describe('ApiUsageService', () => {
 
     it('should allow usage again after reset', () => {
       for (let i = 0; i < 200; i++) {
-        service.record(ApiProvider.ANTHROPIC);
+        service.tryConsume(ApiProvider.ANTHROPIC);
       }
 
-      expect(service.canUse(ApiProvider.ANTHROPIC)).toBe(false);
+      expect(service.tryConsume(ApiProvider.ANTHROPIC)).toBe(false);
 
       service.resetDailyCounters();
 
-      expect(service.canUse(ApiProvider.ANTHROPIC)).toBe(true);
-      expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(0);
+      expect(service.tryConsume(ApiProvider.ANTHROPIC)).toBe(true);
+      expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(1);
     });
   });
 });

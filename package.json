@@ -36,7 +36,7 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/schedule": "^6.1.1",
-    "@nestjs/swagger": "^11.2.6",
+    "@nestjs/swagger": "^7.4.2",
     "@nestjs/throttler": "^6.5.0",
     "@opentelemetry/api-logs": "^0.212.0",
     "@opentelemetry/exporter-logs-otlp-http": "^0.212.0",

@@ -31,18 +31,20 @@ async function bootstrap() {
     }),
   );
 
-  const config = new DocumentBuilder()
-    .setTitle('Devlog API')
-    .setDescription('RSS/Atom 피드 수집 블로그 포스트 관리 API')
-    .setVersion('1.0')
-    .addApiKey(
-      { in: 'header', name: 'x-api-key', type: 'apiKey' },
-      'admin-api-key',
-    )
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('Devlog API')
+      .setDescription('RSS/Atom 피드 수집 블로그 포스트 관리 API')
+      .setVersion('1.0')
+      .addApiKey(
+        { in: 'header', name: 'x-api-key', type: 'apiKey' },
+        'admin-api-key',
+      )
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api-docs', app, document);
+  }
 
   await app.listen(4000);
 }

@@ -26,10 +26,14 @@ export class ApiUsageService {
     };
   }
 
-  canUse(provider: ApiProvider): boolean {
+  tryConsume(provider: ApiProvider, amount = 1): boolean {
     const key = this.getDailyKey(provider);
     const count = this.counters.get(key) ?? 0;
-    return count < this.limits[provider];
+    if (count + amount > this.limits[provider]) {
+      return false;
+    }
+    this.counters.set(key, count + amount);
+    return true;
   }
 
   getUsage(provider: ApiProvider): { count: number; limit: number } {
@@ -38,12 +42,6 @@ export class ApiUsageService {
       count: this.counters.get(key) ?? 0,
       limit: this.limits[provider],
     };
-  }
-
-  record(provider: ApiProvider): void {
-    const key = this.getDailyKey(provider);
-    const count = this.counters.get(key) ?? 0;
-    this.counters.set(key, count + 1);
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)

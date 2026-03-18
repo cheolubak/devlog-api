@@ -219,7 +219,7 @@ export class AuthService {
 
     return {
       email: githubUser.email ?? null,
-      nickname: githubUser.name,
+      nickname: githubUser.name || githubUser.login,
       profileImageUrl: githubUser.avatar_url || null,
       socialId: githubUser.id.toString(),
       socialType: 'GITHUB',

@@ -63,7 +63,7 @@ export class TranslateService implements OnModuleInit {
       return null;
     }
 
-    if (!this.apiUsageService.canUse(ApiProvider.GOOGLE_TRANSLATE)) {
+    if (!this.apiUsageService.tryConsume(ApiProvider.GOOGLE_TRANSLATE)) {
       const usage = this.apiUsageService.getUsage(ApiProvider.GOOGLE_TRANSLATE);
       this.logger.warn(
         `Google Translate API daily limit reached (${usage.count}/${usage.limit}), skipping translation`,
@@ -77,8 +77,6 @@ export class TranslateService implements OnModuleInit {
       parent: this.parent,
       targetLanguageCode,
     });
-
-    this.apiUsageService.record(ApiProvider.GOOGLE_TRANSLATE);
 
     return response.translations?.[0]?.translatedText ?? null;
   }

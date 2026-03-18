@@ -17,7 +17,7 @@ export interface GithubUserDto {
   id: number;
   location: string;
   login: string;
-  name: string;
+  name: null | string;
   node_id: string;
   notification_email?: string;
   organizations_url: string;
