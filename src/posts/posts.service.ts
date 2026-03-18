@@ -4,14 +4,15 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { Posts, Prisma, Users } from '../database/generated/prisma/client';
 import { PrismaService } from '../database/prisma.service';
-import { KeywordExtractorService } from '../feed-fetcher/keyword-extractor.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
-import { TranslateService } from '../translate/translate.service';
 import { processInChunks } from '../utils/chunk-parallel';
+import { POST_DISPLAY_UPDATED } from './constants/post-events';
 import { PostQueryDto } from './dto/post-query.dto';
+import { PostDisplayUpdatedEvent } from './events/post-display-updated.event';
 
 @Injectable()
 export class PostsService {
@@ -41,9 +42,8 @@ export class PostsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly keywordExtractorService: KeywordExtractorService,
     private readonly imageParseService: ImageParseService,
-    private readonly translateService: TranslateService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   private buildPagination({
@@ -372,48 +372,18 @@ export class PostsService {
       where: { id },
     });
 
-    if (!updatedPost.searchKeywords?.keywords && post.sourceUrl) {
-      await this.keywordExtractorService
-        .extractKeywords(post.title, post.sourceUrl)
-        .then(async (keywords) => {
-          if (keywords) {
-            await this.prisma.postSearchKeywords.upsert({
-              create: { keywords, postId: id },
-              update: { keywords },
-              where: { postId: id },
-            });
-          }
-        })
-        .catch((error: unknown) => {
-          this.logger.error(
-            `Keyword extraction failed for post ${id}: ${(error as Error).message}`,
-          );
-        });
-    }
-
-    if (!updatedPost.titleEn) {
-      const titleEn = await this.translateService.translate(
-        updatedPost.title,
-        'en',
-      );
-
-      let descriptionEn = updatedPost.description;
-      if (updatedPost.description) {
-        descriptionEn = await this.translateService.translate(
+    if (!updatedPost.searchKeywords?.keywords || !updatedPost.titleEn) {
+      this.eventEmitter.emit(
+        POST_DISPLAY_UPDATED,
+        new PostDisplayUpdatedEvent(
+          id,
+          updatedPost.title,
           updatedPost.description,
-          'en',
-        );
-      }
-
-      await this.prisma.posts.update({
-        data: {
-          descriptionEn,
-          titleEn,
-        },
-        where: {
-          id: updatedPost.id,
-        },
-      });
+          updatedPost.titleEn,
+          post.sourceUrl,
+          updatedPost.source?.region ?? null,
+        ),
+      );
     }
 
     return updatedPost;

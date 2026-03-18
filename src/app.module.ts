@@ -2,6 +2,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -11,6 +12,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BlogSourcesModule } from './blog-sources/blog-sources.module';
+import { CommonModule } from './common/common.module';
 import { DatabaseModule } from './database/database.module';
 import { FeedFetcherModule } from './feed-fetcher/feed-fetcher.module';
 import { ImageParseModule } from './image-parse/image-parse.module';
@@ -28,6 +30,7 @@ import { TranslateModule } from './translate/translate.module';
       ttl: 60 * 1000,
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([
       {
@@ -36,6 +39,7 @@ import { TranslateModule } from './translate/translate.module';
         ttl: 60000,
       },
     ]),
+    CommonModule,
     DatabaseModule,
     BlogSourcesModule,
     FeedFetcherModule,

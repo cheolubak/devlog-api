@@ -5,6 +5,7 @@ import { DatabaseModule } from '../database/database.module';
 import { FeedFetcherModule } from '../feed-fetcher/feed-fetcher.module';
 import { ImageParseModule } from '../image-parse/image-parse.module';
 import { TranslateModule } from '../translate/translate.module';
+import { PostEventListener } from './listeners/post-event.listener';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
 
@@ -18,6 +19,6 @@ import { PostsService } from './posts.service';
     AuthModule,
     TranslateModule,
   ],
-  providers: [PostsService],
+  providers: [PostEventListener, PostsService],
 })
 export class PostsModule {}
