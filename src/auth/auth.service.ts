@@ -86,19 +86,30 @@ export class AuthService {
   }
 
   async validateAccessTokenUser(token: string) {
-    const payload: { sub: string } = await this.jwtService.verifyAsync(token);
+    try {
+      const payload: { sub: string } = await this.jwtService.verifyAsync(token);
 
-    return await this.findUserById(payload.sub);
+      return await this.findUserById(payload.sub);
+    } catch {
+      throw new UnauthorizedException('Invalid access token');
+    }
   }
 
   async validateRefreshTokenUser(token: string, sessionId: string) {
-    const refreshTokenSecret = this.deriveRefreshSecret(sessionId);
+    try {
+      const refreshTokenSecret = this.deriveRefreshSecret(sessionId);
 
-    const payload: { sub: string } = await this.jwtService.verifyAsync(token, {
-      secret: refreshTokenSecret,
-    });
+      const payload: { sub: string } = await this.jwtService.verifyAsync(
+        token,
+        {
+          secret: refreshTokenSecret,
+        },
+      );
 
-    return await this.findUserById(payload.sub);
+      return await this.findUserById(payload.sub);
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 
   async leave(user: Users) {
