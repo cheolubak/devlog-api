@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
-import { FeedType } from '../../src/database/generated/prisma';
+import { FeedType, RegionType } from '../../src/database/generated/prisma';
 import { PrismaService } from '../../src/database/prisma.service';
 import {
   createDisplayPostData,
@@ -34,6 +34,7 @@ describe('Posts (e2e)', () => {
       data: {
         blogUrl: 'https://blog.com',
         name: 'RSS Blog',
+        region: RegionType.KOREA,
         type: FeedType.RSS,
         url: 'https://blog.com/rss',
       },
@@ -43,6 +44,7 @@ describe('Posts (e2e)', () => {
       data: {
         blogUrl: 'https://youtube.com/@ch',
         name: 'YouTube Channel',
+        region: RegionType.FOREIGN,
         type: FeedType.YOUTUBE,
         url: 'https://youtube.com/@ch',
       },
@@ -209,48 +211,6 @@ describe('Posts (e2e)', () => {
 
       expect(body.data).toHaveLength(1);
       expect(body.data[0].isDisplay).toBe(true);
-    });
-  });
-
-  describe('GET /posts/blog', () => {
-    it('should return only blog type posts (RSS/ATOM/SCRAPING)', async () => {
-      await prisma.posts.create({
-        data: createDisplayPostData(rssSource.id, {
-          sourceUrl: 'https://blog.com/blog-type',
-        }),
-      });
-      await prisma.posts.create({
-        data: createDisplayPostData(youtubeSource.id, {
-          sourceUrl: 'https://youtube.com/yt-type',
-        }),
-      });
-
-      const { body } = await request(app.getHttpServer())
-        .get('/posts/blog')
-        .expect(200);
-
-      expect(body.data).toHaveLength(1);
-    });
-  });
-
-  describe('GET /posts/youtube', () => {
-    it('should return only YOUTUBE type posts', async () => {
-      await prisma.posts.create({
-        data: createDisplayPostData(rssSource.id, {
-          sourceUrl: 'https://blog.com/not-yt',
-        }),
-      });
-      await prisma.posts.create({
-        data: createDisplayPostData(youtubeSource.id, {
-          sourceUrl: 'https://youtube.com/is-yt',
-        }),
-      });
-
-      const { body } = await request(app.getHttpServer())
-        .get('/posts/youtube')
-        .expect(200);
-
-      expect(body.data).toHaveLength(1);
     });
   });
 

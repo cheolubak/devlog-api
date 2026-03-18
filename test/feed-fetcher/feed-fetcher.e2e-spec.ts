@@ -1,7 +1,11 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
-import { FeedType, FetchStatus } from '../../src/database/generated/prisma';
+import {
+  FeedType,
+  FetchStatus,
+  RegionType,
+} from '../../src/database/generated/prisma';
 import { PrismaService } from '../../src/database/prisma.service';
 import { FeedParserService } from '../../src/feed-fetcher/feed-parser.service';
 import { WebScraperService } from '../../src/feed-fetcher/web-scraper.service';
@@ -46,6 +50,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://blog.com',
           name: 'RSS Blog',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://blog.com/rss',
         },
@@ -77,6 +82,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://blog.com',
           name: 'RSS Blog',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://blog.com/rss',
         },
@@ -105,6 +111,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://blog.com',
           name: 'RSS Blog',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://blog.com/rss',
         },
@@ -130,6 +137,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://blog.com',
           name: 'RSS Blog',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://blog.com/rss',
         },
@@ -150,6 +158,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://blog.com',
           name: 'RSS Blog',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://blog.com/rss',
         },
@@ -179,6 +188,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://youtube.com/@testchannel',
           name: 'YT Channel',
+          region: RegionType.FOREIGN,
           type: FeedType.YOUTUBE,
           url: 'https://youtube.com/@testchannel',
         },
@@ -206,6 +216,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://youtube.com/@testchannel',
           name: 'YT Channel',
+          region: RegionType.FOREIGN,
           type: FeedType.YOUTUBE,
           url: 'https://youtube.com/@testchannel',
         },
@@ -234,6 +245,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://scrape.com',
           name: 'Scraping Blog',
+          region: RegionType.KOREA,
           scrapingConfig: {
             listSelector: '.post-item',
             renderMode: 'static',
@@ -259,6 +271,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://scrape.com',
           name: 'Scraping No Config',
+          region: RegionType.KOREA,
           type: FeedType.SCRAPING,
           url: 'https://scrape.com/no-config',
         },
@@ -279,6 +292,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://blog1.com',
           name: 'Blog 1',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://blog1.com/rss',
         },
@@ -288,6 +302,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://blog2.com',
           name: 'Blog 2',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://blog2.com/rss',
         },
@@ -298,6 +313,7 @@ describe('FeedFetcher (e2e)', () => {
           blogUrl: 'https://inactive.com',
           isActive: false,
           name: 'Inactive',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://inactive.com/rss',
         },
@@ -319,6 +335,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://good.com',
           name: 'Good Source',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://good.com/rss',
         },
@@ -328,6 +345,7 @@ describe('FeedFetcher (e2e)', () => {
         data: {
           blogUrl: 'https://bad.com',
           name: 'Bad Source',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://bad.com/rss',
         },
@@ -347,25 +365,4 @@ describe('FeedFetcher (e2e)', () => {
     });
   });
 
-  describe('GET /feed-fetcher/cron', () => {
-    it('should trigger fetchAll', async () => {
-      await prisma.blogSource.create({
-        data: {
-          blogUrl: 'https://blog.com',
-          name: 'Cron Blog',
-          type: FeedType.RSS,
-          url: 'https://blog.com/rss',
-        },
-      });
-
-      feedParserService.parseFeed.mockResolvedValue(createMockRssFeed());
-
-      const { body } = await request(app.getHttpServer())
-        .get('/feed-fetcher/cron')
-        .expect(200);
-
-      expect(body.total).toBe(1);
-      expect(body.successful).toBe(1);
-    });
-  });
 });

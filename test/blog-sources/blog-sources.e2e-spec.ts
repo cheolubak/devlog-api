@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
-import { FeedType } from '../../src/database/generated/prisma';
+import { FeedType, RegionType } from '../../src/database/generated/prisma';
 import { PrismaService } from '../../src/database/prisma.service';
 import {
   createRssBlogSourceDto,
@@ -109,6 +109,7 @@ describe('BlogSources (e2e)', () => {
             blogUrl: 'https://a.com',
             isActive: true,
             name: 'Active',
+            region: RegionType.KOREA,
             type: FeedType.RSS,
             url: 'https://a.com/rss',
           },
@@ -116,6 +117,7 @@ describe('BlogSources (e2e)', () => {
             blogUrl: 'https://b.com',
             isActive: false,
             name: 'Inactive',
+            region: RegionType.KOREA,
             type: FeedType.RSS,
             url: 'https://b.com/rss',
           },
@@ -137,6 +139,7 @@ describe('BlogSources (e2e)', () => {
             blogUrl: 'https://a.com',
             isActive: true,
             name: 'Active',
+            region: RegionType.KOREA,
             type: FeedType.RSS,
             url: 'https://a.com/rss',
           },
@@ -144,6 +147,7 @@ describe('BlogSources (e2e)', () => {
             blogUrl: 'https://b.com',
             isActive: false,
             name: 'Inactive',
+            region: RegionType.KOREA,
             type: FeedType.RSS,
             url: 'https://b.com/rss',
           },
@@ -162,6 +166,7 @@ describe('BlogSources (e2e)', () => {
         data: {
           blogUrl: 'https://a.com',
           name: 'Source',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://a.com/rss',
         },
@@ -191,12 +196,14 @@ describe('BlogSources (e2e)', () => {
           {
             blogUrl: 'https://youtube.com/@ch1',
             name: 'YT Channel',
+            region: RegionType.FOREIGN,
             type: FeedType.YOUTUBE,
             url: 'https://youtube.com/@ch1',
           },
           {
             blogUrl: 'https://blog.com',
             name: 'RSS Blog',
+            region: RegionType.KOREA,
             type: FeedType.RSS,
             url: 'https://blog.com/rss',
           },
@@ -219,18 +226,21 @@ describe('BlogSources (e2e)', () => {
           {
             blogUrl: 'https://rss.com',
             name: 'RSS',
+            region: RegionType.KOREA,
             type: FeedType.RSS,
             url: 'https://rss.com/feed',
           },
           {
             blogUrl: 'https://atom.com',
             name: 'Atom',
+            region: RegionType.KOREA,
             type: FeedType.ATOM,
             url: 'https://atom.com/feed',
           },
           {
             blogUrl: 'https://scrape.com',
             name: 'Scrape',
+            region: RegionType.KOREA,
             scrapingConfig: {
               listSelector: '.item',
               renderMode: 'static',
@@ -242,6 +252,7 @@ describe('BlogSources (e2e)', () => {
           {
             blogUrl: 'https://youtube.com/@ch',
             name: 'YouTube',
+            region: RegionType.FOREIGN,
             type: FeedType.YOUTUBE,
             url: 'https://youtube.com/@ch',
           },
@@ -267,6 +278,7 @@ describe('BlogSources (e2e)', () => {
         data: {
           blogUrl: 'https://a.com',
           name: 'Source',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://a.com/rss',
         },
@@ -305,6 +317,7 @@ describe('BlogSources (e2e)', () => {
         data: {
           blogUrl: 'https://a.com',
           name: 'Old Name',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://a.com/rss',
         },
@@ -324,6 +337,7 @@ describe('BlogSources (e2e)', () => {
         data: {
           blogUrl: 'https://a.com',
           name: 'Source A',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://a.com/rss',
         },
@@ -333,6 +347,7 @@ describe('BlogSources (e2e)', () => {
         data: {
           blogUrl: 'https://b.com',
           name: 'Source B',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://b.com/rss',
         },
@@ -358,6 +373,7 @@ describe('BlogSources (e2e)', () => {
         data: {
           blogUrl: 'https://a.com',
           name: 'To Delete',
+          region: RegionType.KOREA,
           type: FeedType.RSS,
           url: 'https://a.com/rss',
         },

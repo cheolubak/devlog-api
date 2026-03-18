@@ -1,9 +1,10 @@
-import { FeedType } from '../../src/database/generated/prisma';
+import { FeedType, RegionType } from '../../src/database/generated/prisma';
 
 export function createAtomBlogSourceDto(overrides?: Record<string, any>) {
   return {
     blogUrl: 'https://example-atom.com',
     name: 'Test Atom Blog',
+    region: RegionType.KOREA,
     type: FeedType.ATOM,
     url: 'https://example-atom.com/atom.xml',
     ...overrides,
@@ -14,6 +15,7 @@ export function createRssBlogSourceDto(overrides?: Record<string, any>) {
   return {
     blogUrl: 'https://example-blog.com',
     name: 'Test RSS Blog',
+    region: RegionType.KOREA,
     type: FeedType.RSS,
     url: 'https://example-blog.com/rss',
     ...overrides,
@@ -24,6 +26,7 @@ export function createScrapingBlogSourceDto(overrides?: Record<string, any>) {
   return {
     blogUrl: 'https://example-scrape.com',
     name: 'Test Scraping Blog',
+    region: RegionType.KOREA,
     scrapingConfig: {
       listSelector: '.post-item',
       renderMode: 'static',
@@ -42,6 +45,7 @@ export function createYoutubeBlogSourceDto(overrides?: Record<string, any>) {
   return {
     blogUrl: 'https://youtube.com/@testchannel',
     name: 'Test YouTube Channel',
+    region: RegionType.FOREIGN,
     type: FeedType.YOUTUBE,
     url: 'https://youtube.com/@testchannel',
     ...overrides,
