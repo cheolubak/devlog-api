@@ -22,13 +22,13 @@ export class AdminGuard implements CanActivate {
       throw new InternalServerErrorException();
     }
 
-    const apiKeyBuf = Buffer.from(apiKey ?? '');
-    const adminKeyBuf = Buffer.from(adminApiKey);
     if (
-      apiKeyBuf.length !== adminKeyBuf.length ||
-      !timingSafeEqual(apiKeyBuf, adminKeyBuf)
+      !apiKey ||
+      typeof apiKey !== 'string' ||
+      apiKey.length !== adminApiKey.length ||
+      !timingSafeEqual(Buffer.from(apiKey), Buffer.from(adminApiKey))
     ) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid admin API key');
     }
 
     return true;
