@@ -8,6 +8,7 @@ import { TranslateModule } from '../translate/translate.module';
 import { PostEventListener } from './listeners/post-event.listener';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
+import { ViewHistoryCleanupService } from './services/view-history-cleanup.service';
 
 @Module({
   controllers: [PostsController],
@@ -19,6 +20,6 @@ import { PostsService } from './posts.service';
     AuthModule,
     TranslateModule,
   ],
-  providers: [PostEventListener, PostsService],
+  providers: [PostEventListener, PostsService, ViewHistoryCleanupService],
 })
 export class PostsModule {}
