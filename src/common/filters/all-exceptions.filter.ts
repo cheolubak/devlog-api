@@ -14,41 +14,66 @@ import { Prisma } from '../../database/generated/prisma/client';
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
+  private handlePrismaError(exception: Prisma.PrismaClientKnownRequestError): {
+    message: string;
+    statusCode: number;
+  } {
+    switch (exception.code) {
+      case 'P2002':
+        return {
+          message: 'A record with this value already exists',
+          statusCode: HttpStatus.CONFLICT,
+        };
+      case 'P2025':
+        return {
+          message: 'Record not found',
+          statusCode: HttpStatus.NOT_FOUND,
+        };
+      default:
+        return {
+          message: 'Internal server error',
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        };
+    }
+  }
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    const statusCode =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    const message =
-      exception instanceof HttpException
-        ? exception.message
-        : 'Internal server error';
+    let statusCode: number;
+    let message: string;
 
     if (exception instanceof HttpException) {
+      statusCode = exception.getStatus();
+      message = exception.message;
       this.logger.error(`Unhandled Http exception: ${exception.message}`, {
         response: exception.getResponse(),
         status: exception.getStatus(),
       });
     } else if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+      const mapped = this.handlePrismaError(exception);
+      statusCode = mapped.statusCode;
+      message = mapped.message;
       this.logger.error(
         `Unhandled Prisma exception [${exception.code}]: ${exception.message}`,
-        exception.stack,
       );
     } else if (exception instanceof Error) {
+      statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+      message = 'Internal server error';
       this.logger.error(
         `Unhandled exception: ${exception.message}`,
         exception.stack,
       );
     } else {
+      statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+      message = 'Internal server error';
       this.logger.error(`Unhandled unknown exception: ${String(exception)}`);
     }
 
     response.status(statusCode).json({
       message,
+      statusCode,
       timestamp: new Date().toISOString(),
     });
   }
