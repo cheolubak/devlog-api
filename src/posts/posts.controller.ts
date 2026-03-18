@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Put,
@@ -54,7 +55,7 @@ export class PostsController {
   @Put(':id/keywords')
   @UseGuards(AdminGuard)
   updateKeywords(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() { keywords }: UpdateKeywordDto,
   ) {
     return this.postsService.updateKeywords(id, keywords);
@@ -69,13 +70,13 @@ export class PostsController {
   @CacheTTL(60 * 1000)
   @Get(':id')
   @UseInterceptors(CacheInterceptor)
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.postsService.findOne(id);
   }
 
   @Put(':id/view')
   @UseGuards(UsersGuard)
-  viewPosts(@Req() req, @Param('id') id: string) {
+  viewPosts(@Req() req, @Param('id', ParseUUIDPipe) id: string) {
     const user = req.user;
     const sessionId = req.headers['sessionid'];
 
@@ -84,7 +85,7 @@ export class PostsController {
 
   @Post(':id/bookmarks')
   @UseGuards(AuthGuard)
-  bookmarkPost(@Req() req, @Param('id') id: string) {
+  bookmarkPost(@Req() req, @Param('id', ParseUUIDPipe) id: string) {
     const user = req.user;
 
     return this.postsService.bookmarkPost({ id, user });
@@ -93,7 +94,7 @@ export class PostsController {
   @Patch(':id/display')
   @UseGuards(AdminGuard)
   updateDisplay(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDisplayDto: UpdateDisplayDto,
   ) {
     return this.postsService.updateDisplay(id, updateDisplayDto.isDisplay);
@@ -102,7 +103,7 @@ export class PostsController {
   @Put(':id/thumbnail')
   @UseGuards(AdminGuard)
   updateThumbnail(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateThumbnailDto: UpdateThumbnailDto,
   ) {
     return this.postsService.updateThumbnail(id, updateThumbnailDto.imageUrl);
@@ -110,7 +111,7 @@ export class PostsController {
 
   @Delete(':id')
   @UseGuards(AdminGuard)
-  deletePost(@Param('id') id: string) {
+  deletePost(@Param('id', ParseUUIDPipe) id: string) {
     return this.postsService.deletePost(id);
   }
 }

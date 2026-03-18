@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -47,7 +48,7 @@ export class BlogSourcesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.blogSourcesService.findOne(id);
   }
 
@@ -61,7 +62,7 @@ export class BlogSourcesController {
   @UseGuards(AdminGuard)
   @UseInterceptors(FileInterceptor('image'))
   updateImage(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.blogSourcesService.updateThumbnailWithFile(id, file);
@@ -70,7 +71,7 @@ export class BlogSourcesController {
   @Patch(':id')
   @UseGuards(AdminGuard)
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateBlogSourceDto: UpdateBlogSourceDto,
   ) {
     return this.blogSourcesService.update(id, updateBlogSourceDto);
@@ -78,7 +79,7 @@ export class BlogSourcesController {
 
   @Delete(':id')
   @UseGuards(AdminGuard)
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.blogSourcesService.remove(id);
   }
 }

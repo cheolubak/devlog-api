@@ -1,4 +1,4 @@
-import { Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 
 import { AdminGuard } from '../auth/admin.guard';
@@ -11,7 +11,7 @@ export class FeedFetcherController {
   constructor(private readonly feedFetcherService: FeedFetcherService) {}
 
   @Post('fetch/:sourceId')
-  async fetchFromSource(@Param('sourceId') sourceId: string) {
+  async fetchFromSource(@Param('sourceId', ParseUUIDPipe) sourceId: string) {
     return this.feedFetcherService.fetchFromSource(sourceId);
   }
 
