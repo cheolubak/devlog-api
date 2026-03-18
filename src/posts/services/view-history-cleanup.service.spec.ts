@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -82,11 +83,15 @@ describe('ViewHistoryCleanupService', () => {
     });
 
     it('should handle errors gracefully', async () => {
+      jest.spyOn(Logger.prototype, 'error').mockImplementation();
+
       mockPrisma.postViewHistory.deleteMany.mockRejectedValue(
         new Error('Database connection lost'),
       );
 
       await expect(service.cleanup()).resolves.toBeUndefined();
+
+      jest.restoreAllMocks();
     });
 
     it('should not log when no records are deleted', async () => {
