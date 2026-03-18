@@ -426,7 +426,7 @@ export class FeedFetcherService {
           });
         } catch (error) {
           this.logger.warn(
-            `Failed to parse image URL for post ${post.id}: ${error.message}`,
+            `Failed to parse image URL for post ${post.id}: ${error instanceof Error ? error.message : error}`,
           );
         }
       }
