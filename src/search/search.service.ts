@@ -127,22 +127,14 @@ export class SearchService {
         WHERE pdl."postId" IS NULL
           AND p2."isDisplay" = true ${sourceWhere} ${typeWhere} ${regionWhere}
           AND (
-          coalesce (p.keywords
-            , '') || ' ' ||
-          coalesce (p2.title
-            , '') || ' ' ||
-          coalesce (p2.description
-            , '') || ' ' ||
-          coalesce (p2.tags
-            , '') || ' ' ||
-          coalesce (s.name
-            , '') || ' ' ||
-          coalesce (p2.title_en
-            , '') || ' ' ||
-          coalesce (p2.description_en
-            , '') || ' '
+            p2.title ILIKE ${pattern}
+            OR p2.description ILIKE ${pattern}
+            OR p2.title_en ILIKE ${pattern}
+            OR p2.description_en ILIKE ${pattern}
+            OR p2.tags ILIKE ${pattern}
+            OR p.keywords ILIKE ${pattern}
+            OR s.name ILIKE ${pattern}
           )
-          ILIKE ${pattern}
         ORDER BY p2."originalPublishedAt" DESC
           LIMIT ${limit}
         OFFSET ${skip}
@@ -158,14 +150,14 @@ export class SearchService {
           AND p2."isDisplay" = true
           ${sourceWhere} ${typeWhere} ${regionWhere}
           AND (
-          coalesce (p.keywords, '') || ' ' ||
-          coalesce (p2.title, '') || ' ' ||
-          coalesce (p2.description, '') || ' ' ||
-          coalesce (p2.tags, '') || ' ' ||
-          coalesce (s.name, '') || ' ' ||
-          coalesce (p2.title_en, '') || ' ' ||
-          coalesce (p2.description_en, '') || ' '
-          ) ILIKE ${pattern}
+            p2.title ILIKE ${pattern}
+            OR p2.description ILIKE ${pattern}
+            OR p2.title_en ILIKE ${pattern}
+            OR p2.description_en ILIKE ${pattern}
+            OR p2.tags ILIKE ${pattern}
+            OR p.keywords ILIKE ${pattern}
+            OR s.name ILIKE ${pattern}
+          )
       `,
     ]);
 
