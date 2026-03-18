@@ -13,11 +13,19 @@ import { SearchQueryDto } from './dto/search-query.dto';
 export class SearchService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private escapeLikePattern(input: string): string {
+    return input.replace(/[\\%_]/g, '\\$&');
+  }
+
   async search(query: SearchQueryDto) {
     const { limit = 20, offset = 0, q, region, sourceId, type } = query;
     const skip = offset * limit;
 
-    const pattern = `%${q.trim().split(/\s+/).join('%')}%`;
+    const pattern = `%${q
+      .trim()
+      .split(/\s+/)
+      .map((token) => this.escapeLikePattern(token))
+      .join('%')}%`;
 
     return await this.searchPostsInternal({
       limit,
@@ -40,7 +48,11 @@ export class SearchService {
     const { limit = 20, offset = 0, q } = query;
     const skip = offset * limit;
 
-    const pattern = `%${q.trim().split(/\s+/).join('%')}%`;
+    const pattern = `%${q
+      .trim()
+      .split(/\s+/)
+      .map((token) => this.escapeLikePattern(token))
+      .join('%')}%`;
 
     return await this.searchPostsInternal({
       limit,
@@ -127,13 +139,13 @@ export class SearchService {
         WHERE pdl."postId" IS NULL
           AND p2."isDisplay" = true ${sourceWhere} ${typeWhere} ${regionWhere}
           AND (
-            p2.title ILIKE ${pattern}
-            OR p2.description ILIKE ${pattern}
-            OR p2.title_en ILIKE ${pattern}
-            OR p2.description_en ILIKE ${pattern}
-            OR p2.tags ILIKE ${pattern}
-            OR p.keywords ILIKE ${pattern}
-            OR s.name ILIKE ${pattern}
+            p2.title ILIKE ${pattern} ESCAPE '\'
+            OR p2.description ILIKE ${pattern} ESCAPE '\'
+            OR p2.title_en ILIKE ${pattern} ESCAPE '\'
+            OR p2.description_en ILIKE ${pattern} ESCAPE '\'
+            OR p2.tags ILIKE ${pattern} ESCAPE '\'
+            OR p.keywords ILIKE ${pattern} ESCAPE '\'
+            OR s.name ILIKE ${pattern} ESCAPE '\'
           )
         ORDER BY p2."originalPublishedAt" DESC
           LIMIT ${limit}
@@ -150,13 +162,13 @@ export class SearchService {
           AND p2."isDisplay" = true
           ${sourceWhere} ${typeWhere} ${regionWhere}
           AND (
-            p2.title ILIKE ${pattern}
-            OR p2.description ILIKE ${pattern}
-            OR p2.title_en ILIKE ${pattern}
-            OR p2.description_en ILIKE ${pattern}
-            OR p2.tags ILIKE ${pattern}
-            OR p.keywords ILIKE ${pattern}
-            OR s.name ILIKE ${pattern}
+            p2.title ILIKE ${pattern} ESCAPE '\'
+            OR p2.description ILIKE ${pattern} ESCAPE '\'
+            OR p2.title_en ILIKE ${pattern} ESCAPE '\'
+            OR p2.description_en ILIKE ${pattern} ESCAPE '\'
+            OR p2.tags ILIKE ${pattern} ESCAPE '\'
+            OR p.keywords ILIKE ${pattern} ESCAPE '\'
+            OR s.name ILIKE ${pattern} ESCAPE '\'
           )
       `,
     ]);
@@ -213,7 +225,7 @@ export class SearchService {
         SELECT id, name, url, "blogUrl", type, icon
         FROM "BlogSource"
         WHERE "isActive" = true
-          AND name ILIKE ${pattern}
+          AND name ILIKE ${pattern} ESCAPE '\'
           AND type::text = ANY (${type})
         ORDER BY name ASC
           LIMIT ${limit}
@@ -223,7 +235,7 @@ export class SearchService {
         SELECT COUNT(*) AS count
         FROM "BlogSource"
         WHERE "isActive" = true
-          AND name ILIKE ${pattern}
+          AND name ILIKE ${pattern} ESCAPE '\'
       `,
     ]);
 
