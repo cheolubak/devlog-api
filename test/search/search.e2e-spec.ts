@@ -12,7 +12,6 @@ describe('Search (e2e)', () => {
   let prisma: PrismaService;
 
   let rssSource: any;
-  let youtubeSource: any;
 
   beforeAll(async () => {
     const testApp = await createTestApp();
@@ -34,16 +33,6 @@ describe('Search (e2e)', () => {
         region: RegionType.KOREA,
         type: FeedType.RSS,
         url: 'https://blog.com/rss',
-      },
-    });
-
-    youtubeSource = await prisma.blogSource.create({
-      data: {
-        blogUrl: 'https://youtube.com/@devch',
-        name: 'Dev Channel',
-        region: RegionType.FOREIGN,
-        type: FeedType.YOUTUBE,
-        url: 'https://youtube.com/@devch',
       },
     });
   });
@@ -68,9 +57,7 @@ describe('Search (e2e)', () => {
         .expect(200);
 
       expect(body.data.length).toBeGreaterThanOrEqual(1);
-      expect(body.data.some((p: any) => p.title.includes('NestJS'))).toBe(
-        true,
-      );
+      expect(body.data.some((p: any) => p.title.includes('NestJS'))).toBe(true);
     });
 
     it('should search posts by description', async () => {

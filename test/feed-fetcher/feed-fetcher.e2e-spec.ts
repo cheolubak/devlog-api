@@ -364,5 +364,4 @@ describe('FeedFetcher (e2e)', () => {
       expect(body.failed).toBe(1);
     });
   });
-
 });
