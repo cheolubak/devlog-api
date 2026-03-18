@@ -84,3 +84,27 @@ UX 전문가, 기술 아키텍트, 비판적 검토자, 최종 검토자 4명으
   - `b301bd5` perf: ILIKE 검색 성능 개선을 위한 pg_trgm GIN 인덱스 추가
   - `24cd24b` feat: 외부 API 일일 사용량 제한 추가
   - `bb31ae4` test: 핵심 서비스 유닛 테스트 추가 (31개)
+
+### P2 이슈 수정 (5건)
+
+- **변경 파일**:
+  - `src/search/search.service.ts` - 검색 쿼리를 OR 조건으로 리팩토링
+  - `src/main.ts` - Swagger DocumentBuilder 설정 추가
+  - 6개 컨트롤러 - @ApiTags, @ApiOperation, @ApiSecurity, @ApiBearerAuth 추가
+  - `src/posts/services/view-history-cleanup.service.ts` - 조회 기록 자동 정리 서비스 (신규)
+  - `.github/workflows/ci.yml` - CI 파이프라인 (신규)
+  - 3개 spec 파일 - 추가 유닛 테스트 (신규)
+
+- **내용**:
+  1. 검색 쿼리 리팩토링: 문자열 연결 → OR 조건으로 변경하여 pg_trgm 인덱스 활용 가능
+  2. Swagger/OpenAPI: /api-docs 경로에서 API 문서 제공, 인증 데코레이터 적용
+  3. PostViewHistory 보존: 90일(기본) 이상 된 조회 기록 매일 3AM 자동 삭제
+  4. CI/CD: GitHub Actions로 lint/build/test 자동 실행
+  5. 유닛 테스트 확대: 총 61개 (SearchService, ApiUsageService, AuthService 추가)
+
+- **커밋**:
+  - `602b161` perf: 검색 쿼리를 OR 조건으로 리팩토링
+  - `435c5df` feat: Swagger/OpenAPI 문서화 추가
+  - `7d71330` feat: PostViewHistory 보존 정책 추가
+  - `4f5e28c` ci: GitHub Actions CI 파이프라인 추가
+  - `44c912e` test: 유닛 테스트 확대
