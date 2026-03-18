@@ -490,7 +490,7 @@ export class PostsService {
     });
 
     if (isDelete) {
-      throw new BadRequestException();
+      throw new BadRequestException('This post has already been deleted');
     }
 
     return this.prisma.$transaction(async (tx) => {
