@@ -53,8 +53,10 @@ export class FeedParserService {
         link: feed.link,
         title: feed.title,
       };
-    } catch (error) {
-      this.logger.error(`Failed to parse feed ${url}: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(
+        `Failed to parse feed ${url}: ${(error as Error).message}`,
+      );
       throw error;
     }
   }

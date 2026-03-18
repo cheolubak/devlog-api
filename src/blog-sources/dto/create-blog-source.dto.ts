@@ -18,7 +18,7 @@ export class CreateBlogSourceDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(100)
-  name: string;
+  name!: string;
 
   @IsObject()
   @Type(() => ScrapingConfigDto)
@@ -27,21 +27,21 @@ export class CreateBlogSourceDto {
   scrapingConfig?: ScrapingConfigDto;
 
   @IsEnum(FeedType)
-  type: FeedType;
+  type!: FeedType;
 
   @IsNotEmpty()
   @IsUrl()
   @MaxLength(500)
-  url: string;
+  url!: string;
 
   @IsNotEmpty()
   @IsUrl()
   @MaxLength(500)
-  blogUrl: string;
+  blogUrl!: string;
 
   @IsEnum(RegionType)
   @IsNotEmpty()
-  region: RegionType;
+  region!: RegionType;
 
   @IsOptional()
   @IsString()

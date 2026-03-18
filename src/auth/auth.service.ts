@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { createHmac } from 'crypto';
@@ -55,6 +55,10 @@ export class AuthService {
 
   async refreshToken({ refreshToken, sessionId }: RefreshTokenDto) {
     const user = await this.validateRefreshTokenUser(refreshToken, sessionId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
 
     return await this.generateToken(user.id, sessionId);
   }
@@ -116,7 +120,7 @@ export class AuthService {
   }
 
   private deriveRefreshSecret(sessionId: string): string {
-    const jwtSecret = this.configService.get<string>('JWT_SECRET');
+    const jwtSecret = this.configService.get<string>('JWT_SECRET')!;
     return createHmac('sha256', jwtSecret).update(sessionId).digest('hex');
   }
 
@@ -174,13 +178,13 @@ export class AuthService {
 
     return {
       email:
-        kakaoUser.kakao_account.is_email_valid &&
-        kakaoUser.kakao_account.is_email_verified
-          ? kakaoUser.kakao_account.email
+        kakaoUser.kakao_account?.is_email_valid &&
+        kakaoUser.kakao_account?.is_email_verified
+          ? (kakaoUser.kakao_account.email ?? null)
           : null,
-      nickname: kakaoUser.kakao_account.profile.nickname,
+      nickname: kakaoUser.kakao_account?.profile?.nickname ?? '',
       profileImageUrl:
-        kakaoUser.kakao_account.profile.thumbnail_image_url || null,
+        kakaoUser.kakao_account?.profile?.thumbnail_image_url ?? null,
       socialId: kakaoUser.id.toString(),
       socialType: 'KAKAO',
     };
@@ -214,7 +218,7 @@ export class AuthService {
       .then((res) => res.data);
 
     return {
-      email: githubUser.email,
+      email: githubUser.email ?? null,
       nickname: githubUser.name,
       profileImageUrl: githubUser.avatar_url || null,
       socialId: githubUser.id.toString(),

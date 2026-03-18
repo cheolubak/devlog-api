@@ -50,7 +50,7 @@ export class FeedFetcherService {
         await this.blogSourcesService.updateFetchStatus(
           sourceId,
           FetchStatus.SUCCESS,
-          null,
+          undefined,
           0,
         );
         return { message: 'No new items', newPostsCount: 0, success: true };
@@ -82,7 +82,9 @@ export class FeedFetcherService {
       await this.blogSourcesService.updateFetchStatus(
         sourceId,
         status,
-        failureCount > 0 ? `${failureCount} items failed to process` : null,
+        failureCount > 0
+          ? `${failureCount} items failed to process`
+          : undefined,
         successCount,
       );
 
@@ -96,16 +98,16 @@ export class FeedFetcherService {
         newPostsCount: successCount,
         success: true,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Error fetching from source ${source.name}: ${error.message}`,
+        `Error fetching from source ${source.name}: ${(error as Error).message}`,
       );
       await this.blogSourcesService.updateFetchStatus(
         sourceId,
         FetchStatus.FAILED,
-        error.message,
+        (error as Error).message,
       );
-      return { message: error.message, success: false };
+      return { message: (error as Error).message, success: false };
     }
   }
 
@@ -165,9 +167,9 @@ export class FeedFetcherService {
       try {
         await this.fetchFromSource(source.sourceId, true);
         processedSourceIds.push(source.sourceId);
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `Failed to fetch source ${source.sourceId}: ${error.message}`,
+          `Failed to fetch source ${source.sourceId}: ${(error as Error).message}`,
         );
       }
     }
@@ -229,10 +231,10 @@ export class FeedFetcherService {
         });
 
         successCount++;
-      } catch (error) {
+      } catch (error: unknown) {
         failCount++;
         this.logger.warn(
-          `Failed to translate post ${post.id}: ${error.message}`,
+          `Failed to translate post ${post.id}: ${(error as Error).message}`,
         );
       }
     }
@@ -262,9 +264,9 @@ export class FeedFetcherService {
         if (result.success) {
           successCount++;
         }
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.error(
-          `Failed to fetch source ${source.name}: ${error.message}`,
+          `Failed to fetch source ${source.name}: ${(error as Error).message}`,
         );
       }
     }
@@ -371,24 +373,21 @@ export class FeedFetcherService {
           description =
             (await this.translateService.translate(description, 'ko')) ??
             description;
-        } catch (error) {
+        } catch (error: unknown) {
           this.logger.warn(
-            `Translation failed for "${title}": ${error.message}`,
+            `Translation failed for "${title}": ${(error as Error).message}`,
           );
         }
       } else {
         try {
-          const rawTitleEn = await this.translateService.translate(title, 'en');
-          titleEn = rawTitleEn
-            ? FeedNormalizerUtil.truncateText(rawTitleEn, 300)
-            : null;
-          descriptionEn = await this.translateService.translate(
-            description,
-            'en',
-          );
-        } catch (error) {
+          titleEn =
+            (await this.translateService.translate(title, 'en')) ?? titleEn;
+          descriptionEn =
+            (await this.translateService.translate(description, 'en')) ??
+            descriptionEn;
+        } catch (error: unknown) {
           this.logger.warn(
-            `Translation failed for "${title}": ${error.message}`,
+            `Translation failed for "${title}": ${(error as Error).message}`,
           );
         }
       }
@@ -438,17 +437,20 @@ export class FeedFetcherService {
 
       if (useAi && isTechPost) {
         await this.extractAndSaveKeywords(post.id, post.title, item.link).catch(
-          (error) => {
+          (error: unknown) => {
             this.logger.warn(
-              `Keyword extraction failed for post ${post.id}: ${error.message}`,
+              `Keyword extraction failed for post ${post.id}: ${(error as Error).message}`,
             );
           },
         );
       }
 
       return { created: true, post };
-    } catch (e) {
-      this.logger.error(`Failed to process feed item: ${e.message}`, e.stack);
+    } catch (e: unknown) {
+      this.logger.error(
+        `Failed to process feed item: ${(e as Error).message}`,
+        (e as Error).stack,
+      );
       throw e;
     }
   }
@@ -489,8 +491,10 @@ export class FeedFetcherService {
           where: { name: tagName },
         });
         tagIds.push(tag.id);
-      } catch (error) {
-        this.logger.warn(`Failed to create tag ${tagName}: ${error.message}`);
+      } catch (error: unknown) {
+        this.logger.warn(
+          `Failed to create tag ${tagName}: ${(error as Error).message}`,
+        );
       }
     }
 
@@ -500,8 +504,10 @@ export class FeedFetcherService {
           data: tagIds.map((tagId) => ({ postId, tagId })),
           skipDuplicates: true,
         })
-        .catch((error) => {
-          this.logger.warn(`Failed to create postTags: ${error.message}`);
+        .catch((error: unknown) => {
+          this.logger.warn(
+            `Failed to create postTags: ${(error as Error).message}`,
+          );
         });
     }
   }

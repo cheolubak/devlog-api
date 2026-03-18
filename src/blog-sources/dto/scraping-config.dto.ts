@@ -28,7 +28,7 @@ export class ScrapingSelectorsDto {
 
   @IsNotEmpty()
   @IsString()
-  link: string;
+  link!: string;
 
   @IsOptional()
   @IsString()
@@ -36,7 +36,7 @@ export class ScrapingSelectorsDto {
 
   @IsNotEmpty()
   @IsString()
-  title: string;
+  title!: string;
 
   [key: string]: string | undefined;
 }
@@ -48,14 +48,14 @@ export class ScrapingConfigDto {
 
   @IsNotEmpty()
   @IsString()
-  listSelector: string;
+  listSelector!: string;
 
   @IsIn(['static', 'dynamic'])
-  renderMode: 'dynamic' | 'static';
+  renderMode!: 'dynamic' | 'static';
 
   @Type(() => ScrapingSelectorsDto)
   @ValidateNested()
-  selectors: ScrapingSelectorsDto;
+  selectors!: ScrapingSelectorsDto;
 
   @IsInt()
   @IsOptional()

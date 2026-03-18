@@ -1,7 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
-import { FeedType, RegionType } from '../../src/database/generated/prisma';
+import {
+  FeedType,
+  RegionType,
+} from '../../src/database/generated/prisma/client';
 import { PrismaService } from '../../src/database/prisma.service';
 import {
   createRssBlogSourceDto,
@@ -174,7 +177,6 @@ describe('BlogSources (e2e)', () => {
 
       await prisma.posts.create({
         data: {
-          content: 'content',
           sourceId: source.id,
           sourceUrl: 'https://a.com/post-1',
           title: 'Post 1',
@@ -286,7 +288,6 @@ describe('BlogSources (e2e)', () => {
 
       await prisma.posts.create({
         data: {
-          content: 'content',
           originalPublishedAt: new Date(),
           sourceId: source.id,
           sourceUrl: 'https://a.com/post-1',
@@ -388,7 +389,7 @@ describe('BlogSources (e2e)', () => {
       const updated = await prisma.blogSource.findUnique({
         where: { id: source.id },
       });
-      expect(updated.isActive).toBe(false);
+      expect(updated!.isActive).toBe(false);
     });
 
     it('should return 404 for non-existent id', async () => {

@@ -63,7 +63,7 @@ export class PostsService {
     };
   }
 
-  private async findPostsWithCount<T>({
+  private async findPostsWithCount({
     limit,
     offset,
     orderBy,
@@ -75,20 +75,20 @@ export class PostsService {
     orderBy:
       | Prisma.PostsOrderByWithRelationInput
       | Prisma.PostsOrderByWithRelationInput[];
-    select: T;
+    select: object;
     where: Prisma.PostsWhereInput;
-  }): Promise<[Posts[], number]> {
+  }) {
     return Promise.all([
       this.prisma.posts.findMany({
         orderBy: orderBy,
         relationLoadStrategy: 'join',
-        select,
+        select: select as any,
         skip: offset * limit,
         take: limit,
         where,
       }),
       this.prisma.posts.count({ where }),
-    ]);
+    ]) as unknown as Promise<[Posts[], number]>;
   }
 
   async findDisplayPosts({
@@ -333,9 +333,9 @@ export class PostsService {
       });
 
       return updated;
-    } catch (e) {
+    } catch (e: unknown) {
       this.logger.error(
-        `Failed to update thumbnail for post ${id} : ${e.message}`,
+        `Failed to update thumbnail for post ${id} : ${(e as Error).message}`,
       );
       return null;
     }
@@ -384,9 +384,9 @@ export class PostsService {
             });
           }
         })
-        .catch((error) => {
+        .catch((error: unknown) => {
           this.logger.error(
-            `Keyword extraction failed for post ${id}: ${error.message}`,
+            `Keyword extraction failed for post ${id}: ${(error as Error).message}`,
           );
         });
     }
@@ -559,7 +559,13 @@ export class PostsService {
 
     const results = await processInChunks(
       posts,
-      async (post) => this.updateThumbnail(post.id, post.imageUrl),
+      async (post) => {
+        const baseUrl = new URL(post.source!.blogUrl).origin;
+        const imageUrl = post.imageUrl!.startsWith('https')
+          ? post.imageUrl!
+          : `${baseUrl}${post.imageUrl!.startsWith('/') ? post.imageUrl! : `/${post.imageUrl!}`}`;
+        return this.updateThumbnail(post.id, imageUrl);
+      },
       5,
     );
 

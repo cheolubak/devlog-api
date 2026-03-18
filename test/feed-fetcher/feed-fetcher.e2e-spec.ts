@@ -5,7 +5,7 @@ import {
   FeedType,
   FetchStatus,
   RegionType,
-} from '../../src/database/generated/prisma';
+} from '../../src/database/generated/prisma/client';
 import { PrismaService } from '../../src/database/prisma.service';
 import { FeedParserService } from '../../src/feed-fetcher/feed-parser.service';
 import { WebScraperService } from '../../src/feed-fetcher/web-scraper.service';
@@ -73,8 +73,8 @@ describe('FeedFetcher (e2e)', () => {
       const updatedSource = await prisma.blogSource.findUnique({
         where: { id: source.id },
       });
-      expect(updatedSource.lastFetchStatus).toBe(FetchStatus.SUCCESS);
-      expect(updatedSource.totalPostsFetched).toBe(2);
+      expect(updatedSource!.lastFetchStatus).toBe(FetchStatus.SUCCESS);
+      expect(updatedSource!.totalPostsFetched).toBe(2);
     });
 
     it('should skip duplicate posts', async () => {
@@ -90,7 +90,6 @@ describe('FeedFetcher (e2e)', () => {
 
       await prisma.posts.create({
         data: {
-          content: 'existing',
           sourceId: source.id,
           sourceUrl: 'https://example-blog.com/post-1',
           title: 'Existing Post',
@@ -177,8 +176,8 @@ describe('FeedFetcher (e2e)', () => {
       const updatedSource = await prisma.blogSource.findUnique({
         where: { id: source.id },
       });
-      expect(updatedSource.lastFetchStatus).toBe(FetchStatus.FAILED);
-      expect(updatedSource.lastFetchError).toContain('Failed to parse feed');
+      expect(updatedSource!.lastFetchStatus).toBe(FetchStatus.FAILED);
+      expect(updatedSource!.lastFetchError).toContain('Failed to parse feed');
     });
   });
 
@@ -233,7 +232,7 @@ describe('FeedFetcher (e2e)', () => {
       const updatedSource = await prisma.blogSource.findUnique({
         where: { id: source.id },
       });
-      expect((updatedSource.metadata as any)?.channelId).toBe(
+      expect((updatedSource!.metadata as any)?.channelId).toBe(
         'UC_test_channel_id',
       );
     });

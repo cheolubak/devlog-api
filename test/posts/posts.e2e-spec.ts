@@ -1,7 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
-import { FeedType, RegionType } from '../../src/database/generated/prisma';
+import {
+  FeedType,
+  RegionType,
+} from '../../src/database/generated/prisma/client';
 import { PrismaService } from '../../src/database/prisma.service';
 import {
   createDisplayPostData,
@@ -309,7 +312,7 @@ describe('Posts (e2e)', () => {
         where: { postId: post.id },
       });
       expect(log).toBeDefined();
-      expect(log.postId).toBe(post.id);
+      expect(log!.postId).toBe(post.id);
     });
 
     it('should return 400 for already deleted post', async () => {

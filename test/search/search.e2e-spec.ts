@@ -1,7 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
-import { FeedType, RegionType } from '../../src/database/generated/prisma';
+import {
+  FeedType,
+  RegionType,
+} from '../../src/database/generated/prisma/client';
 import { PrismaService } from '../../src/database/prisma.service';
 import { createDisplayPostData } from '../fixtures/post.fixtures';
 import { createTestApp } from '../helpers/test-app.helper';

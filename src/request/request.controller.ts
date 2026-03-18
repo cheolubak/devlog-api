@@ -1,6 +1,8 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Request } from 'express';
 
 import { UsersGuard } from '../auth/users.guard';
+import { Users } from '../database/generated/prisma/client';
 import { RequestDto } from './dto/request.dto';
 import { RequestService } from './request.service';
 
@@ -10,7 +12,10 @@ export class RequestController {
 
   @Post('blogs')
   @UseGuards(UsersGuard)
-  async requestBlog(@Req() req, @Body() dto: RequestDto) {
+  async requestBlog(
+    @Req() req: Request & { user?: Users },
+    @Body() dto: RequestDto,
+  ) {
     const user = req.user;
 
     return this.requestService.requestBlogs({ dto, user });
@@ -18,7 +23,10 @@ export class RequestController {
 
   @Post('youtubes')
   @UseGuards(UsersGuard)
-  async requestYoutubes(@Req() req, @Body() dto: RequestDto) {
+  async requestYoutubes(
+    @Req() req: Request & { user?: Users },
+    @Body() dto: RequestDto,
+  ) {
     const user = req.user;
 
     return this.requestService.requestYoutubes({ dto, user });

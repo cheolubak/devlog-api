@@ -19,8 +19,10 @@ export class FeedSchedulerService {
 
     try {
       await this.feedFetcherService.setFetchActiveSources();
-    } catch (error) {
-      this.logger.error(`Scheduled feed queue update failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(
+        `Scheduled feed queue update failed: ${(error as Error).message}`,
+      );
       await this.tryReconnect(error);
     }
   }
@@ -31,27 +33,30 @@ export class FeedSchedulerService {
 
     try {
       await this.feedFetcherService.fetchSourcesFromQueue();
-    } catch (error) {
-      this.logger.error(`Scheduled fetch failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Scheduled fetch failed: ${(error as Error).message}`);
       await this.tryReconnect(error);
     }
   }
 
-  private async tryReconnect(error: Error) {
+  private async tryReconnect(error: unknown) {
+    const errorMessage = (error as Error).message;
     const isDbConnectionError =
-      error.message?.includes("Can't reach database server") ||
-      error.message?.includes(
+      errorMessage?.includes("Can't reach database server") ||
+      errorMessage?.includes(
         'Timed out fetching a new connection from the connection pool',
       ) ||
-      error.message?.includes('Server has closed the connection');
+      errorMessage?.includes('Server has closed the connection');
 
     if (isDbConnectionError) {
       this.logger.warn('DB connection issue, attempting reconnect...');
       try {
         await this.prisma.reconnect();
         this.logger.log('DB reconnect successful');
-      } catch (reconnectError) {
-        this.logger.error(`DB reconnect failed: ${reconnectError.message}`);
+      } catch (reconnectError: unknown) {
+        this.logger.error(
+          `DB reconnect failed: ${(reconnectError as Error).message}`,
+        );
       }
     }
   }

@@ -7,6 +7,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { Users } from '../database/generated/prisma/client';
 import { AuthGuard } from './auth.guard';
@@ -45,7 +46,7 @@ export class AuthController {
 
   @Delete('leave')
   @UseGuards(AuthGuard)
-  leave(@Req() req) {
+  leave(@Req() req: Request & { user: Users }) {
     const user: Users = req.user;
 
     return this.authService.leave(user);
@@ -53,7 +54,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AuthGuard)
-  getMe(@Req() req) {
+  getMe(@Req() req: Request & { user: Users }) {
     const user: Users = req.user;
 
     return {

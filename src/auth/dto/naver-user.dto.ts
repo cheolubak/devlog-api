@@ -1,5 +1,4 @@
-export class NaverUserDto {
-  resultcode: '00' | string;
+export interface NaverUserDto {
   message: 'success' | string;
   response: {
     email: string;
@@ -7,4 +6,5 @@ export class NaverUserDto {
     nickname: string;
     profile_image?: string;
   };
+  resultcode: '00' | string;
 }

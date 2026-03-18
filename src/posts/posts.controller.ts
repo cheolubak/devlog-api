@@ -14,10 +14,12 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { AdminGuard } from '../auth/admin.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { UsersGuard } from '../auth/users.guard';
+import { Users } from '../database/generated/prisma/client';
 import { PostQueryDto } from './dto/post-query.dto';
 import { UpdateDisplayDto } from './dto/update-display.dto';
 import { UpdateKeywordDto } from './dto/update-keyword.dto';
@@ -30,7 +32,10 @@ export class PostsController {
 
   @Get()
   @UseGuards(UsersGuard)
-  findDisplay(@Req() req, @Query() query: PostQueryDto) {
+  findDisplay(
+    @Req() req: Request & { user?: Users },
+    @Query() query: PostQueryDto,
+  ) {
     const user = req.user;
 
     return this.postsService.findDisplayPosts({ query, user });
@@ -38,7 +43,10 @@ export class PostsController {
 
   @Get('bookmarks')
   @UseGuards(AuthGuard)
-  findDisplayWithBookmark(@Req() req, @Query() query: PostQueryDto) {
+  findDisplayWithBookmark(
+    @Req() req: Request & { user: Users },
+    @Query() query: PostQueryDto,
+  ) {
     const user = req.user;
 
     return this.postsService.findDisplayBookmarks({ query, user });
@@ -76,16 +84,22 @@ export class PostsController {
 
   @Put(':id/view')
   @UseGuards(UsersGuard)
-  viewPosts(@Req() req, @Param('id', ParseUUIDPipe) id: string) {
+  viewPosts(
+    @Req() req: Request & { user?: Users },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     const user = req.user;
-    const sessionId = req.headers['sessionid'];
+    const sessionId = req.headers['sessionid'] as string;
 
     return this.postsService.viewPost({ id, sessionId, user });
   }
 
   @Post(':id/bookmarks')
   @UseGuards(AuthGuard)
-  bookmarkPost(@Req() req, @Param('id', ParseUUIDPipe) id: string) {
+  bookmarkPost(
+    @Req() req: Request & { user: Users },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     const user = req.user;
 
     return this.postsService.bookmarkPost({ id, user });

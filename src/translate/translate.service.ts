@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 export class TranslateService implements OnModuleInit {
   private readonly logger = new Logger(TranslateService.name);
   private translationClient: null | TranslationServiceClient = null;
-  private parent: string;
+  private parent!: string;
 
   constructor(private readonly configService: ConfigService) {}
 

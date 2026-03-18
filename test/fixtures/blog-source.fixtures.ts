@@ -1,4 +1,7 @@
-import { FeedType, RegionType } from '../../src/database/generated/prisma';
+import {
+  FeedType,
+  RegionType,
+} from '../../src/database/generated/prisma/client';
 
 export function createAtomBlogSourceDto(overrides?: Record<string, any>) {
   return {

@@ -53,9 +53,9 @@ export class KeywordExtractorService {
       }
 
       return textBlock.text.trim().toLowerCase() === 'true';
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to determine tech blog for "${title}": ${error.message}`,
+        `Failed to determine tech blog for "${title}": ${(error as Error).message}`,
       );
       return false;
     }
@@ -115,6 +115,7 @@ export class KeywordExtractorService {
         !keywordContent ||
         !('input' in keywordContent) ||
         typeof keywordContent.input !== 'object' ||
+        keywordContent.input === null ||
         !('keywords' in keywordContent.input) ||
         typeof keywordContent.input.keywords !== 'string'
       ) {
@@ -122,9 +123,9 @@ export class KeywordExtractorService {
       }
 
       return keywordContent.input.keywords || null;
-    } catch (error) {
+    } catch (error: unknown) {
       this.logger.error(
-        `Failed to extract keywords for "${title}": ${error.message}`,
+        `Failed to extract keywords for "${title}": ${(error as Error).message}`,
       );
       return null;
     }
@@ -148,8 +149,10 @@ export class KeywordExtractorService {
         $('article').text() || $('main').text() || $('body').text();
 
       return bodyText.replace(/\s+/g, ' ').trim() || null;
-    } catch (error) {
-      this.logger.warn(`Failed to fetch page ${url}: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.warn(
+        `Failed to fetch page ${url}: ${(error as Error).message}`,
+      );
       return null;
     }
   }

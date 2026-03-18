@@ -14,7 +14,7 @@ import { FeedType, RegionType } from '../../database/generated/prisma/enums';
 export class SearchQueryDto {
   @IsString()
   @MinLength(2)
-  q: string;
+  q!: string;
 
   @IsInt()
   @Max(100)

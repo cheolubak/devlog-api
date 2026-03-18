@@ -1,13 +1,8 @@
-export class KakaoUserDto {
-  id: number;
-  has_signed_up?: boolean;
+export interface KakaoUserDto {
   connected_at?: string;
-  synched_at?: string;
-  properties?: {
-    nickname?: string;
-    profile_image?: string;
-    thumbnail_image?: string;
-  };
+  for_partner?: Record<string, never>;
+  has_signed_up?: boolean;
+  id: number;
   kakao_account?: {
     age_range?: string;
     age_range_needs_agreement?: boolean;
@@ -40,5 +35,10 @@ export class KakaoUserDto {
     profile_needs_agreement?: boolean;
     profile_nickname_needs_agreement?: boolean;
   };
-  for_partner?: Record<string, never>;
+  properties?: {
+    nickname?: string;
+    profile_image?: string;
+    thumbnail_image?: string;
+  };
+  synched_at?: string;
 }

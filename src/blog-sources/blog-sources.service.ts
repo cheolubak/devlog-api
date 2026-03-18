@@ -219,9 +219,9 @@ export class BlogSourcesService {
       });
 
       return updated;
-    } catch (e) {
+    } catch (e: unknown) {
       this.logger.error(
-        `Failed to update icon for source ${id} : ${e.message}`,
+        `Failed to update icon for source ${id} : ${(e as Error).message}`,
       );
       return null;
     }
@@ -247,9 +247,9 @@ export class BlogSourcesService {
       sources,
       async (source) => {
         const sourceUrl = source.blogUrl.split('/').at(0) ?? '';
-        const imageUrl = source.icon.startsWith('https')
-          ? source.icon
-          : `${sourceUrl}${source.icon.startsWith('/') ? source.icon : `/${source.icon}`}`;
+        const imageUrl = source.icon!.startsWith('https')
+          ? source.icon!
+          : `${sourceUrl}${source.icon!.startsWith('/') ? source.icon! : `/${source.icon!}`}`;
         return this.updateThumbnail(source.id, imageUrl);
       },
       5,
@@ -280,9 +280,9 @@ export class BlogSourcesService {
       });
 
       return updated;
-    } catch (e) {
+    } catch (e: unknown) {
       this.logger.error(
-        `Failed to update icon for source ${id} : ${e.message}`,
+        `Failed to update icon for source ${id} : ${(e as Error).message}`,
       );
       return null;
     }

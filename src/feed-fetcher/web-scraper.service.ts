@@ -61,8 +61,8 @@ export class WebScraperService implements OnModuleDestroy {
         if (item && item.link && item.title) {
           items.push(item);
         }
-      } catch (error) {
-        this.logger.warn(`Failed to extract item: ${error.message}`);
+      } catch (error: unknown) {
+        this.logger.warn(`Failed to extract item: ${(error as Error).message}`);
       }
     });
 

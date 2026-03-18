@@ -4,5 +4,5 @@ export class UpdateThumbnailDto {
   @IsNotEmpty()
   @IsString()
   @IsUrl()
-  imageUrl: string;
+  imageUrl!: string;
 }

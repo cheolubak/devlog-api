@@ -4,10 +4,10 @@ export class RequestDto {
   @IsNotEmpty()
   @IsString()
   @IsUrl()
-  url: string;
+  url!: string;
 
   @IsEmail()
   @IsNotEmpty()
   @IsString()
-  email: string;
+  email!: string;
 }

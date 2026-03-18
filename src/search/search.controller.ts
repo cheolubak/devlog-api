@@ -7,8 +7,10 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import { AuthGuard } from '../auth/auth.guard';
+import { Users } from '../database/generated/prisma/client';
 import { SearchQueryDto } from './dto/search-query.dto';
 import { SearchService } from './search.service';
 
@@ -25,7 +27,10 @@ export class SearchController {
 
   @Get('bookmarks')
   @UseGuards(AuthGuard)
-  searchBookmarkPosts(@Req() req, @Query() query: SearchQueryDto) {
+  searchBookmarkPosts(
+    @Req() req: Request & { user: Users },
+    @Query() query: SearchQueryDto,
+  ) {
     const user = req.user;
     return this.searchService.searchBookmarks({ query, user });
   }

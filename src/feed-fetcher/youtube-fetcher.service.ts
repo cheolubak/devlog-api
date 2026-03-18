@@ -134,7 +134,7 @@ export class YoutubeFetcherService {
     if (options?.existingVideoUrls?.size) {
       newItems = newItems.filter(
         (item) =>
-          !options.existingVideoUrls.has(
+          !options.existingVideoUrls!.has(
             `https://www.youtube.com/watch?v=${item.snippet.resourceId.videoId}`,
           ),
       );
