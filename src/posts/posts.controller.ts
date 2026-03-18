@@ -14,6 +14,12 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AdminGuard } from '../auth/admin.guard';
@@ -26,10 +32,12 @@ import { UpdateKeywordDto } from './dto/update-keyword.dto';
 import { UpdateThumbnailDto } from './dto/update-thumbnail.dto';
 import { PostsService } from './posts.service';
 
+@ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @ApiOperation({ summary: '디스플레이 포스트 목록 조회' })
   @Get()
   @UseGuards(UsersGuard)
   findDisplay(
@@ -41,6 +49,8 @@ export class PostsController {
     return this.postsService.findDisplayPosts({ query, user });
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '북마크 포스트 목록 조회' })
   @Get('bookmarks')
   @UseGuards(AuthGuard)
   findDisplayWithBookmark(
@@ -52,6 +62,8 @@ export class PostsController {
     return this.postsService.findDisplayBookmarks({ query, user });
   }
 
+  @ApiOperation({ summary: '전체 포스트 목록 조회' })
+  @ApiSecurity('admin-api-key')
   @CacheTTL(60 * 1000)
   @Get('all')
   @UseGuards(AdminGuard)
@@ -60,6 +72,8 @@ export class PostsController {
     return this.postsService.findAll(query);
   }
 
+  @ApiOperation({ summary: '포스트 키워드 수정' })
+  @ApiSecurity('admin-api-key')
   @Put(':id/keywords')
   @UseGuards(AdminGuard)
   updateKeywords(
@@ -69,12 +83,15 @@ export class PostsController {
     return this.postsService.updateKeywords(id, keywords);
   }
 
+  @ApiOperation({ summary: '외부 이미지 포스트 업데이트' })
+  @ApiSecurity('admin-api-key')
   @Patch('need-image-update')
   @UseGuards(AdminGuard)
   updateNeedImageUpdate() {
     return this.postsService.updatePostsWithExternalImages();
   }
 
+  @ApiOperation({ summary: '포스트 상세 조회' })
   @CacheTTL(60 * 1000)
   @Get(':id')
   @UseInterceptors(CacheInterceptor)
@@ -82,6 +99,7 @@ export class PostsController {
     return this.postsService.findOne(id);
   }
 
+  @ApiOperation({ summary: '포스트 조회수 증가' })
   @Put(':id/view')
   @UseGuards(UsersGuard)
   viewPosts(
@@ -94,6 +112,8 @@ export class PostsController {
     return this.postsService.viewPost({ id, sessionId, user });
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '포스트 북마크 토글' })
   @Post(':id/bookmarks')
   @UseGuards(AuthGuard)
   bookmarkPost(
@@ -105,6 +125,8 @@ export class PostsController {
     return this.postsService.bookmarkPost({ id, user });
   }
 
+  @ApiOperation({ summary: '포스트 표시 여부 변경' })
+  @ApiSecurity('admin-api-key')
   @Patch(':id/display')
   @UseGuards(AdminGuard)
   updateDisplay(
@@ -114,6 +136,8 @@ export class PostsController {
     return this.postsService.updateDisplay(id, updateDisplayDto.isDisplay);
   }
 
+  @ApiOperation({ summary: '포스트 썸네일 수정' })
+  @ApiSecurity('admin-api-key')
   @Put(':id/thumbnail')
   @UseGuards(AdminGuard)
   updateThumbnail(
@@ -123,6 +147,8 @@ export class PostsController {
     return this.postsService.updateThumbnail(id, updateThumbnailDto.imageUrl);
   }
 
+  @ApiOperation({ summary: '포스트 삭제' })
+  @ApiSecurity('admin-api-key')
   @Delete(':id')
   @UseGuards(AdminGuard)
   deletePost(@Param('id', ParseUUIDPipe) id: string) {
