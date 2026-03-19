@@ -133,6 +133,11 @@ export class PostsController {
         'sessionid header must be a single string value',
       );
     }
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(rawSessionId)) {
+      throw new BadRequestException('sessionid must be a valid UUID');
+    }
 
     return this.postsService.viewPost({ id, sessionId: rawSessionId, user });
   }

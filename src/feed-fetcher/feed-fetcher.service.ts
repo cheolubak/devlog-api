@@ -225,7 +225,9 @@ export class FeedFetcherService {
         await this.prisma.posts.update({
           data: {
             description: translatedDescription,
+            descriptionEn: post.description,
             title: translatedTitle,
+            titleEn: post.title,
           },
           where: { id: post.id },
         });
@@ -368,8 +370,7 @@ export class FeedFetcherService {
       const imageUrl = FeedNormalizerUtil.extractFirstImage(item.content || '');
 
       try {
-        const detectedLang =
-          await this.translateService.detectLanguage(title);
+        const detectedLang = await this.translateService.detectLanguage(title);
 
         if (detectedLang === 'ko') {
           titleEn = await this.translateService.translate(title, 'en');
@@ -389,8 +390,10 @@ export class FeedFetcherService {
           if (translatedTitle) title = translatedTitle;
 
           if (description) {
-            const translatedDescription =
-              await this.translateService.translate(description, 'ko');
+            const translatedDescription = await this.translateService.translate(
+              description,
+              'ko',
+            );
             if (translatedDescription) description = translatedDescription;
           }
         }

@@ -9,12 +9,16 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { createHmac, timingSafeEqual } from 'crypto';
+import { Request } from 'express';
 
 import { AdminGuard } from '../auth/admin.guard';
 import { ApiZodBody } from '../common/decorators/api-zod.decorator';
@@ -33,7 +37,10 @@ import {
 @ApiTags('Blog Sources')
 @Controller('blog-sources')
 export class BlogSourcesController {
-  constructor(private readonly blogSourcesService: BlogSourcesService) {}
+  constructor(
+    private readonly blogSourcesService: BlogSourcesService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @ApiOperation({ summary: '블로그 소스 생성' })
   @ApiSecurity('admin-api-key')
@@ -48,11 +55,23 @@ export class BlogSourcesController {
   }
 
   @ApiOperation({ summary: '블로그 소스 전체 조회' })
+  @ApiQuery({
+    description: 'Admin API key 필요',
+    name: 'includeInactive',
+    required: false,
+    type: 'boolean',
+  })
   @CacheTTL(5 * 60 * 1000)
   @Get()
   @UseInterceptors(CacheInterceptor)
-  findAll(@Query('includeInactive') includeInactive?: string) {
-    return this.blogSourcesService.findAll(includeInactive === 'true');
+  findAll(
+    @Req() req: Request,
+    @Query('includeInactive') includeInactive?: string,
+  ) {
+    const shouldIncludeInactive =
+      includeInactive === 'true' && this.isValidAdminKey(req);
+
+    return this.blogSourcesService.findAll(shouldIncludeInactive);
   }
 
   @ApiOperation({ summary: '유튜브 소스 전체 조회' })
@@ -123,5 +142,23 @@ export class BlogSourcesController {
   @UseGuards(AdminGuard)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.blogSourcesService.remove(id);
+  }
+
+  private isValidAdminKey(req: Request): boolean {
+    const apiKey = req.headers['x-admin-api-key'];
+    const adminApiKey = this.configService.get<string>('ADMIN_API_KEY');
+
+    if (!adminApiKey || !apiKey || typeof apiKey !== 'string') {
+      return false;
+    }
+
+    const inputDigest = createHmac('sha256', 'admin-guard')
+      .update(apiKey)
+      .digest();
+    const expectedDigest = createHmac('sha256', 'admin-guard')
+      .update(adminApiKey)
+      .digest();
+
+    return timingSafeEqual(inputDigest, expectedDigest);
   }
 }

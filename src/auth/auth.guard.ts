@@ -17,15 +17,19 @@ export class AuthGuard implements CanActivate {
 
     const accessToken = authorization?.split(' ').at(1);
 
-    if (!accessToken || !sessionid) {
-      throw new UnauthorizedException();
+    if (!accessToken) {
+      throw new UnauthorizedException('Authorization header is required');
+    }
+
+    if (!sessionid) {
+      throw new UnauthorizedException('sessionid header is required');
     }
 
     try {
       const user = await this.authService.validateAccessTokenUser(accessToken);
 
       if (!user) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('User not found');
       }
 
       request.user = user;
@@ -35,7 +39,7 @@ export class AuthGuard implements CanActivate {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Access token is invalid or expired');
     }
   }
 }

@@ -127,7 +127,7 @@ export class AuthService {
       });
     });
 
-    return { message: '완료' };
+    return { message: 'success' };
   }
 
   private deriveRefreshSecret(sessionId: string): string {

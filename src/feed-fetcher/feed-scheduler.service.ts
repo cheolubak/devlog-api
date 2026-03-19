@@ -7,6 +7,8 @@ import { FeedFetcherService } from './feed-fetcher.service';
 @Injectable()
 export class FeedSchedulerService {
   private readonly logger = new Logger(FeedSchedulerService.name);
+  private isFetching = false;
+  private isSettingQueue = false;
 
   constructor(
     private readonly feedFetcherService: FeedFetcherService,
@@ -15,6 +17,12 @@ export class FeedSchedulerService {
 
   @Cron(CronExpression.EVERY_HOUR)
   async handleHourlySetQueue() {
+    if (this.isSettingQueue) {
+      this.logger.warn('Previous queue update still running, skipping');
+      return;
+    }
+
+    this.isSettingQueue = true;
     this.logger.log('Starting scheduled feed queue update');
 
     try {
@@ -24,11 +32,19 @@ export class FeedSchedulerService {
         `Scheduled feed queue update failed: ${this.getErrorMessage(error)}`,
       );
       await this.tryReconnect(error);
+    } finally {
+      this.isSettingQueue = false;
     }
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   async handleMinuteCheckQueue() {
+    if (this.isFetching) {
+      this.logger.warn('Previous feed fetch still running, skipping');
+      return;
+    }
+
+    this.isFetching = true;
     this.logger.log('Starting scheduled feed fetch');
 
     try {
@@ -38,6 +54,8 @@ export class FeedSchedulerService {
         `Scheduled fetch failed: ${this.getErrorMessage(error)}`,
       );
       await this.tryReconnect(error);
+    } finally {
+      this.isFetching = false;
     }
   }
 

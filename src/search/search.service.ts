@@ -108,6 +108,7 @@ export class SearchService {
           originalPublishedAt: Date | null;
           sourceBlogUrl: string;
           sourceFeedUrl: string;
+          sourceIcon: null | string;
           sourceId: string;
           sourceName: string;
           sourceType: string;
@@ -128,6 +129,7 @@ export class SearchService {
                p2."view_count",
                s.id        AS "sourceId",
                s.name      AS "sourceName",
+               s.icon      AS "sourceIcon",
                s.url       AS "sourceFeedUrl",
                s."blogUrl" AS "sourceBlogUrl",
                s.type      AS "sourceType"
@@ -183,6 +185,7 @@ export class SearchService {
       originalPublishedAt: row.originalPublishedAt,
       source: {
         blogUrl: row.sourceBlogUrl,
+        icon: row.sourceIcon,
         id: row.sourceId,
         name: row.sourceName,
         type: row.sourceType,

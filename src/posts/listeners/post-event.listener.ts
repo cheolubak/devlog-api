@@ -94,7 +94,9 @@ export class PostEventListener {
 
         await this.prisma.posts.update({
           data: {
-            ...(translatedDescription && { description: translatedDescription }),
+            ...(translatedDescription && {
+              description: translatedDescription,
+            }),
             descriptionEn: event.description,
             title: translatedTitle,
             titleEn: event.title,
