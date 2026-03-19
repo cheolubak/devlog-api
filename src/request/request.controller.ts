@@ -3,8 +3,9 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { UsersGuard } from '../auth/users.guard';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { Users } from '../database/generated/prisma/client';
-import { RequestDto } from './dto/request.dto';
+import { RequestDto, requestSchema } from './dto/request.dto';
 import { RequestService } from './request.service';
 
 @ApiTags('Request')
@@ -17,7 +18,7 @@ export class RequestController {
   @UseGuards(UsersGuard)
   async requestBlog(
     @Req() req: Request & { user?: Users },
-    @Body() dto: RequestDto,
+    @Body(new ZodValidationPipe(requestSchema)) dto: RequestDto,
   ) {
     const user = req.user;
 
@@ -29,7 +30,7 @@ export class RequestController {
   @UseGuards(UsersGuard)
   async requestYoutubes(
     @Req() req: Request & { user?: Users },
-    @Body() dto: RequestDto,
+    @Body(new ZodValidationPipe(requestSchema)) dto: RequestDto,
   ) {
     const user = req.user;
 

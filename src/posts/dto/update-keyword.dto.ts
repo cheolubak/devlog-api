@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { z } from 'zod';
 
-export class UpdateKeywordDto {
-  @IsNotEmpty()
-  @IsString()
-  keywords!: string;
-}
+export const updateKeywordSchema = z.object({
+  keywords: z.string().min(1),
+});
+
+export type UpdateKeywordDto = z.infer<typeof updateKeywordSchema>;

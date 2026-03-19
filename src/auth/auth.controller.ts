@@ -10,11 +10,12 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { Users } from '../database/generated/prisma/client';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { SocialLoginDto } from './dto/social-login.dto';
+import { RefreshTokenDto, refreshTokenSchema } from './dto/refresh-token.dto';
+import { SocialLoginDto, socialLoginSchema } from './dto/social-login.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -23,31 +24,41 @@ export class AuthController {
 
   @ApiOperation({ summary: '카카오 소셜 로그인' })
   @Post('kakao')
-  loginWithKakao(@Body() dto: SocialLoginDto) {
+  loginWithKakao(
+    @Body(new ZodValidationPipe(socialLoginSchema)) dto: SocialLoginDto,
+  ) {
     return this.authService.loginWithKakao(dto);
   }
 
   @ApiOperation({ summary: '네이버 소셜 로그인' })
   @Post('naver')
-  loginWithNaver(@Body() dto: SocialLoginDto) {
+  loginWithNaver(
+    @Body(new ZodValidationPipe(socialLoginSchema)) dto: SocialLoginDto,
+  ) {
     return this.authService.loginWithNaver(dto);
   }
 
   @ApiOperation({ summary: '구글 소셜 로그인' })
   @Post('google')
-  loginWithGoogle(@Body() dto: SocialLoginDto) {
+  loginWithGoogle(
+    @Body(new ZodValidationPipe(socialLoginSchema)) dto: SocialLoginDto,
+  ) {
     return this.authService.loginWithGoogle(dto);
   }
 
   @ApiOperation({ summary: '깃허브 소셜 로그인' })
   @Post('github')
-  loginWithGithub(@Body() dto: SocialLoginDto) {
+  loginWithGithub(
+    @Body(new ZodValidationPipe(socialLoginSchema)) dto: SocialLoginDto,
+  ) {
     return this.authService.loginWithGithub(dto);
   }
 
   @ApiOperation({ summary: '토큰 갱신' })
   @Post('refresh')
-  refreshToken(@Body() dto: RefreshTokenDto) {
+  refreshToken(
+    @Body(new ZodValidationPipe(refreshTokenSchema)) dto: RefreshTokenDto,
+  ) {
     return this.authService.refreshToken(dto);
   }
 

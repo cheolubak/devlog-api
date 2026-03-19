@@ -1,4 +1,3 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
@@ -22,14 +21,6 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   app.useGlobalFilters(new AllExceptionsFilter());
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      forbidNonWhitelisted: true,
-      transform: true,
-      whitelist: true,
-    }),
-  );
 
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()

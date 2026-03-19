@@ -1,11 +1,8 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { z } from 'zod';
 
-export class SocialLoginDto {
-  @IsNotEmpty()
-  @IsString()
-  accessToken!: string;
+export const socialLoginSchema = z.object({
+  accessToken: z.string().min(1),
+  sessionId: z.string().min(1),
+});
 
-  @IsNotEmpty()
-  @IsString()
-  sessionId!: string;
-}
+export type SocialLoginDto = z.infer<typeof socialLoginSchema>;

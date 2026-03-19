@@ -1,30 +1,14 @@
-import {
-  IsBoolean,
-  IsEnum,
-  IsOptional,
-  IsString,
-  IsUrl,
-  MaxLength,
-} from 'class-validator';
+import { z } from 'zod';
 
-import { FeedType } from '../../database/generated/prisma/client';
+import { FeedType } from '../../database/generated/prisma/enums';
 
-export class UpdateBlogSourceDto {
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  name?: string;
+export const updateBlogSourceSchema = z.object({
+  isActive: z.boolean().optional(),
+  name: z.string().max(100).optional(),
+  type: z
+    .enum([FeedType.RSS, FeedType.ATOM, FeedType.SCRAPING, FeedType.YOUTUBE])
+    .optional(),
+  url: z.url().optional(),
+});
 
-  @IsOptional()
-  @IsUrl()
-  @MaxLength(500)
-  url?: string;
-
-  @IsEnum(FeedType)
-  @IsOptional()
-  type?: FeedType;
-
-  @IsBoolean()
-  @IsOptional()
-  isActive?: boolean;
-}
+export type UpdateBlogSourceDto = z.infer<typeof updateBlogSourceSchema>;

@@ -1,13 +1,8 @@
-import { IsEmail, IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { z } from 'zod';
 
-export class RequestDto {
-  @IsNotEmpty()
-  @IsString()
-  @IsUrl()
-  url!: string;
+export const requestSchema = z.object({
+  email: z.email(),
+  url: z.url(),
+});
 
-  @IsEmail()
-  @IsNotEmpty()
-  @IsString()
-  email!: string;
-}
+export type RequestDto = z.infer<typeof requestSchema>;

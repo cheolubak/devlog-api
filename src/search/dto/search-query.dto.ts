@@ -1,42 +1,33 @@
-import { Transform } from 'class-transformer';
-import {
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-  MinLength,
-} from 'class-validator';
+import { z } from 'zod';
 
 import { FeedType, RegionType } from '../../database/generated/prisma/enums';
 
-export class SearchQueryDto {
-  @IsString()
-  @MinLength(2)
-  q!: string;
+export const searchQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0),
+  q: z.string().min(2),
+  region: z.enum([RegionType.KOREA, RegionType.FOREIGN]).optional(),
+  sourceId: z.string().optional(),
+  type: z
+    .union([
+      z
+        .enum([
+          FeedType.RSS,
+          FeedType.ATOM,
+          FeedType.SCRAPING,
+          FeedType.YOUTUBE,
+        ])
+        .transform((v) => [v]),
+      z.array(
+        z.enum([
+          FeedType.RSS,
+          FeedType.ATOM,
+          FeedType.SCRAPING,
+          FeedType.YOUTUBE,
+        ]),
+      ),
+    ])
+    .optional(),
+});
 
-  @IsInt()
-  @Max(100)
-  @Min(1)
-  @Transform(({ value }) => parseInt(value, 10))
-  limit: number = 20;
-
-  @IsInt()
-  @Min(0)
-  @Transform(({ value }) => parseInt(value, 10))
-  offset: number = 0;
-
-  @IsOptional()
-  @IsString()
-  sourceId?: string;
-
-  @IsEnum(FeedType, { each: true })
-  @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
-  type?: FeedType[];
-
-  @IsEnum(RegionType)
-  @IsOptional()
-  region?: RegionType;
-}
+export type SearchQueryDto = z.infer<typeof searchQuerySchema>;

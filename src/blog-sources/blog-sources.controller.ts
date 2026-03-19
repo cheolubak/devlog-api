@@ -17,9 +17,16 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { AdminGuard } from '../auth/admin.guard';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { BlogSourcesService } from './blog-sources.service';
-import { CreateBlogSourceDto } from './dto/create-blog-source.dto';
-import { UpdateBlogSourceDto } from './dto/update-blog-source.dto';
+import {
+  CreateBlogSourceDto,
+  createBlogSourceSchema,
+} from './dto/create-blog-source.dto';
+import {
+  UpdateBlogSourceDto,
+  updateBlogSourceSchema,
+} from './dto/update-blog-source.dto';
 
 @ApiTags('Blog Sources')
 @Controller('blog-sources')
@@ -30,7 +37,10 @@ export class BlogSourcesController {
   @ApiSecurity('admin-api-key')
   @Post()
   @UseGuards(AdminGuard)
-  create(@Body() createBlogSourceDto: CreateBlogSourceDto) {
+  create(
+    @Body(new ZodValidationPipe(createBlogSourceSchema))
+    createBlogSourceDto: CreateBlogSourceDto,
+  ) {
     return this.blogSourcesService.create(createBlogSourceDto);
   }
 
@@ -97,7 +107,8 @@ export class BlogSourcesController {
   @UseGuards(AdminGuard)
   update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateBlogSourceDto: UpdateBlogSourceDto,
+    @Body(new ZodValidationPipe(updateBlogSourceSchema))
+    updateBlogSourceDto: UpdateBlogSourceDto,
   ) {
     return this.blogSourcesService.update(id, updateBlogSourceDto);
   }

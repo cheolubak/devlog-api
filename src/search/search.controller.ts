@@ -11,8 +11,9 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { AuthGuard } from '../auth/auth.guard';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { Users } from '../database/generated/prisma/client';
-import { SearchQueryDto } from './dto/search-query.dto';
+import { SearchQueryDto, searchQuerySchema } from './dto/search-query.dto';
 import { SearchService } from './search.service';
 
 @ApiTags('Search')
@@ -24,7 +25,9 @@ export class SearchController {
   @CacheTTL(30 * 1000)
   @Get()
   @UseInterceptors(CacheInterceptor)
-  searchPosts(@Query() query: SearchQueryDto) {
+  searchPosts(
+    @Query(new ZodValidationPipe(searchQuerySchema)) query: SearchQueryDto,
+  ) {
     return this.searchService.search(query);
   }
 
@@ -34,7 +37,7 @@ export class SearchController {
   @UseGuards(AuthGuard)
   searchBookmarkPosts(
     @Req() req: Request & { user: Users },
-    @Query() query: SearchQueryDto,
+    @Query(new ZodValidationPipe(searchQuerySchema)) query: SearchQueryDto,
   ) {
     const user = req.user;
     return this.searchService.searchBookmarks({ query, user });

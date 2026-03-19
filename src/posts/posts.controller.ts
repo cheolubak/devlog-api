@@ -26,11 +26,21 @@ import { Request } from 'express';
 import { AdminGuard } from '../auth/admin.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { UsersGuard } from '../auth/users.guard';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { Users } from '../database/generated/prisma/client';
-import { PostQueryDto } from './dto/post-query.dto';
-import { UpdateDisplayDto } from './dto/update-display.dto';
-import { UpdateKeywordDto } from './dto/update-keyword.dto';
-import { UpdateThumbnailDto } from './dto/update-thumbnail.dto';
+import { PostQueryDto, postQuerySchema } from './dto/post-query.dto';
+import {
+  UpdateDisplayDto,
+  updateDisplaySchema,
+} from './dto/update-display.dto';
+import {
+  UpdateKeywordDto,
+  updateKeywordSchema,
+} from './dto/update-keyword.dto';
+import {
+  UpdateThumbnailDto,
+  updateThumbnailSchema,
+} from './dto/update-thumbnail.dto';
 import { PostsService } from './posts.service';
 
 @ApiTags('Posts')
@@ -43,7 +53,7 @@ export class PostsController {
   @UseGuards(UsersGuard)
   findDisplay(
     @Req() req: Request & { user?: Users },
-    @Query() query: PostQueryDto,
+    @Query(new ZodValidationPipe(postQuerySchema)) query: PostQueryDto,
   ) {
     const user = req.user;
 
@@ -56,7 +66,7 @@ export class PostsController {
   @UseGuards(AuthGuard)
   findDisplayWithBookmark(
     @Req() req: Request & { user: Users },
-    @Query() query: PostQueryDto,
+    @Query(new ZodValidationPipe(postQuerySchema)) query: PostQueryDto,
   ) {
     const user = req.user;
 
@@ -69,7 +79,7 @@ export class PostsController {
   @Get('all')
   @UseGuards(AdminGuard)
   @UseInterceptors(CacheInterceptor)
-  findAll(@Query() query: PostQueryDto) {
+  findAll(@Query(new ZodValidationPipe(postQuerySchema)) query: PostQueryDto) {
     return this.postsService.findAll(query);
   }
 
@@ -79,7 +89,8 @@ export class PostsController {
   @UseGuards(AdminGuard)
   updateKeywords(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() { keywords }: UpdateKeywordDto,
+    @Body(new ZodValidationPipe(updateKeywordSchema))
+    { keywords }: UpdateKeywordDto,
   ) {
     return this.postsService.updateKeywords(id, keywords);
   }
@@ -137,7 +148,8 @@ export class PostsController {
   @UseGuards(AdminGuard)
   updateDisplay(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateDisplayDto: UpdateDisplayDto,
+    @Body(new ZodValidationPipe(updateDisplaySchema))
+    updateDisplayDto: UpdateDisplayDto,
   ) {
     return this.postsService.updateDisplay(id, updateDisplayDto.isDisplay);
   }
@@ -148,7 +160,8 @@ export class PostsController {
   @UseGuards(AdminGuard)
   updateThumbnail(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateThumbnailDto: UpdateThumbnailDto,
+    @Body(new ZodValidationPipe(updateThumbnailSchema))
+    updateThumbnailDto: UpdateThumbnailDto,
   ) {
     return this.postsService.updateThumbnail(id, updateThumbnailDto.imageUrl);
   }

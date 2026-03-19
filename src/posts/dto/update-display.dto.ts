@@ -1,7 +1,7 @@
-import { IsBoolean, IsNotEmpty } from 'class-validator';
+import { z } from 'zod';
 
-export class UpdateDisplayDto {
-  @IsBoolean()
-  @IsNotEmpty()
-  isDisplay!: boolean;
-}
+export const updateDisplaySchema = z.object({
+  isDisplay: z.boolean(),
+});
+
+export type UpdateDisplayDto = z.infer<typeof updateDisplaySchema>;

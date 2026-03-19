@@ -1,62 +1,39 @@
-import { Transform } from 'class-transformer';
-import {
-  IsArray,
-  IsBoolean,
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsString,
-  IsUUID,
-  Max,
-  Min,
-} from 'class-validator';
+import { z } from 'zod';
 
-import { FeedType, RegionType } from '../../database/generated/prisma/client';
+import { FeedType, RegionType } from '../../database/generated/prisma/enums';
 
-export class PostQueryDto {
-  @IsOptional()
-  @IsUUID()
-  sourceId?: string;
+export const postQuerySchema = z.object({
+  ids: z
+    .union([z.string().transform((v) => v.split(',')), z.array(z.string())])
+    .optional(),
+  isDisplay: z
+    .union([z.boolean(), z.string().transform((v) => v === 'true')])
+    .optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0),
+  region: z.enum([RegionType.KOREA, RegionType.FOREIGN]).optional(),
+  sourceId: z.uuid().optional(),
+  tag: z.string().optional(),
+  type: z
+    .union([
+      z
+        .enum([
+          FeedType.RSS,
+          FeedType.ATOM,
+          FeedType.SCRAPING,
+          FeedType.YOUTUBE,
+        ])
+        .transform((v) => [v]),
+      z.array(
+        z.enum([
+          FeedType.RSS,
+          FeedType.ATOM,
+          FeedType.SCRAPING,
+          FeedType.YOUTUBE,
+        ]),
+      ),
+    ])
+    .optional(),
+});
 
-  @IsBoolean()
-  @IsOptional()
-  @Transform(({ value }) => value === 'true')
-  isDisplay?: boolean;
-
-  @IsOptional()
-  @IsString()
-  tag?: string;
-
-  @IsInt()
-  @IsOptional()
-  @Max(100)
-  @Min(1)
-  @Transform(({ value }) => parseInt(value, 10))
-  limit?: number = 20;
-
-  @IsInt()
-  @IsOptional()
-  @Min(0)
-  @Transform(({ value }) => parseInt(value, 10))
-  offset?: number = 0;
-
-  @IsEnum(FeedType, { each: true })
-  @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
-  type?: FeedType[];
-
-  @IsArray()
-  @IsOptional()
-  @Transform(({ value }) =>
-    Array.isArray(value)
-      ? value
-      : value === undefined || value === null || value === ''
-        ? undefined
-        : value.split(','),
-  )
-  ids?: string[];
-
-  @IsEnum(RegionType)
-  @IsOptional()
-  region?: RegionType;
-}
+export type PostQueryDto = z.infer<typeof postQuerySchema>;

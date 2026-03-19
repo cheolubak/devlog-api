@@ -1,8 +1,7 @@
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { z } from 'zod';
 
-export class UpdateThumbnailDto {
-  @IsNotEmpty()
-  @IsString()
-  @IsUrl()
-  imageUrl!: string;
-}
+export const updateThumbnailSchema = z.object({
+  imageUrl: z.url(),
+});
+
+export type UpdateThumbnailDto = z.infer<typeof updateThumbnailSchema>;

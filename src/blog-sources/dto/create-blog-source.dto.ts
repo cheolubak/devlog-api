@@ -1,49 +1,29 @@
-import { Type } from 'class-transformer';
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsObject,
-  IsOptional,
-  IsString,
-  IsUrl,
-  MaxLength,
-  ValidateIf,
-  ValidateNested,
-} from 'class-validator';
+import { z } from 'zod';
 
-import { FeedType, RegionType } from '../../database/generated/prisma/client';
-import { ScrapingConfigDto } from './scraping-config.dto';
+import { FeedType, RegionType } from '../../database/generated/prisma/enums';
+import { scrapingConfigSchema } from './scraping-config.dto';
 
-export class CreateBlogSourceDto {
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(100)
-  name!: string;
+export const createBlogSourceSchema = z
+  .object({
+    blogUrl: z.url().max(500),
+    icon: z.string().optional(),
+    name: z.string().min(1).max(100),
+    region: z.enum([RegionType.KOREA, RegionType.FOREIGN]),
+    scrapingConfig: scrapingConfigSchema.optional(),
+    type: z.enum([
+      FeedType.RSS,
+      FeedType.ATOM,
+      FeedType.SCRAPING,
+      FeedType.YOUTUBE,
+    ]),
+    url: z.url().max(500),
+  })
+  .refine(
+    (data) => data.type !== 'SCRAPING' || data.scrapingConfig !== undefined,
+    {
+      message: 'scrapingConfig is required when type is SCRAPING',
+      path: ['scrapingConfig'],
+    },
+  );
 
-  @IsObject()
-  @Type(() => ScrapingConfigDto)
-  @ValidateIf((o) => o.type === 'SCRAPING')
-  @ValidateNested()
-  scrapingConfig?: ScrapingConfigDto;
-
-  @IsEnum(FeedType)
-  type!: FeedType;
-
-  @IsNotEmpty()
-  @IsUrl()
-  @MaxLength(500)
-  url!: string;
-
-  @IsNotEmpty()
-  @IsUrl()
-  @MaxLength(500)
-  blogUrl!: string;
-
-  @IsEnum(RegionType)
-  @IsNotEmpty()
-  region!: RegionType;
-
-  @IsOptional()
-  @IsString()
-  icon?: string;
-}
+export type CreateBlogSourceDto = z.infer<typeof createBlogSourceSchema>;
