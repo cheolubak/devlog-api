@@ -61,8 +61,6 @@ export class KeywordExtractorService {
         },
       );
 
-      this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC);
-
       const textBlock = message.content.find((block) => block.type === 'text');
 
       if (!textBlock || textBlock.type !== 'text') {
@@ -128,8 +126,6 @@ export class KeywordExtractorService {
           },
         },
       );
-
-      this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC);
 
       const keywordContent = message.content.find(
         (block) =>

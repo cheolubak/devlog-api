@@ -28,7 +28,7 @@ async function bootstrap() {
       .setDescription('RSS/Atom 피드 수집 블로그 포스트 관리 API')
       .setVersion('1.0')
       .addApiKey(
-        { in: 'header', name: 'x-api-key', type: 'apiKey' },
+        { in: 'header', name: 'x-admin-api-key', type: 'apiKey' },
         'admin-api-key',
       )
       .addBearerAuth()

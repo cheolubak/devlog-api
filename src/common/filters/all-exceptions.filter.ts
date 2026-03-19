@@ -78,8 +78,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
       this.logger.error(`Unhandled unknown exception: ${String(exception)}`);
     }
 
+    const normalizedMessage = Array.isArray(message) ? message : [message];
+
     response.status(statusCode).json({
-      message,
+      message: normalizedMessage,
       statusCode,
       timestamp: new Date().toISOString(),
     });
