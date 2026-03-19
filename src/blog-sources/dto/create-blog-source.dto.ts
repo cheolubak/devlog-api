@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-import { FeedType, RegionType } from '../../database/generated/prisma/enums';
+import { feedTypeEnumSchema } from '../../common/schemas/feed-type.schema';
+import { RegionType } from '../../database/generated/prisma/enums';
 import { scrapingConfigSchema } from './scraping-config.dto';
 
 export const createBlogSourceSchema = z
@@ -10,12 +11,7 @@ export const createBlogSourceSchema = z
     name: z.string().min(1).max(100),
     region: z.enum([RegionType.KOREA, RegionType.FOREIGN]),
     scrapingConfig: scrapingConfigSchema.optional(),
-    type: z.enum([
-      FeedType.RSS,
-      FeedType.ATOM,
-      FeedType.SCRAPING,
-      FeedType.YOUTUBE,
-    ]),
+    type: feedTypeEnumSchema,
     url: z.url().max(500),
   })
   .refine(
