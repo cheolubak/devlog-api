@@ -1,5 +1,31 @@
 # Work Log
 
+## 2026-03-19
+
+### class-validator → Zod 마이그레이션
+- **변경 파일**:
+  - `src/common/pipes/zod-validation.pipe.ts` - ZodValidationPipe 생성
+  - `src/blog-sources/dto/create-blog-source.dto.ts` - Zod 스키마로 전환
+  - `src/blog-sources/dto/update-blog-source.dto.ts` - Zod 스키마로 전환
+  - `src/blog-sources/dto/scraping-config.dto.ts` - Zod 스키마로 전환
+  - `src/posts/dto/post-query.dto.ts` - Zod 스키마로 전환
+  - `src/posts/dto/update-display.dto.ts` - Zod 스키마로 전환
+  - `src/posts/dto/update-keyword.dto.ts` - Zod 스키마로 전환
+  - `src/posts/dto/update-thumbnail.dto.ts` - Zod 스키마로 전환
+  - `src/auth/dto/social-login.dto.ts` - Zod 스키마로 전환
+  - `src/auth/dto/refresh-token.dto.ts` - Zod 스키마로 전환
+  - `src/search/dto/search-query.dto.ts` - Zod 스키마로 전환
+  - `src/request/dto/request.dto.ts` - Zod 스키마로 전환
+  - `src/blog-sources/blog-sources.controller.ts` - ZodValidationPipe 적용
+  - `src/posts/posts.controller.ts` - ZodValidationPipe 적용
+  - `src/auth/auth.controller.ts` - ZodValidationPipe 적용
+  - `src/search/search.controller.ts` - ZodValidationPipe 적용
+  - `src/request/request.controller.ts` - ZodValidationPipe 적용
+  - `src/main.ts` - global ValidationPipe 제거
+  - `CLAUDE.md` - 기술 스택/가이드라인 업데이트
+  - `package.json` - zod 추가, class-validator/class-transformer 제거
+- **내용**: class-validator/class-transformer 기반 DTO를 Zod v4 스키마로 전환. 각 DTO 파일에서 스키마와 타입을 함께 export하고, 컨트롤러에서 파라미터별 ZodValidationPipe 적용 방식으로 변경.
+
 ## 2026-03-18
 
 ### 4인 리뷰 팀 분석 기반 코드 수정 (11개 커밋)
