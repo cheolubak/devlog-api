@@ -8,7 +8,7 @@ export const updateBlogSourceSchema = z.object({
   type: z
     .enum([FeedType.RSS, FeedType.ATOM, FeedType.SCRAPING, FeedType.YOUTUBE])
     .optional(),
-  url: z.url().optional(),
+  url: z.url().max(500).optional(),
 });
 
 export type UpdateBlogSourceDto = z.infer<typeof updateBlogSourceSchema>;
