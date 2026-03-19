@@ -8,6 +8,7 @@ import {
   FetchStatus,
   RegionType,
 } from '../database/generated/prisma/client';
+import { PrismaClientKnownRequestError } from '../database/generated/prisma/internal/prismaNamespace';
 import { PrismaService } from '../database/prisma.service';
 import { ImageParseService } from '../image-parse/image-parse.service';
 import { TranslateService } from '../translate/translate.service';
@@ -411,19 +412,34 @@ export class FeedFetcherService {
       // 언어 감지/번역 실패 시 titleEn이 null → isDisplay: false로 생성됨
       // 스케줄러(handleDailyTranslateRetry)가 미번역 포스트를 정기 재시도하며,
       // 관리자가 PATCH /:id/display 호출 시 PostEventListener에서도 번역 재시도
-      const post = await this.prisma.posts.create({
-        data: {
-          description,
-          descriptionEn,
-          isDisplay: isTechPost && !!title && !!titleEn,
-          originalAuthor: FeedNormalizerUtil.normalizeCreator(item.creator),
-          originalPublishedAt: item.isoDate || item.pubDate || new Date(),
-          sourceId: source.id,
-          sourceUrl: item.link,
-          title,
-          titleEn,
-        },
-      });
+      let post;
+      try {
+        post = await this.prisma.posts.create({
+          data: {
+            description,
+            descriptionEn,
+            isDisplay: isTechPost && !!title && !!titleEn,
+            originalAuthor: FeedNormalizerUtil.normalizeCreator(item.creator),
+            originalPublishedAt: item.isoDate || item.pubDate || new Date(),
+            sourceId: source.id,
+            sourceUrl: item.link,
+            title,
+            titleEn,
+          },
+        });
+      } catch (error) {
+        // P2002: Unique constraint violation — 동일 sourceUrl이 race condition으로 먼저 삽입된 경우
+        if (
+          error instanceof PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        ) {
+          this.logger.debug(
+            `Duplicate sourceUrl skipped (race condition): ${item.link}`,
+          );
+          return { created: false, post: null };
+        }
+        throw error;
+      }
 
       if (imageUrl) {
         try {

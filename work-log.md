@@ -2,6 +2,28 @@
 
 ## 2026-03-19
 
+### PR #8 2차 코드 리뷰 피드백 7건 반영
+- **변경 파일**:
+  - `src/auth/auth.guard.ts` - Authorization 에러 메시지 분기 (헤더 누락 vs 형식 오류)
+  - `src/posts/listeners/post-event.listener.ts` - 한국어 분기 early return 제거, 번역 실패 로깅, stale description 정리
+  - `src/feed-fetcher/feed-fetcher.service.ts` - 언어 감지 실패 시 의도된 동작 주석
+  - `src/feed-fetcher/feed-scheduler.service.ts` - 미번역 포스트 일일 재시도 크론 (3AM)
+  - `src/blog-sources/blog-sources.controller.ts` - Swagger @ApiQuery type 수정
+- **내용**: CodeRabbit 2차 리뷰 반영. AuthGuard 에러 구분, 번역 일관성 개선, 미번역 포스트 자동 재시도 스케줄러 추가.
+- **커밋**: `00f8490`
+
+### PR #8 코드 리뷰 피드백 6건 반영
+- **변경 파일**:
+  - `src/auth/admin.guard.ts` - validateAdminKey() static 메서드 추출 (DRY)
+  - `src/blog-sources/blog-sources.controller.ts` - CacheInterceptor 제거 (캐시 오염 방지), isValidAdminKey 제거
+  - `src/common/filters/all-exceptions.filter.ts` - message 타입 string[] 강제
+  - `src/posts/listeners/post-event.listener.ts` - 번역 실패 시 원문 항상 보존
+  - `src/posts/posts.controller.ts` - UUID 유틸 사용
+  - `src/translate/translate.service.ts` - detectLanguage() try/catch 추가
+  - `src/common/utils/uuid.util.ts` - UUID 검증 유틸 신규 생성
+- **내용**: CodeRabbit PR 리뷰 코멘트 반영. 캐시 오염 방지, Admin 키 검증 DRY, 에러 처리 일관성, 타입 안전성, 원문 보존 개선.
+- **커밋**: `f94b739`
+
 ### 리뷰 팀 P1 액션 아이템 7건 수정
 - **변경 파일**:
   - `src/auth/auth.guard.ts` - 에러 메시지 구체화
