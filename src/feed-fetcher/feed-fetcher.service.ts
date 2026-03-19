@@ -367,29 +367,37 @@ export class FeedFetcherService {
 
       const imageUrl = FeedNormalizerUtil.extractFirstImage(item.content || '');
 
-      if (source.region === RegionType.FOREIGN) {
-        try {
-          title = (await this.translateService.translate(title, 'ko')) ?? title;
-          description =
-            (await this.translateService.translate(description, 'ko')) ??
-            description;
-        } catch (error: unknown) {
-          this.logger.warn(
-            `Translation failed for "${title}": ${(error as Error).message}`,
+      try {
+        const detectedLang =
+          await this.translateService.detectLanguage(title);
+
+        if (detectedLang === 'ko') {
+          titleEn = await this.translateService.translate(title, 'en');
+          if (description) {
+            descriptionEn = await this.translateService.translate(
+              description,
+              'en',
+            );
+          }
+        } else if (detectedLang) {
+          titleEn = title;
+          descriptionEn = description;
+          const translatedTitle = await this.translateService.translate(
+            title,
+            'ko',
           );
+          if (translatedTitle) title = translatedTitle;
+
+          if (description) {
+            const translatedDescription =
+              await this.translateService.translate(description, 'ko');
+            if (translatedDescription) description = translatedDescription;
+          }
         }
-      } else {
-        try {
-          titleEn =
-            (await this.translateService.translate(title, 'en')) ?? titleEn;
-          descriptionEn =
-            (await this.translateService.translate(description, 'en')) ??
-            descriptionEn;
-        } catch (error: unknown) {
-          this.logger.warn(
-            `Translation failed for "${title}": ${(error as Error).message}`,
-          );
-        }
+      } catch (error: unknown) {
+        this.logger.warn(
+          `Translation failed for "${title}": ${(error as Error).message}`,
+        );
       }
 
       const isTechPost = await this.keywordExtractorService.isTechBlogPost(
@@ -401,7 +409,7 @@ export class FeedFetcherService {
         data: {
           description,
           descriptionEn,
-          isDisplay: isTechPost,
+          isDisplay: isTechPost && !!title && !!titleEn,
           originalAuthor: FeedNormalizerUtil.normalizeCreator(item.creator),
           originalPublishedAt: item.isoDate || item.pubDate || new Date(),
           sourceId: source.id,

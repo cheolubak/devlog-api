@@ -52,6 +52,35 @@ export class TranslateService implements OnModuleInit {
     this.logger.log('Google Translation client initialized');
   }
 
+  async detectLanguage(text: string): Promise<null | string> {
+    if (!this.translationClient) {
+      this.logger.warn(
+        'Translation client is not initialized. Skipping detection.',
+      );
+      return null;
+    }
+
+    if (!text.trim()) {
+      return null;
+    }
+
+    if (!this.apiUsageService.tryConsume(ApiProvider.GOOGLE_TRANSLATE)) {
+      const usage = this.apiUsageService.getUsage(ApiProvider.GOOGLE_TRANSLATE);
+      this.logger.warn(
+        `Google Translate API daily limit reached (${usage.count}/${usage.limit}), skipping detection`,
+      );
+      return null;
+    }
+
+    const [response] = await this.translationClient.detectLanguage({
+      content: text,
+      mimeType: 'text/plain',
+      parent: this.parent,
+    });
+
+    return response.languages?.[0]?.languageCode ?? null;
+  }
+
   async translate(
     text: string,
     targetLanguageCode: string,
