@@ -26,6 +26,10 @@ import { Request } from 'express';
 import { AdminGuard } from '../auth/admin.guard';
 import { AuthGuard } from '../auth/auth.guard';
 import { UsersGuard } from '../auth/users.guard';
+import {
+  ApiZodBody,
+  ApiZodQuery,
+} from '../common/decorators/api-zod.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { Users } from '../database/generated/prisma/client';
 import { PostQueryDto, postQuerySchema } from './dto/post-query.dto';
@@ -49,6 +53,7 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @ApiOperation({ summary: '디스플레이 포스트 목록 조회' })
+  @ApiZodQuery(postQuerySchema)
   @Get()
   @UseGuards(UsersGuard)
   findDisplay(
@@ -62,6 +67,7 @@ export class PostsController {
 
   @ApiBearerAuth()
   @ApiOperation({ summary: '북마크 포스트 목록 조회' })
+  @ApiZodQuery(postQuerySchema)
   @Get('bookmarks')
   @UseGuards(AuthGuard)
   findDisplayWithBookmark(
@@ -75,6 +81,7 @@ export class PostsController {
 
   @ApiOperation({ summary: '전체 포스트 목록 조회' })
   @ApiSecurity('admin-api-key')
+  @ApiZodQuery(postQuerySchema)
   @CacheTTL(60 * 1000)
   @Get('all')
   @UseGuards(AdminGuard)
@@ -85,6 +92,7 @@ export class PostsController {
 
   @ApiOperation({ summary: '포스트 키워드 수정' })
   @ApiSecurity('admin-api-key')
+  @ApiZodBody(updateKeywordSchema)
   @Put(':id/keywords')
   @UseGuards(AdminGuard)
   updateKeywords(
@@ -144,6 +152,7 @@ export class PostsController {
 
   @ApiOperation({ summary: '포스트 표시 여부 변경' })
   @ApiSecurity('admin-api-key')
+  @ApiZodBody(updateDisplaySchema)
   @Patch(':id/display')
   @UseGuards(AdminGuard)
   updateDisplay(
@@ -156,6 +165,7 @@ export class PostsController {
 
   @ApiOperation({ summary: '포스트 썸네일 수정' })
   @ApiSecurity('admin-api-key')
+  @ApiZodBody(updateThumbnailSchema)
   @Put(':id/thumbnail')
   @UseGuards(AdminGuard)
   updateThumbnail(

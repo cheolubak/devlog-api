@@ -17,10 +17,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { AdminGuard } from '../auth/admin.guard';
+import { ApiZodBody } from '../common/decorators/api-zod.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { BlogSourcesService } from './blog-sources.service';
 import {
   CreateBlogSourceDto,
+  createBlogSourceObjectSchema,
   createBlogSourceSchema,
 } from './dto/create-blog-source.dto';
 import {
@@ -35,6 +37,7 @@ export class BlogSourcesController {
 
   @ApiOperation({ summary: '블로그 소스 생성' })
   @ApiSecurity('admin-api-key')
+  @ApiZodBody(createBlogSourceObjectSchema)
   @Post()
   @UseGuards(AdminGuard)
   create(
@@ -103,6 +106,7 @@ export class BlogSourcesController {
 
   @ApiOperation({ summary: '블로그 소스 수정' })
   @ApiSecurity('admin-api-key')
+  @ApiZodBody(updateBlogSourceSchema)
   @Patch(':id')
   @UseGuards(AdminGuard)
   update(

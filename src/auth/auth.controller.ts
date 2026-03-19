@@ -10,6 +10,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
+import { ApiZodBody } from '../common/decorators/api-zod.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { Users } from '../database/generated/prisma/client';
 import { AuthGuard } from './auth.guard';
@@ -23,6 +24,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: '카카오 소셜 로그인' })
+  @ApiZodBody(socialLoginSchema)
   @Post('kakao')
   loginWithKakao(
     @Body(new ZodValidationPipe(socialLoginSchema)) dto: SocialLoginDto,
@@ -31,6 +33,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: '네이버 소셜 로그인' })
+  @ApiZodBody(socialLoginSchema)
   @Post('naver')
   loginWithNaver(
     @Body(new ZodValidationPipe(socialLoginSchema)) dto: SocialLoginDto,
@@ -39,6 +42,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: '구글 소셜 로그인' })
+  @ApiZodBody(socialLoginSchema)
   @Post('google')
   loginWithGoogle(
     @Body(new ZodValidationPipe(socialLoginSchema)) dto: SocialLoginDto,
@@ -47,6 +51,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: '깃허브 소셜 로그인' })
+  @ApiZodBody(socialLoginSchema)
   @Post('github')
   loginWithGithub(
     @Body(new ZodValidationPipe(socialLoginSchema)) dto: SocialLoginDto,
@@ -55,6 +60,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: '토큰 갱신' })
+  @ApiZodBody(refreshTokenSchema)
   @Post('refresh')
   refreshToken(
     @Body(new ZodValidationPipe(refreshTokenSchema)) dto: RefreshTokenDto,

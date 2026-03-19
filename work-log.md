@@ -2,6 +2,14 @@
 
 ## 2026-03-19
 
+### PR #7 코멘트 반영 - Zod 스키마 개선
+- **변경 파일**:
+  - `src/common/pipes/zod-validation.pipe.ts` - 빈 path 에러 메시지 개선
+  - `src/blog-sources/dto/create-blog-source.dto.ts` - feedTypeEnumSchema 공유 스키마 적용
+  - `src/blog-sources/dto/update-blog-source.dto.ts` - feedTypeEnumSchema 적용 + scrapingConfig 추가
+- **내용**: PR 리뷰 코멘트 반영. 인라인 FeedType enum을 공유 스키마로 교체, update DTO에 scrapingConfig 필드 추가, ZodValidationPipe의 최상위 에러 path 처리 개선.
+- **커밋**: `f70a74d`
+
 ### class-validator → Zod 마이그레이션
 - **변경 파일**:
   - `src/common/pipes/zod-validation.pipe.ts` - ZodValidationPipe 생성

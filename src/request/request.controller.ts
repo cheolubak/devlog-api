@@ -3,6 +3,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { UsersGuard } from '../auth/users.guard';
+import { ApiZodBody } from '../common/decorators/api-zod.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { Users } from '../database/generated/prisma/client';
 import { RequestDto, requestSchema } from './dto/request.dto';
@@ -14,6 +15,7 @@ export class RequestController {
   constructor(private readonly requestService: RequestService) {}
 
   @ApiOperation({ summary: '블로그 등록 요청' })
+  @ApiZodBody(requestSchema)
   @Post('blogs')
   @UseGuards(UsersGuard)
   async requestBlog(
@@ -26,6 +28,7 @@ export class RequestController {
   }
 
   @ApiOperation({ summary: '유튜브 등록 요청' })
+  @ApiZodBody(requestSchema)
   @Post('youtubes')
   @UseGuards(UsersGuard)
   async requestYoutubes(
