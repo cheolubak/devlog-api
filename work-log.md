@@ -2,6 +2,35 @@
 
 ## 2026-03-19
 
+### 리뷰 팀 P1 액션 아이템 7건 수정
+- **변경 파일**:
+  - `src/auth/auth.guard.ts` - 에러 메시지 구체화
+  - `src/search/search.service.ts` - 검색 결과 source.icon 누락 수정
+  - `src/feed-fetcher/feed-fetcher.service.ts` - translateUntranslatedPosts 원문 보존
+  - `src/auth/auth.service.ts` - leave() 응답 메시지 영문 통일
+  - `src/posts/posts.controller.ts` - sessionId UUID 형식 검증
+  - `src/feed-fetcher/feed-scheduler.service.ts` - Cron 중복 실행 방지 플래그
+  - `src/blog-sources/blog-sources.controller.ts` - includeInactive Admin 인증 보호
+- **내용**: 4인 리뷰 팀 분석 P1 이슈 7건 수정. 보안(A5, A9, A11), 데이터 일관성(A6, A7, A8), 안정성(A10) 개선.
+- **커밋**: `be83338`
+
+### 번역 로직 개선 (main → dev cherry-pick)
+- **변경 파일**:
+  - `src/translate/translate.service.ts` - `detectLanguage()` 메서드 추가
+  - `src/posts/listeners/post-event.listener.ts` - 언어 감지 기반 양방향 번역, null 저장 방지
+  - `src/feed-fetcher/feed-fetcher.service.ts` - region 기반→언어 감지 기반 번역, FOREIGN 원본 보존
+- **내용**: main 브랜치의 번역 수정 커밋(7d9c329)이 dev에 누락되어 cherry-pick 적용. isDisplay 변경 시 Google Translate API가 동작하지 않던 문제 해결
+- **커밋**: 47dde0f
+
+### 리뷰 팀 P0 액션 아이템 4건 수정
+- **변경 파일**:
+  - `src/main.ts` - Swagger Admin API Key 헤더명 수정 (x-api-key → x-admin-api-key)
+  - `src/feed-fetcher/keyword-extractor.service.ts` - tryConsume 이중 호출 버그 수정
+  - `src/common/filters/all-exceptions.filter.ts` - 에러 응답 message 타입 string[] 정규화
+  - `src/utils/chunk-parallel.ts` - Promise.all → Promise.allSettled 변경
+- **내용**: 4인 리뷰 팀 분석에서 도출된 P0 이슈 수정. Swagger 헤더 불일치로 관리자 API 테스트 불가 해소, Anthropic API 일일 한도 100→200 복원, 에러 응답 타입 일관성 확보, 피드 수집 시 개별 실패 격리.
+- **커밋**: `aa0753a`
+
 ### PR #7 코멘트 반영 - Zod 스키마 개선
 - **변경 파일**:
   - `src/common/pipes/zod-validation.pipe.ts` - 빈 path 에러 메시지 개선
