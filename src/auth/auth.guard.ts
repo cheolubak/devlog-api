@@ -15,10 +15,16 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const { authorization, sessionid } = request.headers;
 
-    const accessToken = authorization?.split(' ').at(1);
+    if (!authorization) {
+      throw new UnauthorizedException('Authorization header is required');
+    }
+
+    const accessToken = authorization.split(' ').at(1);
 
     if (!accessToken) {
-      throw new UnauthorizedException('Authorization header is required');
+      throw new UnauthorizedException(
+        'Invalid Authorization header format. Expected: Bearer {token}',
+      );
     }
 
     if (!sessionid) {

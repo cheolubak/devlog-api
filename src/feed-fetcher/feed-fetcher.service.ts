@@ -408,6 +408,9 @@ export class FeedFetcherService {
         item.link,
       );
 
+      // 언어 감지/번역 실패 시 titleEn이 null → isDisplay: false로 생성됨
+      // 스케줄러(handleDailyTranslateRetry)가 미번역 포스트를 정기 재시도하며,
+      // 관리자가 PATCH /:id/display 호출 시 PostEventListener에서도 번역 재시도
       const post = await this.prisma.posts.create({
         data: {
           description,

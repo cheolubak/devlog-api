@@ -63,21 +63,29 @@ export class PostEventListener {
 
       const isKorean = detectedLang === 'ko';
 
+      const sourceDescription = event.description?.trim() || null;
+
       if (isKorean) {
         const titleEn = await this.translateService.translate(
           event.title,
           'en',
         );
-        if (!titleEn) return;
+        if (!titleEn) {
+          this.logger.warn(
+            `Title translation (ko→en) returned null for post ${event.postId}`,
+          );
+        }
 
-        const descriptionEn = event.description
-          ? await this.translateService.translate(event.description, 'en')
+        const descriptionEn = sourceDescription
+          ? await this.translateService.translate(sourceDescription, 'en')
           : null;
 
         await this.prisma.posts.update({
           data: {
-            ...(descriptionEn && { descriptionEn }),
-            titleEn,
+            descriptionEn: sourceDescription
+              ? (descriptionEn ?? undefined)
+              : null,
+            ...(titleEn && { titleEn }),
           },
           where: { id: event.postId },
         });
@@ -86,17 +94,23 @@ export class PostEventListener {
           event.title,
           'ko',
         );
-        const translatedDescription = event.description
-          ? await this.translateService.translate(event.description, 'ko')
+        if (!translatedTitle) {
+          this.logger.warn(
+            `Title translation (→ko) returned null for post ${event.postId}`,
+          );
+        }
+
+        const translatedDescription = sourceDescription
+          ? await this.translateService.translate(sourceDescription, 'ko')
           : null;
 
         await this.prisma.posts.update({
           data: {
-            ...(translatedDescription && {
-              description: translatedDescription,
-            }),
+            description: sourceDescription
+              ? (translatedDescription ?? undefined)
+              : null,
             ...(translatedTitle && { title: translatedTitle }),
-            descriptionEn: event.description,
+            descriptionEn: sourceDescription ? event.description : null,
             titleEn: event.title,
           },
           where: { id: event.postId },

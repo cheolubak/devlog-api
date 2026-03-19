@@ -59,6 +59,25 @@ export class FeedSchedulerService {
     }
   }
 
+  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  async handleDailyTranslateRetry() {
+    this.logger.log(
+      'Starting scheduled translation retry for untranslated posts',
+    );
+
+    try {
+      const result = await this.feedFetcherService.translateUntranslatedPosts();
+      this.logger.log(
+        `Translation retry completed: ${result.successful}/${result.total} success, ${result.failed} failed`,
+      );
+    } catch (error: unknown) {
+      this.logger.error(
+        `Scheduled translation retry failed: ${this.getErrorMessage(error)}`,
+      );
+      await this.tryReconnect(error);
+    }
+  }
+
   private getErrorMessage(error: unknown): string {
     if (error instanceof Error) return error.message;
     if (typeof error === 'string') return error;

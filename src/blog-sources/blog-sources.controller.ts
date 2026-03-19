@@ -55,9 +55,10 @@ export class BlogSourcesController {
   @ApiOperation({ summary: '블로그 소스 전체 조회' })
   @ApiQuery({
     description: 'Admin API key 필요',
+    enum: ['true', 'false'],
     name: 'includeInactive',
     required: false,
-    type: 'boolean',
+    type: 'string',
   })
   @Get()
   findAll(
