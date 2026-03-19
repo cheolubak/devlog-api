@@ -86,8 +86,6 @@ export class PostEventListener {
           event.title,
           'ko',
         );
-        if (!translatedTitle) return;
-
         const translatedDescription = event.description
           ? await this.translateService.translate(event.description, 'ko')
           : null;
@@ -97,8 +95,8 @@ export class PostEventListener {
             ...(translatedDescription && {
               description: translatedDescription,
             }),
+            ...(translatedTitle && { title: translatedTitle }),
             descriptionEn: event.description,
-            title: translatedTitle,
             titleEn: event.title,
           },
           where: { id: event.postId },

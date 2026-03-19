@@ -72,13 +72,20 @@ export class TranslateService implements OnModuleInit {
       return null;
     }
 
-    const [response] = await this.translationClient.detectLanguage({
-      content: text,
-      mimeType: 'text/plain',
-      parent: this.parent,
-    });
+    try {
+      const [response] = await this.translationClient.detectLanguage({
+        content: text,
+        mimeType: 'text/plain',
+        parent: this.parent,
+      });
 
-    return response.languages?.[0]?.languageCode ?? null;
+      return response.languages?.[0]?.languageCode ?? null;
+    } catch (error: unknown) {
+      this.logger.error(
+        `Language detection failed: ${(error as Error).message}`,
+      );
+      return null;
+    }
   }
 
   async translate(

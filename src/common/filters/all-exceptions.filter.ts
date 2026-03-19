@@ -78,7 +78,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       this.logger.error(`Unhandled unknown exception: ${String(exception)}`);
     }
 
-    const normalizedMessage = Array.isArray(message) ? message : [message];
+    const normalizedMessage = (
+      Array.isArray(message) ? message : [message]
+    ).map((item) => (typeof item === 'string' ? item : String(item)));
 
     response.status(statusCode).json({
       message: normalizedMessage,

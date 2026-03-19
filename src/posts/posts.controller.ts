@@ -31,6 +31,7 @@ import {
   ApiZodQuery,
 } from '../common/decorators/api-zod.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { isValidUUID } from '../common/utils/uuid.util';
 import { Users } from '../database/generated/prisma/client';
 import { PostQueryDto, postQuerySchema } from './dto/post-query.dto';
 import {
@@ -133,9 +134,7 @@ export class PostsController {
         'sessionid header must be a single string value',
       );
     }
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(rawSessionId)) {
+    if (!isValidUUID(rawSessionId)) {
       throw new BadRequestException('sessionid must be a valid UUID');
     }
 

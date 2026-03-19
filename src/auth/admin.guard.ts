@@ -11,18 +11,12 @@ import { createHmac, timingSafeEqual } from 'crypto';
 export class AdminGuard implements CanActivate {
   constructor(private readonly configService: ConfigService) {}
 
-  canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    const apiKey = request.headers['x-admin-api-key'];
-
-    const adminApiKey = this.configService.get<string>('ADMIN_API_KEY');
-
-    if (!adminApiKey) {
-      throw new UnauthorizedException('Admin API key is not configured');
-    }
-
-    if (!apiKey || typeof apiKey !== 'string') {
-      throw new UnauthorizedException('Invalid admin API key');
+  static validateAdminKey(
+    apiKey: string | string[] | undefined,
+    adminApiKey: string | undefined,
+  ): boolean {
+    if (!adminApiKey || !apiKey || typeof apiKey !== 'string') {
+      return false;
     }
 
     const inputDigest = createHmac('sha256', 'admin-guard')
@@ -32,7 +26,19 @@ export class AdminGuard implements CanActivate {
       .update(adminApiKey)
       .digest();
 
-    if (!timingSafeEqual(inputDigest, expectedDigest)) {
+    return timingSafeEqual(inputDigest, expectedDigest);
+  }
+
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    const apiKey = request.headers['x-admin-api-key'];
+    const adminApiKey = this.configService.get<string>('ADMIN_API_KEY');
+
+    if (!adminApiKey) {
+      throw new UnauthorizedException('Admin API key is not configured');
+    }
+
+    if (!AdminGuard.validateAdminKey(apiKey, adminApiKey)) {
       throw new UnauthorizedException('Invalid admin API key');
     }
 

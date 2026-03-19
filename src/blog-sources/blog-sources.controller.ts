@@ -1,4 +1,3 @@
-import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -17,7 +16,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { createHmac, timingSafeEqual } from 'crypto';
 import { Request } from 'express';
 
 import { AdminGuard } from '../auth/admin.guard';
@@ -61,15 +59,17 @@ export class BlogSourcesController {
     required: false,
     type: 'boolean',
   })
-  @CacheTTL(5 * 60 * 1000)
   @Get()
-  @UseInterceptors(CacheInterceptor)
   findAll(
     @Req() req: Request,
     @Query('includeInactive') includeInactive?: string,
   ) {
     const shouldIncludeInactive =
-      includeInactive === 'true' && this.isValidAdminKey(req);
+      includeInactive === 'true' &&
+      AdminGuard.validateAdminKey(
+        req.headers['x-admin-api-key'],
+        this.configService.get<string>('ADMIN_API_KEY'),
+      );
 
     return this.blogSourcesService.findAll(shouldIncludeInactive);
   }
@@ -142,23 +142,5 @@ export class BlogSourcesController {
   @UseGuards(AdminGuard)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.blogSourcesService.remove(id);
-  }
-
-  private isValidAdminKey(req: Request): boolean {
-    const apiKey = req.headers['x-admin-api-key'];
-    const adminApiKey = this.configService.get<string>('ADMIN_API_KEY');
-
-    if (!adminApiKey || !apiKey || typeof apiKey !== 'string') {
-      return false;
-    }
-
-    const inputDigest = createHmac('sha256', 'admin-guard')
-      .update(apiKey)
-      .digest();
-    const expectedDigest = createHmac('sha256', 'admin-guard')
-      .update(adminApiKey)
-      .digest();
-
-    return timingSafeEqual(inputDigest, expectedDigest);
   }
 }
