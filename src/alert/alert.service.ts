@@ -1,18 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
-import { slackApi } from '../utils/slack';
+import { WebClient } from '@slack/web-api';
 
 @Injectable()
 export class AlertService {
-  private readonly slack = slackApi(this.configService.get('SLACK_TOKEN')!);
-  private readonly slackChannelId: string =
-    this.configService.get('SLACK_CHANNEL_ID') ?? '';
+  private readonly logger = new Logger(AlertService.name);
+  private readonly slack: null | WebClient;
+  private readonly slackChannelId: string;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) {
+    const token = this.configService.get<string>('SLACK_TOKEN');
+    this.slackChannelId = this.configService.get('SLACK_CHANNEL_ID') ?? '';
+
+    if (token) {
+      this.slack = new WebClient(token);
+    } else {
+      this.slack = null;
+      this.logger.warn(
+        'SLACK_TOKEN is not configured. Alert notifications will be disabled.',
+      );
+    }
+  }
 
   async sendAlert(message: string) {
-    if (!this.slackChannelId) {
+    if (!this.slack || !this.slackChannelId) {
       return false;
     }
 

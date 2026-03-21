@@ -53,6 +53,7 @@
     "axios": "^1.13.5",
     "cache-manager": "5",
     "cheerio": "^1.2.0",
+    "helmet": "^8.1.0",
     "pg": "^8.16.3",
     "puppeteer": "^24.37.2",
     "reflect-metadata": "^0.2.0",

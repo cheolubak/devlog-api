@@ -64,7 +64,9 @@ export class TranslateService implements OnModuleInit {
       return null;
     }
 
-    if (!this.apiUsageService.tryConsume(ApiProvider.GOOGLE_TRANSLATE)) {
+    if (
+      !(await this.apiUsageService.tryConsume(ApiProvider.GOOGLE_TRANSLATE))
+    ) {
       const usage = this.apiUsageService.getUsage(ApiProvider.GOOGLE_TRANSLATE);
       this.logger.warn(
         `Google Translate API daily limit reached (${usage.count}/${usage.limit}), skipping detection`,
@@ -99,7 +101,9 @@ export class TranslateService implements OnModuleInit {
       return null;
     }
 
-    if (!this.apiUsageService.tryConsume(ApiProvider.GOOGLE_TRANSLATE)) {
+    if (
+      !(await this.apiUsageService.tryConsume(ApiProvider.GOOGLE_TRANSLATE))
+    ) {
       const usage = this.apiUsageService.getUsage(ApiProvider.GOOGLE_TRANSLATE);
       this.logger.warn(
         `Google Translate API daily limit reached (${usage.count}/${usage.limit}), skipping translation`,

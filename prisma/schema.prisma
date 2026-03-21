@@ -99,7 +99,7 @@ model Posts {
   originalAuthor      String?             @db.VarChar(100)
   imageUrl            String?             @db.VarChar(150)
   createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt @default(now())
   viewCount           Int                 @default(0) @map("view_count")
   postTags            PostTags[]
   searchKeywords      PostSearchKeywords?
@@ -118,7 +118,7 @@ model PostSearchKeywords {
   postId    String   @unique @db.Uuid
   keywords  String
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
   post      Posts    @relation(fields: [postId], references: [id])
 
   @@index([postId])
@@ -162,6 +162,17 @@ model PostBookmarks {
 
   @@id([userId, postId])
   @@map("post_bookmarks")
+}
+
+model ApiDailyUsage {
+  id       Int      @id @default(autoincrement())
+  provider String   @db.VarChar(50)
+  date     DateTime @db.Date
+  count    Int      @default(0)
+
+  @@unique([provider, date])
+  @@index([date])
+  @@map("api_daily_usage")
 }
 
 model PostViewHistory {

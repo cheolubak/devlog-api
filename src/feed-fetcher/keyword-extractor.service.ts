@@ -23,7 +23,7 @@ export class KeywordExtractorService {
   }
 
   async isTechBlogPost(title: string, link: string): Promise<boolean> {
-    if (!this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC)) {
+    if (!(await this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC))) {
       const usage = this.apiUsageService.getUsage(ApiProvider.ANTHROPIC);
       this.logger.warn(
         `Anthropic API daily limit reached (${usage.count}/${usage.limit}), skipping tech check for "${title}"`,
@@ -80,7 +80,7 @@ export class KeywordExtractorService {
     title: string,
     sourceUrl: string,
   ): Promise<null | string> {
-    if (!this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC)) {
+    if (!(await this.apiUsageService.tryConsume(ApiProvider.ANTHROPIC))) {
       const usage = this.apiUsageService.getUsage(ApiProvider.ANTHROPIC);
       this.logger.warn(
         `Anthropic API daily limit reached (${usage.count}/${usage.limit}), skipping keyword extraction for "${title}"`,
