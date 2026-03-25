@@ -8,6 +8,7 @@ import {
   ApiProvider,
   ApiUsageService,
 } from '../common/services/api-usage.service';
+import { getErrorMessage } from '../common/utils/error.util';
 import { validateExternalUrl } from '../common/utils/url-validator.util';
 import { FeedNormalizerUtil } from './utils/feed-normalizer.util';
 
@@ -71,7 +72,7 @@ export class KeywordExtractorService {
       return textBlock.text.trim().toLowerCase() === 'true';
     } catch (error: unknown) {
       this.logger.error(
-        `Failed to determine tech blog for "${title}": ${(error as Error).message}`,
+        `Failed to determine tech blog for "${title}": ${getErrorMessage(error)}`,
       );
       return false;
     }
@@ -149,7 +150,7 @@ export class KeywordExtractorService {
       return keywordContent.input.keywords || null;
     } catch (error: unknown) {
       this.logger.error(
-        `Failed to extract keywords for "${title}": ${(error as Error).message}`,
+        `Failed to extract keywords for "${title}": ${getErrorMessage(error)}`,
       );
       return null;
     }
@@ -177,7 +178,7 @@ export class KeywordExtractorService {
       return bodyText.replace(/\s+/g, ' ').trim() || null;
     } catch (error: unknown) {
       this.logger.warn(
-        `Failed to fetch page ${url}: ${(error as Error).message}`,
+        `Failed to fetch page ${url}: ${getErrorMessage(error)}`,
       );
       return null;
     }

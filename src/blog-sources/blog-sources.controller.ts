@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -109,7 +110,10 @@ export class BlogSourcesController {
     FileInterceptor('image', {
       fileFilter: (_req, file, callback) => {
         if (!file.mimetype.startsWith('image/')) {
-          callback(new Error('Only image files are allowed'), false);
+          callback(
+            new BadRequestException('Only image files are allowed'),
+            false,
+          );
           return;
         }
         callback(null, true);

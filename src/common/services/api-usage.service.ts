@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { PrismaService } from '../../database/prisma.service';
+import { getErrorMessage } from '../utils/error.util';
 
 export enum ApiProvider {
   ANTHROPIC = 'ANTHROPIC',
@@ -54,7 +55,7 @@ export class ApiUsageService implements OnModuleInit {
       });
     } catch (error) {
       this.logger.error(
-        `Failed to persist API usage for ${provider}: ${(error as Error).message}`,
+        `Failed to persist API usage for ${provider}: ${getErrorMessage(error)}`,
       );
     }
 
@@ -94,7 +95,7 @@ export class ApiUsageService implements OnModuleInit {
       }
     } catch (error) {
       this.logger.error(
-        `Failed to load API usage from DB: ${(error as Error).message}`,
+        `Failed to load API usage from DB: ${getErrorMessage(error)}`,
       );
     }
   }

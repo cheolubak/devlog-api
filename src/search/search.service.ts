@@ -18,8 +18,8 @@ export class SearchService {
   }
 
   async search(query: SearchQueryDto) {
-    const { limit = 20, offset = 0, q, region, sourceId, type } = query;
-    const skip = offset * limit;
+    const { limit = 20, page = 1, q, region, sourceId, type } = query;
+    const skip = (page - 1) * limit;
 
     const pattern = `%${q
       .trim()
@@ -29,7 +29,7 @@ export class SearchService {
 
     return await this.searchPostsInternal({
       limit,
-      offset,
+      page,
       pattern,
       region,
       skip,
@@ -45,8 +45,8 @@ export class SearchService {
     query: SearchQueryDto;
     user: Users;
   }) {
-    const { limit = 20, offset = 0, q } = query;
-    const skip = offset * limit;
+    const { limit = 20, page = 1, q } = query;
+    const skip = (page - 1) * limit;
 
     const pattern = `%${q
       .trim()
@@ -56,7 +56,7 @@ export class SearchService {
 
     return await this.searchPostsInternal({
       limit,
-      offset,
+      page,
       pattern,
       skip,
       userId: user.id,
@@ -65,7 +65,7 @@ export class SearchService {
 
   private async searchPostsInternal({
     limit,
-    offset,
+    page,
     pattern,
     region,
     skip,
@@ -74,7 +74,7 @@ export class SearchService {
     userId,
   }: {
     limit: number;
-    offset: number;
+    page: number;
     pattern: string;
     region?: RegionType;
     skip: number;
@@ -200,51 +200,11 @@ export class SearchService {
     return {
       data: formattedData,
       pagination: {
-        hasMore: skip + limit < total,
+        hasMore: page * limit < total,
         limit,
-        offset,
+        page,
         total,
       },
-    };
-  }
-
-  private async searchSources(
-    pattern: string,
-    type: FeedType[],
-    limit: number,
-    skip: number,
-  ) {
-    const [data, totalResult] = await Promise.all([
-      this.prisma.$queryRaw<
-        {
-          blogUrl: string;
-          icon: null | string;
-          id: string;
-          name: string;
-          type: string;
-          url: string;
-        }[]
-      >`
-        SELECT id, name, url, "blogUrl", type, icon
-        FROM "BlogSource"
-        WHERE "isActive" = true
-          AND name ILIKE ${pattern} ESCAPE '\'
-          AND type::text = ANY (${type})
-        ORDER BY name ASC
-          LIMIT ${limit}
-        OFFSET ${skip}
-      `,
-      this.prisma.$queryRaw<{ count: bigint }[]>`
-        SELECT COUNT(*) AS count
-        FROM "BlogSource"
-        WHERE "isActive" = true
-          AND name ILIKE ${pattern} ESCAPE '\'
-      `,
-    ]);
-
-    return {
-      data,
-      total: Number(totalResult[0]?.count ?? 0),
     };
   }
 }

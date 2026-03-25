@@ -4,6 +4,7 @@ import * as cheerio from 'cheerio';
 import puppeteer, { Browser } from 'puppeteer';
 import { firstValueFrom } from 'rxjs';
 
+import { getErrorMessage } from '../common/utils/error.util';
 import { FeedItem, ParsedFeed } from './interfaces/feed-item.interface';
 import { ScrapingConfig } from './interfaces/scraping-config.interface';
 import { withRetry } from './utils/retry.util';
@@ -66,7 +67,7 @@ export class WebScraperService implements OnModuleDestroy {
           items.push(item);
         }
       } catch (error: unknown) {
-        this.logger.warn(`Failed to extract item: ${(error as Error).message}`);
+        this.logger.warn(`Failed to extract item: ${getErrorMessage(error)}`);
       }
     });
 

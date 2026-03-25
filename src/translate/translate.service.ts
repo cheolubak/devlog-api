@@ -6,6 +6,7 @@ import {
   ApiProvider,
   ApiUsageService,
 } from '../common/services/api-usage.service';
+import { getErrorMessage } from '../common/utils/error.util';
 
 @Injectable()
 export class TranslateService implements OnModuleInit {
@@ -83,9 +84,7 @@ export class TranslateService implements OnModuleInit {
 
       return response.languages?.[0]?.languageCode ?? null;
     } catch (error: unknown) {
-      this.logger.error(
-        `Language detection failed: ${(error as Error).message}`,
-      );
+      this.logger.error(`Language detection failed: ${getErrorMessage(error)}`);
       return null;
     }
   }

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 
+import { getErrorMessage } from '../../common/utils/error.util';
 import { PrismaService } from '../../database/prisma.service';
 import { KeywordExtractorService } from '../../feed-fetcher/keyword-extractor.service';
 import { TranslateService } from '../../translate/translate.service';
@@ -42,7 +43,7 @@ export class PostEventListener {
       }
     } catch (error: unknown) {
       this.logger.error(
-        `Keyword extraction failed for post ${event.postId}: ${(error as Error).message}`,
+        `Keyword extraction failed for post ${event.postId}: ${getErrorMessage(error)}`,
       );
     }
   }
@@ -118,7 +119,7 @@ export class PostEventListener {
       }
     } catch (error: unknown) {
       this.logger.error(
-        `Translation failed for post ${event.postId}: ${(error as Error).message}`,
+        `Translation failed for post ${event.postId}: ${getErrorMessage(error)}`,
       );
     }
   }

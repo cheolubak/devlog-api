@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { getErrorMessage } from '../common/utils/error.util';
 import {
   FeedType,
   FetchStatus,
@@ -46,7 +47,13 @@ export class BlogSourcesService {
     });
 
     if (createBlogSourceDto.icon) {
-      await this.updateThumbnail(blogSource.id, createBlogSourceDto.icon);
+      try {
+        await this.updateThumbnail(blogSource.id, createBlogSourceDto.icon);
+      } catch (e: unknown) {
+        this.logger.error(
+          `Failed to upload icon for source ${blogSource.id}: ${getErrorMessage(e)}`,
+        );
+      }
     }
 
     return blogSource;
@@ -208,23 +215,14 @@ export class BlogSourcesService {
   }
 
   async updateThumbnail(id: string, imageUrl: string) {
-    try {
-      const icon = await this.uploadThumbnail(id, imageUrl);
+    const icon = await this.uploadThumbnail(id, imageUrl);
 
-      const updated = await this.prisma.blogSource.update({
-        data: {
-          icon,
-        },
-        where: { id },
-      });
-
-      return updated;
-    } catch (e: unknown) {
-      this.logger.error(
-        `Failed to update icon for source ${id} : ${(e as Error).message}`,
-      );
-      return null;
-    }
+    return this.prisma.blogSource.update({
+      data: {
+        icon,
+      },
+      where: { id },
+    });
   }
 
   async updateSourcesWithExternalIcons() {
@@ -255,8 +253,8 @@ export class BlogSourcesService {
       5,
     );
 
-    const successCount = results.filter(Boolean).length;
-    const failedCount = results.length - successCount;
+    const successCount = results.length;
+    const failedCount = sources.length - successCount;
 
     this.logger.log(
       `Updated thumbnails for ${successCount.toLocaleString()} posts, failed for ${failedCount.toLocaleString()} posts (total: ${sources.length.toLocaleString()})`,
@@ -266,25 +264,16 @@ export class BlogSourcesService {
   }
 
   async updateThumbnailWithFile(id: string, file: Express.Multer.File) {
-    try {
-      const url = await this.imageParseService.uploadFileAsWebp(
-        file,
-        `/thumbnails/sources/${id}`,
-      );
+    const url = await this.imageParseService.uploadFileAsWebp(
+      file,
+      `/thumbnails/sources/${id}`,
+    );
 
-      const updated = await this.prisma.blogSource.update({
-        data: {
-          icon: url.startsWith('/') ? url : `/${url}`,
-        },
-        where: { id },
-      });
-
-      return updated;
-    } catch (e: unknown) {
-      this.logger.error(
-        `Failed to update icon for source ${id} : ${(e as Error).message}`,
-      );
-      return null;
-    }
+    return this.prisma.blogSource.update({
+      data: {
+        icon: url.startsWith('/') ? url : `/${url}`,
+      },
+      where: { id },
+    });
   }
 }

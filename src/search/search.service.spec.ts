@@ -51,7 +51,7 @@ describe('SearchService', () => {
 
       const query: SearchQueryDto = {
         limit: 20,
-        offset: 0,
+        page: 1,
         q: 'hello world',
       };
 
@@ -62,7 +62,7 @@ describe('SearchService', () => {
       expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
     });
 
-    it('should pass limit and offset correctly', async () => {
+    it('should pass limit and page correctly', async () => {
       const mockData: unknown[] = [];
       const mockTotal = [{ count: BigInt(0) }];
 
@@ -72,7 +72,7 @@ describe('SearchService', () => {
 
       const query: SearchQueryDto = {
         limit: 10,
-        offset: 2,
+        page: 2,
         q: 'test',
       };
 
@@ -81,7 +81,7 @@ describe('SearchService', () => {
       expect(result.pagination).toEqual({
         hasMore: false,
         limit: 10,
-        offset: 2,
+        page: 2,
         total: 0,
       });
     });
@@ -113,7 +113,7 @@ describe('SearchService', () => {
 
       const query: SearchQueryDto = {
         limit: 20,
-        offset: 0,
+        page: 1,
         q: 'test',
       };
 
@@ -168,7 +168,7 @@ describe('SearchService', () => {
 
       const query: SearchQueryDto = {
         limit: 10,
-        offset: 0,
+        page: 1,
         q: 'test',
       };
 
@@ -185,7 +185,7 @@ describe('SearchService', () => {
 
       const query: SearchQueryDto = {
         limit: 20,
-        offset: 0,
+        page: 1,
         q: 'test',
         region: 'KOREA',
         sourceId: 'src-123',
@@ -197,7 +197,7 @@ describe('SearchService', () => {
       expect(result.pagination).toEqual({
         hasMore: false,
         limit: 20,
-        offset: 0,
+        page: 1,
         total: 0,
       });
       expect(mockPrisma.$queryRaw).toHaveBeenCalledTimes(2);
@@ -208,7 +208,7 @@ describe('SearchService', () => {
 
       const query: SearchQueryDto = {
         limit: 20,
-        offset: 0,
+        page: 1,
         q: 'nonexistent',
       };
 
@@ -227,7 +227,7 @@ describe('SearchService', () => {
 
       const query: SearchQueryDto = {
         limit: 20,
-        offset: 0,
+        page: 1,
         q: 'hello world',
       };
 
@@ -246,7 +246,7 @@ describe('SearchService', () => {
 
       const query: SearchQueryDto = {
         limit: 20,
-        offset: 0,
+        page: 1,
         q: '  hello   world  ',
       };
 

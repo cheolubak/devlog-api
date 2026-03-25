@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+import { getErrorMessage } from '../../common/utils/error.util';
 import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
@@ -36,7 +37,7 @@ export class ViewHistoryCleanupService {
       }
     } catch (error: unknown) {
       this.logger.error(
-        `Failed to cleanup view history: ${(error as Error).message}`,
+        `Failed to cleanup view history: ${getErrorMessage(error)}`,
       );
     }
   }

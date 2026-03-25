@@ -5,7 +5,7 @@ import { RegionType } from '../../database/generated/prisma/enums';
 
 export const searchQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
-  offset: z.coerce.number().int().min(0).default(0),
+  page: z.coerce.number().int().min(1).default(1),
   q: z.string().min(2),
   region: z.enum([RegionType.KOREA, RegionType.FOREIGN]).optional(),
   sourceId: z.string().optional(),

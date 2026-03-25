@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import * as https from 'https';
 import * as RssParser from 'rss-parser';
 
+import { getErrorMessage } from '../common/utils/error.util';
 import { ParsedFeed } from './interfaces/feed-item.interface';
 import { withRetry } from './utils/retry.util';
 
@@ -55,7 +56,7 @@ export class FeedParserService {
       };
     } catch (error: unknown) {
       this.logger.error(
-        `Failed to parse feed ${url}: ${(error as Error).message}`,
+        `Failed to parse feed ${url}: ${getErrorMessage(error)}`,
       );
       throw error;
     }

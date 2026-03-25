@@ -48,33 +48,33 @@ export class PostsService {
 
   private buildPagination({
     limit,
-    offset,
+    page,
     total,
   }: {
     limit: number;
-    offset: number;
+    page: number;
     total: number;
   }) {
     return {
-      hasMore: offset * limit + limit < total,
+      hasMore: page * limit < total,
       limit,
-      offset,
+      page,
       total,
     };
   }
 
   private async findPostsWithCount({
     limit,
-    offset,
     orderBy,
+    page,
     select,
     where,
   }: {
     limit: number;
-    offset: number;
     orderBy:
       | Prisma.PostsOrderByWithRelationInput
       | Prisma.PostsOrderByWithRelationInput[];
+    page: number;
     select: object;
     where: Prisma.PostsWhereInput;
   }) {
@@ -83,7 +83,7 @@ export class PostsService {
         orderBy: orderBy,
         relationLoadStrategy: 'join',
         select: select as any,
-        skip: offset * limit,
+        skip: (page - 1) * limit,
         take: limit,
         where,
       }),
@@ -98,7 +98,7 @@ export class PostsService {
     query: PostQueryDto;
     user?: Users;
   }) {
-    const { limit = 20, offset = 0, region, sourceId, tag, type } = query;
+    const { limit = 20, page = 1, region, sourceId, tag, type } = query;
 
     const where: Prisma.PostsWhereInput = {
       deletionLog: null,
@@ -129,8 +129,8 @@ export class PostsService {
 
     const [posts, total] = await this.findPostsWithCount({
       limit,
-      offset,
       orderBy: { originalPublishedAt: 'desc' },
+      page,
       select: this.displayPostSelect,
       where,
     });
@@ -153,7 +153,7 @@ export class PostsService {
         ...post,
         isBookmark: bookmarkedPostIds.has(post.id),
       })),
-      pagination: this.buildPagination({ limit, offset, total }),
+      pagination: this.buildPagination({ limit, page, total }),
     };
   }
 
@@ -164,7 +164,7 @@ export class PostsService {
     query: PostQueryDto;
     user: Users;
   }) {
-    const { ids, limit = 20, offset = 0, sourceId } = query;
+    const { ids, limit = 20, page = 1, sourceId } = query;
 
     const where: Prisma.PostBookmarksWhereInput = {
       post: {
@@ -182,7 +182,7 @@ export class PostsService {
         select: {
           post: { select: this.displayPostSelect },
         },
-        skip: offset * limit,
+        skip: (page - 1) * limit,
         take: limit,
         where,
       }),
@@ -194,7 +194,7 @@ export class PostsService {
         ...b.post,
         isBookmark: true,
       })),
-      pagination: this.buildPagination({ limit, offset, total }),
+      pagination: this.buildPagination({ limit, page, total }),
     };
   }
 
@@ -319,26 +319,17 @@ export class PostsService {
   }
 
   async updateThumbnail(id: string, imageUrl: string) {
-    try {
-      const url = await this.imageParseService.uploadImageAsWebp(
-        imageUrl,
-        `thumbnails/posts/${id}`,
-      );
+    const url = await this.imageParseService.uploadImageAsWebp(
+      imageUrl,
+      `thumbnails/posts/${id}`,
+    );
 
-      const updated = await this.prisma.posts.update({
-        data: {
-          imageUrl: url.startsWith('/') ? url : `/${url}`,
-        },
-        where: { id },
-      });
-
-      return updated;
-    } catch (e: unknown) {
-      this.logger.error(
-        `Failed to update thumbnail for post ${id} : ${(e as Error).message}`,
-      );
-      return null;
-    }
+    return this.prisma.posts.update({
+      data: {
+        imageUrl: url.startsWith('/') ? url : `/${url}`,
+      },
+      where: { id },
+    });
   }
 
   async updateDisplay(id: string, isDisplay: boolean) {
@@ -393,7 +384,7 @@ export class PostsService {
   }
 
   async findAll(query: PostQueryDto) {
-    const { isDisplay, limit = 20, offset = 0, type } = query;
+    const { isDisplay, limit = 20, page = 1, type } = query;
 
     const where: Prisma.PostsWhereInput = {
       deletionLog: null,
@@ -407,8 +398,8 @@ export class PostsService {
 
     const [posts, total] = await this.findPostsWithCount({
       limit,
-      offset,
       orderBy: { originalPublishedAt: 'desc' },
+      page,
       select: {
         description: true,
         id: true,
@@ -438,7 +429,7 @@ export class PostsService {
 
     return {
       data: posts,
-      pagination: this.buildPagination({ limit, offset, total }),
+      pagination: this.buildPagination({ limit, page, total }),
     };
   }
 
@@ -542,8 +533,8 @@ export class PostsService {
       5,
     );
 
-    const successCount = results.filter(Boolean).length;
-    const failedCount = results.length - successCount;
+    const successCount = results.length;
+    const failedCount = posts.length - successCount;
 
     this.logger.log(
       `Updated thumbnails for ${successCount.toLocaleString()} posts, failed for ${failedCount.toLocaleString()} posts (total: ${posts.length.toLocaleString()})`,

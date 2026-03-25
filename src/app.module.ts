@@ -5,11 +5,11 @@ import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TerminusModule } from '@nestjs/terminus';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AlertModule } from './alert/alert.module';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BlogSourcesModule } from './blog-sources/blog-sources.module';
 import { CommonModule } from './common/common.module';
@@ -39,6 +39,7 @@ import { TranslateModule } from './translate/translate.module';
         ttl: 60000,
       },
     ]),
+    TerminusModule,
     CommonModule,
     DatabaseModule,
     BlogSourcesModule,
@@ -62,7 +63,6 @@ import { TranslateModule } from './translate/translate.module';
     TranslateModule,
   ],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

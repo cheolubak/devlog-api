@@ -176,7 +176,7 @@ model ApiDailyUsage {
 }
 
 model PostViewHistory {
-  id        Int      @id @default(autoincrement())
+  id        BigInt   @id @default(autoincrement())
   postId    String   @db.Uuid @map("post_id")
   userId    String?  @db.Uuid @map("user_id")
   sessionId String?  @db.Uuid @map("session_id")
