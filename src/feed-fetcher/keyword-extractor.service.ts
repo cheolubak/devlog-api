@@ -8,6 +8,7 @@ import {
   ApiProvider,
   ApiUsageService,
 } from '../common/services/api-usage.service';
+import { validateExternalUrl } from '../common/utils/url-validator.util';
 import { FeedNormalizerUtil } from './utils/feed-normalizer.util';
 
 @Injectable()
@@ -156,6 +157,8 @@ export class KeywordExtractorService {
 
   private async fetchPageText(url: string): Promise<null | string> {
     try {
+      validateExternalUrl(url);
+
       const response = await axios.get(url, {
         headers: {
           'User-Agent':

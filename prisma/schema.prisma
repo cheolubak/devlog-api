@@ -94,7 +94,7 @@ model Posts {
   isDisplay           Boolean             @default(false)
   tags                String?             @db.VarChar(100)
   sourceId            String?             @db.Uuid
-  sourceUrl           String?             @unique @db.VarChar(200)
+  sourceUrl           String?             @unique @db.VarChar(500)
   originalPublishedAt DateTime?
   originalAuthor      String?             @db.VarChar(100)
   imageUrl            String?             @db.VarChar(150)
