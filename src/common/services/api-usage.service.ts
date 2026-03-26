@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+import { Prisma } from '../../database/generated/prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { getErrorMessage } from '../utils/error.util';
 
@@ -48,11 +49,14 @@ export class ApiUsageService implements OnModuleInit {
 
     try {
       const today = this.getToday();
-      await this.prisma.apiDailyUsage.upsert({
-        create: { count: newCount, date: today, provider },
-        update: { count: newCount },
-        where: { provider_date: { date: today, provider } },
-      });
+      await this.prisma.$executeRaw(
+        Prisma.sql`
+          INSERT INTO "api_daily_usage" (id, provider, date, count)
+          VALUES (DEFAULT, ${provider}, ${today}::date, ${newCount})
+          ON CONFLICT (provider, date)
+          DO UPDATE SET count = ${newCount}
+        `,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to persist API usage for ${provider}: ${getErrorMessage(error)}`,

@@ -8,9 +8,9 @@ describe('ApiUsageService', () => {
   let service: ApiUsageService;
 
   const mockPrisma = {
+    $executeRaw: jest.fn().mockResolvedValue(1),
     apiDailyUsage: {
       findMany: jest.fn().mockResolvedValue([]),
-      upsert: jest.fn().mockResolvedValue({}),
     },
   };
 
@@ -51,16 +51,7 @@ describe('ApiUsageService', () => {
     it('should persist usage to database', async () => {
       await service.tryConsume(ApiProvider.ANTHROPIC);
 
-      expect(mockPrisma.apiDailyUsage.upsert).toHaveBeenCalledWith(
-        expect.objectContaining({
-          update: { count: 1 },
-          where: expect.objectContaining({
-            provider_date: expect.objectContaining({
-              provider: 'ANTHROPIC',
-            }),
-          }),
-        }),
-      );
+      expect(mockPrisma.$executeRaw).toHaveBeenCalled();
     });
 
     it('should return false when at limit', async () => {
@@ -92,9 +83,7 @@ describe('ApiUsageService', () => {
     });
 
     it('should still succeed even if DB persistence fails', async () => {
-      mockPrisma.apiDailyUsage.upsert.mockRejectedValueOnce(
-        new Error('DB error'),
-      );
+      mockPrisma.$executeRaw.mockRejectedValueOnce(new Error('DB error'));
 
       expect(await service.tryConsume(ApiProvider.ANTHROPIC)).toBe(true);
       expect(service.getUsage(ApiProvider.ANTHROPIC).count).toBe(1);
